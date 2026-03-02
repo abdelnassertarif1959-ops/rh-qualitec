@@ -429,12 +429,23 @@ export default defineEventHandler(async (event) => {
           // FOLHA MENSAL: SALÁRIO BRUTO - TODOS OS DESCONTOS
           // ========================================
           
-          // Buscar adiantamentos do mês atual
-          // CORREÇÃO: Buscar adiantamentos que começam no dia 15 do mês de referência
-          const [anoRef, mesRef] = datasCalculadas.mes_referencia.split('-')
-          const dataInicioAdiantamento = `${anoRef}-${mesRef}-15`
+          // Buscar adiantamentos do mês ANTERIOR
+          // REGRA: Adiantamento de janeiro (15/01 a 31/01) é descontado na folha mensal de fevereiro
+          // Exemplo: Folha mensal de fevereiro (01/02 a 28/02) desconta adiantamento de janeiro (15/01 a 31/01)
           
-          console.log(`🔍 Buscando adiantamentos do mês ${mesRef}/${anoRef} (data início: ${dataInicioAdiantamento})`)
+          const [anoRef, mesRef] = datasCalculadas.mes_referencia.split('-')
+          const mesAtual = parseInt(mesRef)
+          const anoAtual = parseInt(anoRef)
+          
+          // Calcular mês anterior
+          const mesAnterior = mesAtual === 1 ? 12 : mesAtual - 1
+          const anoAnterior = mesAtual === 1 ? anoAtual - 1 : anoAtual
+          
+          const dataInicioAdiantamento = `${anoAnterior}-${String(mesAnterior).padStart(2, '0')}-15`
+          
+          console.log(`🔍 Buscando adiantamentos do mês ANTERIOR:`)
+          console.log(`   Folha mensal: ${mesRef}/${anoRef}`)
+          console.log(`   Adiantamento: ${String(mesAnterior).padStart(2, '0')}/${anoAnterior} (data início: ${dataInicioAdiantamento})`)
           
           const { data: adiantamentos } = await supabase
             .from('holerites')
