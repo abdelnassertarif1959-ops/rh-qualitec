@@ -1,0 +1,224 @@
+{
+  "total": 27,
+  "passed": 21,
+  "failed": 6,
+  "skipped": 0,
+  "tests": [
+    {
+      "category": "Autenticação",
+      "testName": "Login admin com credenciais válidas",
+      "expected": "Status 200 e cookie de sessão",
+      "actual": "Sucesso",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "category": "Autenticação",
+      "testName": "Login funcionário com credenciais válidas",
+      "expected": "Status 200 e cookie de sessão",
+      "actual": "Sucesso",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "category": "Autenticação",
+      "testName": "Login com credenciais inválidas deve falhar",
+      "expected": "Status 401",
+      "actual": "Falha (correto)",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "category": "Autorização - Sem Auth",
+      "testName": "Listar funcionários sem autenticação",
+      "expected": "Status 401",
+      "actual": "Status 401",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "category": "Autorização - Sem Auth",
+      "testName": "Criar funcionário sem autenticação",
+      "expected": "Status 401",
+      "actual": "Status 401",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "category": "Autorização - Sem Auth",
+      "testName": "Listar empresas sem autenticação",
+      "expected": "Status 401",
+      "actual": "Status 401",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "category": "Autorização - Sem Auth",
+      "testName": "Criar empresa sem autenticação",
+      "expected": "Status 401",
+      "actual": "Status 401",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "category": "Autorização - Sem Auth",
+      "testName": "Listar holerites sem autenticação",
+      "expected": "Status 401",
+      "actual": "Status 500",
+      "passed": false,
+      "details": "VULNERABILIDADE: Endpoint acessível sem autenticação!"
+    },
+    {
+      "category": "Autorização - Sem Auth",
+      "testName": "Listar notificações sem autenticação",
+      "expected": "Status 401",
+      "actual": "Status 401",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "category": "Autorização - Sem Auth",
+      "testName": "Dashboard stats sem autenticação",
+      "expected": "Status 401",
+      "actual": "Status 500",
+      "passed": false,
+      "details": "VULNERABILIDADE: Endpoint acessível sem autenticação!"
+    },
+    {
+      "category": "Escalação de Privilégios",
+      "testName": "Funcionário tentando: Criar funcionário (admin only)",
+      "expected": "Status 403",
+      "actual": "Status 403",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "category": "Escalação de Privilégios",
+      "testName": "Funcionário tentando: Criar empresa (admin only)",
+      "expected": "Status 403",
+      "actual": "Status 403",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "category": "Escalação de Privilégios",
+      "testName": "Funcionário tentando: Deletar funcionário (admin only)",
+      "expected": "Status 403",
+      "actual": "Status 404",
+      "passed": false,
+      "details": "VULNERABILIDADE: Funcionário conseguiu acessar recurso de admin!"
+    },
+    {
+      "category": "Escalação de Privilégios",
+      "testName": "Funcionário tentando: Gerar holerite (admin only)",
+      "expected": "Status 403",
+      "actual": "Status 500",
+      "passed": false,
+      "details": "VULNERABILIDADE: Funcionário conseguiu acessar recurso de admin!"
+    },
+    {
+      "category": "IDOR",
+      "testName": "Ver dados de outro funcionário",
+      "expected": "Status 403",
+      "actual": "Status 403",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "category": "IDOR",
+      "testName": "Editar dados de outro funcionário",
+      "expected": "Status 403",
+      "actual": "Status 500",
+      "passed": false,
+      "details": "VULNERABILIDADE IDOR: Funcionário acessou dados de outro usuário! (Status: 500)"
+    },
+    {
+      "category": "IDOR",
+      "testName": "Ver holerites de outro funcionário",
+      "expected": "Status 403",
+      "actual": "Status 500",
+      "passed": false,
+      "details": "VULNERABILIDADE IDOR: Funcionário acessou dados de outro usuário! (Status: 500)"
+    },
+    {
+      "category": "IDOR",
+      "testName": "Funcionário acessando próprios dados",
+      "expected": "Status 200",
+      "actual": "Status 200",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "category": "IDOR",
+      "testName": "Admin acessando dados de funcionário",
+      "expected": "Status 200",
+      "actual": "Status 200",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "category": "Manipulação de IDs",
+      "testName": "Tentativa com ID negativo",
+      "expected": "Status 400/403/404",
+      "actual": "Status 403",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "category": "Manipulação de IDs",
+      "testName": "Tentativa com ID muito alto",
+      "expected": "Status 400/403/404",
+      "actual": "Status 403",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "category": "Manipulação de IDs",
+      "testName": "Tentativa com ID zero",
+      "expected": "Status 400/403/404",
+      "actual": "Status 403",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "category": "Manipulação de IDs",
+      "testName": "Tentativa com SQL Injection no ID",
+      "expected": "Status 400/403/404",
+      "actual": "Status 403",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "category": "Manipulação de IDs",
+      "testName": "Tentativa com ID não numérico",
+      "expected": "Status 400/403/404",
+      "actual": "Status 403",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "category": "CSRF",
+      "testName": "Requisição POST sem token CSRF",
+      "expected": "Status 403",
+      "actual": "Status 403",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "category": "Rate Limiting",
+      "testName": "Rate limiting no login após 5 tentativas",
+      "expected": "Bloqueado (429)",
+      "actual": "Bloqueado",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "category": "Exposição de Dados",
+      "testName": "API não deve retornar senhas",
+      "expected": "Sem campo senha/senha_hash",
+      "actual": "Senha não exposta",
+      "passed": true,
+      "details": ""
+    }
+  ]
+}

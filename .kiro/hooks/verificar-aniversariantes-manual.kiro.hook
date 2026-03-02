@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Verificar Aniversariantes Hoje",
+  "description": "Verifica manualmente aniversariantes do dia e cria notificações automáticas para o painel admin",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Execute a verificação de aniversariantes chamando a API /api/notificacoes/verificar-aniversariantes com método POST. Relate quantos aniversariantes foram encontrados e se notificações foram criadas."
+  }
+}

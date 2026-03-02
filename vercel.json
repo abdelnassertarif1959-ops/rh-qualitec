@@ -1,0 +1,20 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/verificar-disponibilizacao-adiantamentos",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/verificar-aniversariantes-diario",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/incrementar-contador-diario",
+      "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/gerar-adiantamentos-dia-20",
+      "schedule": "0 6 * * *"
+    }
+  ]
+}

@@ -1,0 +1,1851 @@
+{
+  "timestamp": "2026-02-12T16:58:05.832Z",
+  "resumo": {
+    "totalApis": 63,
+    "protegidas": 58,
+    "desprotegidas": 5,
+    "taxaSeguranca": "92.1%"
+  },
+  "middlewares": {
+    "requireAuth": 17,
+    "requireAdmin": 26,
+    "requireOwnershipOrAdmin": 10,
+    "requireCronAuth": 3,
+    "requireCsrfProtection": 0
+  },
+  "vulnerabilidades": {
+    "total": 81,
+    "criticas": 5,
+    "altas": 30,
+    "medias": 46,
+    "baixas": 0,
+    "detalhes": [
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\admin\\info.get.ts",
+        "metodo": "GET"
+      },
+      {
+        "severidade": "CRÍTICA",
+        "tipo": "Autenticação",
+        "descricao": "Rota sem proteção de autenticação",
+        "arquivo": "server\\api\\auth\\forgot-password.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\auth\\forgot-password.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\auth\\forgot-password.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "CRÍTICA",
+        "tipo": "Autenticação",
+        "descricao": "Rota sem proteção de autenticação",
+        "arquivo": "server\\api\\auth\\login.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\auth\\login.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\auth\\login.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "CRÍTICA",
+        "tipo": "Autenticação",
+        "descricao": "Rota sem proteção de autenticação",
+        "arquivo": "server\\api\\auth\\logout.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\auth\\logout.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "CRÍTICA",
+        "tipo": "Autenticação",
+        "descricao": "Rota sem proteção de autenticação",
+        "arquivo": "server\\api\\auth\\reset-password.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\auth\\reset-password.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\auth\\reset-password.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "CRÍTICA",
+        "tipo": "Autenticação",
+        "descricao": "Rota sem proteção de autenticação",
+        "arquivo": "server\\api\\auth\\validate.get.ts",
+        "metodo": "GET"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\auth\\validate.get.ts",
+        "metodo": "GET"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\cargos\\index.get.ts",
+        "metodo": "GET"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\cargos\\index.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\cargos\\index.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\consulta-cnpj.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\consulta-cnpj.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\contador-diario\\index.get.ts",
+        "metodo": "GET"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\contador-diario\\status.get.ts",
+        "metodo": "GET"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\debug\\enviar-email-test.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\debug\\enviar-email-test.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\debug\\holerites-funcionario.get.ts",
+        "metodo": "GET"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\debug\\variaveis.get.ts",
+        "metodo": "GET"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\departamentos\\criar.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\departamentos\\criar.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\departamentos\\index.get.ts",
+        "metodo": "GET"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\empresas\\index.get.ts",
+        "metodo": "GET"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\empresas\\index.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\empresas\\index.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\empresas\\schema.get.ts",
+        "metodo": "GET"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\empresas\\[id].delete.ts",
+        "metodo": "DELETE"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\empresas\\[id].delete.ts",
+        "metodo": "DELETE"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\empresas\\[id].get.ts",
+        "metodo": "GET"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\funcionarios\\enviar-acesso.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\funcionarios\\enviar-acesso.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\funcionarios\\index.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\funcionarios\\index.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\funcionarios\\meus-dados.patch.ts",
+        "metodo": "PATCH"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\funcionarios\\meus-dados.patch.ts",
+        "metodo": "PATCH"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\funcionarios\\[id]\\config-inss-pensao.get.ts",
+        "metodo": "GET"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\funcionarios\\[id]\\config-inss-pensao.patch.ts",
+        "metodo": "PATCH"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\funcionarios\\[id]\\config-inss-pensao.patch.ts",
+        "metodo": "PATCH"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\funcionarios\\[id].patch.ts",
+        "metodo": "PATCH"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\funcionarios\\[id].patch.ts",
+        "metodo": "PATCH"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\holerites\\disponibilizar-adiantamentos.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\holerites\\disponibilizar-adiantamentos.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\holerites\\enviar-email.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\holerites\\enviar-email.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\holerites\\gerar.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\holerites\\gerar.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\holerites\\itens-personalizados\\index.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\holerites\\itens-personalizados\\index.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\holerites\\itens-personalizados\\[funcionarioId].get.ts",
+        "metodo": "GET"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\holerites\\itens-personalizados\\[id].delete.ts",
+        "metodo": "DELETE"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\holerites\\itens-personalizados\\[id].delete.ts",
+        "metodo": "DELETE"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\holerites\\meses-disponiveis.get.ts",
+        "metodo": "GET"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\holerites\\[id]\\enviar-email.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\holerites\\[id]\\enviar-email.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\holerites\\[id].delete.ts",
+        "metodo": "DELETE"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\holerites\\[id].delete.ts",
+        "metodo": "DELETE"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\holerites\\[id].patch.ts",
+        "metodo": "PATCH"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\holerites\\[id].patch.ts",
+        "metodo": "PATCH"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\jornadas\\index.get.ts",
+        "metodo": "GET"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\jornadas\\index.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\jornadas\\index.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\notificacoes\\criar.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\notificacoes\\criar.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\notificacoes\\excluir-todas.delete.ts",
+        "metodo": "DELETE"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\notificacoes\\excluir-todas.delete.ts",
+        "metodo": "DELETE"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\notificacoes\\index.get.ts",
+        "metodo": "GET"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\notificacoes\\verificar-aniversariantes.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\notificacoes\\verificar-aniversariantes.post.ts",
+        "metodo": "POST"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\notificacoes\\[id]\\excluir.delete.ts",
+        "metodo": "DELETE"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\notificacoes\\[id]\\excluir.delete.ts",
+        "metodo": "DELETE"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\notificacoes\\[id]\\marcar-lida.patch.ts",
+        "metodo": "PATCH"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\notificacoes\\[id]\\marcar-lida.patch.ts",
+        "metodo": "PATCH"
+      },
+      {
+        "severidade": "ALTA",
+        "tipo": "CSRF",
+        "descricao": "Método mutável sem proteção CSRF",
+        "arquivo": "server\\api\\notificacoes\\[id].delete.ts",
+        "metodo": "DELETE"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\notificacoes\\[id].delete.ts",
+        "metodo": "DELETE"
+      },
+      {
+        "severidade": "MÉDIA",
+        "tipo": "Exposição de Dados",
+        "descricao": "Possível exposição de dados sensíveis sem sanitização",
+        "arquivo": "server\\api\\notifications\\unread-count.get.ts",
+        "metodo": "GET"
+      }
+    ]
+  },
+  "detalhesApis": [
+    {
+      "arquivo": "server\\api\\admin\\info.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\auth\\forgot-password.post.ts",
+      "metodo": "POST",
+      "nivelProtecao": "NENHUMA",
+      "middlewares": [],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "CRÍTICA",
+          "tipo": "Autenticação",
+          "descricao": "Rota sem proteção de autenticação"
+        },
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": false
+    },
+    {
+      "arquivo": "server\\api\\auth\\login.post.ts",
+      "metodo": "POST",
+      "nivelProtecao": "NENHUMA",
+      "middlewares": [],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "CRÍTICA",
+          "tipo": "Autenticação",
+          "descricao": "Rota sem proteção de autenticação"
+        },
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": false
+    },
+    {
+      "arquivo": "server\\api\\auth\\logout.post.ts",
+      "metodo": "POST",
+      "nivelProtecao": "NENHUMA",
+      "middlewares": [],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "CRÍTICA",
+          "tipo": "Autenticação",
+          "descricao": "Rota sem proteção de autenticação"
+        },
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        }
+      ],
+      "protegida": false
+    },
+    {
+      "arquivo": "server\\api\\auth\\reset-password.post.ts",
+      "metodo": "POST",
+      "nivelProtecao": "NENHUMA",
+      "middlewares": [],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "CRÍTICA",
+          "tipo": "Autenticação",
+          "descricao": "Rota sem proteção de autenticação"
+        },
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": false
+    },
+    {
+      "arquivo": "server\\api\\auth\\validate.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "NENHUMA",
+      "middlewares": [],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "CRÍTICA",
+          "tipo": "Autenticação",
+          "descricao": "Rota sem proteção de autenticação"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": false
+    },
+    {
+      "arquivo": "server\\api\\cargos\\index.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "BÁSICA",
+      "middlewares": [
+        "requireAuth"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\cargos\\index.post.ts",
+      "metodo": "POST",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\consulta-cnpj.post.ts",
+      "metodo": "POST",
+      "nivelProtecao": "BÁSICA",
+      "middlewares": [
+        "requireAuth"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\contador-diario\\index.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "BÁSICA",
+      "middlewares": [
+        "requireAuth"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\contador-diario\\status.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "BÁSICA",
+      "middlewares": [
+        "requireAuth"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\cron\\incrementar-contador-diario.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "CRON",
+      "middlewares": [
+        "requireCronAuth"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\cron\\verificar-aniversariantes-diario.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "CRON",
+      "middlewares": [
+        "requireCronAuth"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\cron\\verificar-disponibilizacao-adiantamentos.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "CRON",
+      "middlewares": [
+        "requireCronAuth"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\csrf-token.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "NENHUMA",
+      "middlewares": [],
+      "eRotaPublica": true,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\dashboard\\aniversariantes.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "BÁSICA",
+      "middlewares": [
+        "requireAuth"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\dashboard\\stats.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\debug\\enviar-email-test.post.ts",
+      "metodo": "POST",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\debug\\holerites-funcionario.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\debug\\variaveis.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\departamentos\\criar.post.ts",
+      "metodo": "POST",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\departamentos\\index.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "BÁSICA",
+      "middlewares": [
+        "requireAuth"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\empresas\\index.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "BÁSICA",
+      "middlewares": [
+        "requireAuth"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\empresas\\index.post.ts",
+      "metodo": "POST",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\empresas\\schema.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\empresas\\[id].delete.ts",
+      "metodo": "DELETE",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\empresas\\[id].get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "BÁSICA",
+      "middlewares": [
+        "requireAuth"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\funcionarios\\enviar-acesso.post.ts",
+      "metodo": "POST",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\funcionarios\\index.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\funcionarios\\index.post.ts",
+      "metodo": "POST",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\funcionarios\\meus-dados.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "OWNERSHIP",
+      "middlewares": [
+        "requireOwnershipOrAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\funcionarios\\meus-dados.patch.ts",
+      "metodo": "PATCH",
+      "nivelProtecao": "OWNERSHIP",
+      "middlewares": [
+        "requireOwnershipOrAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\funcionarios\\[id]\\config-inss-pensao.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "OWNERSHIP",
+      "middlewares": [
+        "requireOwnershipOrAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\funcionarios\\[id]\\config-inss-pensao.patch.ts",
+      "metodo": "PATCH",
+      "nivelProtecao": "OWNERSHIP",
+      "middlewares": [
+        "requireOwnershipOrAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\funcionarios\\[id].get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "OWNERSHIP",
+      "middlewares": [
+        "requireOwnershipOrAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\funcionarios\\[id].patch.ts",
+      "metodo": "PATCH",
+      "nivelProtecao": "OWNERSHIP",
+      "middlewares": [
+        "requireOwnershipOrAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\health.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "NENHUMA",
+      "middlewares": [],
+      "eRotaPublica": true,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\holerites\\disponibilizar-adiantamentos.post.ts",
+      "metodo": "POST",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\holerites\\enviar-email.post.ts",
+      "metodo": "POST",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\holerites\\gerar.post.ts",
+      "metodo": "POST",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\holerites\\index.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\holerites\\itens-personalizados\\index.post.ts",
+      "metodo": "POST",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\holerites\\itens-personalizados\\[funcionarioId].get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "OWNERSHIP",
+      "middlewares": [
+        "requireOwnershipOrAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\holerites\\itens-personalizados\\[id].delete.ts",
+      "metodo": "DELETE",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\holerites\\meses-disponiveis.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "BÁSICA",
+      "middlewares": [
+        "requireAuth"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\holerites\\meus-holerites.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "OWNERSHIP",
+      "middlewares": [
+        "requireOwnershipOrAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\holerites\\[id]\\enviar-email.post.ts",
+      "metodo": "POST",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\holerites\\[id]\\html.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "OWNERSHIP",
+      "middlewares": [
+        "requireOwnershipOrAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\holerites\\[id]\\pdf.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "OWNERSHIP",
+      "middlewares": [
+        "requireOwnershipOrAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\holerites\\[id].delete.ts",
+      "metodo": "DELETE",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\holerites\\[id].patch.ts",
+      "metodo": "PATCH",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\jornadas\\index.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "BÁSICA",
+      "middlewares": [
+        "requireAuth"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\jornadas\\index.post.ts",
+      "metodo": "POST",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\jornadas\\[id].get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "BÁSICA",
+      "middlewares": [
+        "requireAuth"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\notificacoes\\criar.post.ts",
+      "metodo": "POST",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\notificacoes\\excluir-todas.delete.ts",
+      "metodo": "DELETE",
+      "nivelProtecao": "BÁSICA",
+      "middlewares": [
+        "requireAuth"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\notificacoes\\index.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "BÁSICA",
+      "middlewares": [
+        "requireAuth"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\notificacoes\\verificar-aniversariantes.post.ts",
+      "metodo": "POST",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\notificacoes\\[id]\\excluir.delete.ts",
+      "metodo": "DELETE",
+      "nivelProtecao": "BÁSICA",
+      "middlewares": [
+        "requireAuth"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\notificacoes\\[id]\\marcar-lida.patch.ts",
+      "metodo": "PATCH",
+      "nivelProtecao": "BÁSICA",
+      "middlewares": [
+        "requireAuth"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\notificacoes\\[id].delete.ts",
+      "metodo": "DELETE",
+      "nivelProtecao": "BÁSICA",
+      "middlewares": [
+        "requireAuth"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "ALTA",
+          "tipo": "CSRF",
+          "descricao": "Método mutável sem proteção CSRF"
+        },
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\notifications\\unread-count.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "BÁSICA",
+      "middlewares": [
+        "requireAuth"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [
+        {
+          "severidade": "MÉDIA",
+          "tipo": "Exposição de Dados",
+          "descricao": "Possível exposição de dados sensíveis sem sanitização"
+        }
+      ],
+      "protegida": true
+    },
+    {
+      "arquivo": "server\\api\\test-supabase.get.ts",
+      "metodo": "GET",
+      "nivelProtecao": "ADMIN",
+      "middlewares": [
+        "requireAdmin"
+      ],
+      "eRotaPublica": false,
+      "eRotaCron": false,
+      "eRotaDebug": false,
+      "vulnerabilidades": [],
+      "protegida": true
+    }
+  ]
+}

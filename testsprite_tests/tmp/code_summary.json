@@ -1,0 +1,160 @@
+{
+  "tech_stack": [
+    "TypeScript",
+    "Vue.js 3.5.26", 
+    "Nuxt.js 4.2.2",
+    "TailwindCSS 6.14.0",
+    "Node.js 20.x",
+    "PostgreSQL",
+    "Supabase",
+    "Vercel",
+    "Nodemailer 7.0.12",
+    "PDFKit 0.17.2"
+  ],
+  "features": [
+    {
+      "name": "Authentication System",
+      "description": "Custom authentication with email/password, session management, admin/employee roles",
+      "files": [
+        "server/api/auth/login.post.ts",
+        "server/api/auth/validate.get.ts",
+        "server/utils/auth.ts",
+        "app/middleware/auth.ts",
+        "app/middleware/admin.ts",
+        "app/composables/useAuth.ts"
+      ]
+    },
+    {
+      "name": "Employee Management",
+      "description": "CRUD operations for employees with personal, professional and financial data",
+      "files": [
+        "server/api/funcionarios/index.get.ts",
+        "server/api/funcionarios/index.post.ts",
+        "server/api/funcionarios/[id].get.ts",
+        "server/api/funcionarios/[id].patch.ts",
+        "server/api/funcionarios/meus-dados.get.ts",
+        "server/api/funcionarios/meus-dados.patch.ts",
+        "app/components/funcionarios/FuncionarioForm.vue",
+        "app/components/funcionarios/FuncionarioCard.vue"
+      ]
+    },
+    {
+      "name": "Payroll System",
+      "description": "Automated payroll generation with INSS, IRRF calculations and PDF generation",
+      "files": [
+        "server/api/holerites/index.get.ts",
+        "server/api/holerites/gerar.post.ts",
+        "server/api/holerites/[id].patch.ts",
+        "server/api/holerites/[id]/pdf.get.ts",
+        "server/api/holerites/[id]/html.get.ts",
+        "server/api/holerites/meus-holerites.get.ts",
+        "server/utils/holeritePDF.ts",
+        "server/utils/holeriteHTML.ts",
+        "server/utils/inss2026.ts",
+        "app/components/holerites/HoleriteCard.vue",
+        "app/components/holerites/HoleriteModal.vue"
+      ]
+    },
+    {
+      "name": "Company Management",
+      "description": "CRUD for companies with CNPJ validation and automatic data fetching",
+      "files": [
+        "server/api/empresas/index.get.ts",
+        "server/api/empresas/index.post.ts",
+        "server/api/empresas/[id].get.ts",
+        "server/api/empresas/[id].delete.ts",
+        "server/api/consulta-cnpj.post.ts",
+        "app/composables/useEmpresas.ts",
+        "app/composables/useCNPJ.ts"
+      ]
+    },
+    {
+      "name": "Notification System",
+      "description": "Real-time notifications with badge counter and drawer interface",
+      "files": [
+        "server/api/notificacoes/index.get.ts",
+        "server/api/notificacoes/criar.post.ts",
+        "server/api/notificacoes/[id]/marcar-lida.patch.ts",
+        "server/api/notifications/unread-count.get.ts",
+        "server/utils/notifications.ts",
+        "app/components/admin/NotificationsDrawer.vue",
+        "app/components/ui/UiNotificationBadge.vue",
+        "app/composables/useNotifications.ts",
+        "app/composables/useNotificationCount.ts"
+      ]
+    },
+    {
+      "name": "Dashboard System",
+      "description": "Admin and employee dashboards with statistics and birthday tracking",
+      "files": [
+        "server/api/dashboard/stats.get.ts",
+        "server/api/dashboard/aniversariantes.get.ts",
+        "app/pages/dashboard.vue",
+        "app/components/dashboard/DashboardCard.vue",
+        "app/components/dashboard/DashboardStatCard.vue",
+        "app/composables/useAniversariantes.ts"
+      ]
+    },
+    {
+      "name": "Work Schedule Management",
+      "description": "Configurable work schedules with automatic hour calculations",
+      "files": [
+        "server/api/jornadas/index.get.ts",
+        "server/api/jornadas/index.post.ts",
+        "server/api/jornadas/[id].get.ts",
+        "app/components/jornadas/JornadaForm.vue",
+        "app/components/jornadas/JornadaVisualizacao.vue",
+        "app/composables/useJornadas.ts"
+      ]
+    },
+    {
+      "name": "Email System",
+      "description": "Automated email sending for payroll and access credentials",
+      "files": [
+        "server/api/holerites/enviar-email.post.ts",
+        "server/api/holerites/[id]/enviar-email.post.ts",
+        "server/api/funcionarios/enviar-acesso.post.ts",
+        "server/utils/email.ts"
+      ]
+    },
+    {
+      "name": "Department and Position Management",
+      "description": "Organizational structure management with departments and positions",
+      "files": [
+        "server/api/departamentos/index.get.ts",
+        "server/api/departamentos/criar.post.ts",
+        "server/api/cargos/index.get.ts",
+        "server/api/cargos/index.post.ts",
+        "app/composables/useDepartamentos.ts",
+        "app/composables/useCargos.ts"
+      ]
+    },
+    {
+      "name": "Cron Jobs System",
+      "description": "Scheduled tasks for daily counter, birthday notifications and payroll automation",
+      "files": [
+        "server/api/cron/incrementar-contador-diario.get.ts",
+        "server/api/cron/verificar-aniversariantes-diario.get.ts",
+        "server/api/cron/verificar-disponibilizacao-adiantamentos.get.ts",
+        "server/api/contador-diario/index.get.ts",
+        "server/api/contador-diario/status.get.ts"
+      ]
+    },
+    {
+      "name": "UI Components",
+      "description": "Reusable UI components with consistent styling and validation",
+      "files": [
+        "app/components/ui/UiButton.vue",
+        "app/components/ui/UiInput.vue",
+        "app/components/ui/UiInputCPF.vue",
+        "app/components/ui/UiInputCNPJ.vue",
+        "app/components/ui/UiInputPassword.vue",
+        "app/components/ui/UiModal.vue",
+        "app/components/ui/UiCard.vue",
+        "app/components/ui/UiSelect.vue",
+        "app/components/ui/UiBadge.vue",
+        "app/components/ui/UiAlert.vue"
+      ]
+    }
+  ]
+}

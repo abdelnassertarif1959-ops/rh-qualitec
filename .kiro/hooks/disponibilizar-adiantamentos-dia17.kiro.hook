@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Disponibilizar Adiantamentos Dia 17",
+  "description": "Executa automaticamente todo dia 17 do mês para disponibilizar adiantamentos salariais no perfil dos funcionários",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Execute a disponibilização automática de adiantamentos chamando a API /api/holerites/disponibilizar-adiantamentos com método POST. Verifique se hoje é dia 17 ou force a execução se necessário. Relate o resultado da operação."
+  }
+}

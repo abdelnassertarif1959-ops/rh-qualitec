@@ -1,0 +1,528 @@
+{
+  "data_geracao": "2026-02-06T19:22:27.863Z",
+  "total_holerites": 11,
+  "holerites": [
+    {
+      "id": 1223,
+      "funcionario": {
+        "id": 93,
+        "nome": "SAMUEL TARIF",
+        "tipo_contrato": "CLT",
+        "dependentes": 0,
+        "pensao_alimenticia": 0
+      },
+      "periodo": {
+        "inicio": "2026-02-01",
+        "fim": "2026-02-28",
+        "data_pagamento": "2026-02-06"
+      },
+      "status": "enviado",
+      "proventos": {
+        "salario_base": 3650,
+        "bonus": 0,
+        "horas_extras": 0,
+        "adicional_noturno": 0,
+        "adicional_periculosidade": 0,
+        "adicional_insalubridade": 0,
+        "comissoes": 0,
+        "beneficios_personalizados": [],
+        "total": 3650
+      },
+      "descontos": {
+        "inss": 326.58,
+        "aliquota_inss": 12,
+        "irrf": 0,
+        "aliquota_irrf": 0,
+        "fgts": 292,
+        "vale_transporte": 0,
+        "cesta_basica_desconto": 0,
+        "plano_saude": 0,
+        "plano_odontologico": 0,
+        "adiantamento": 1460,
+        "faltas": 0,
+        "outros_descontos": 0,
+        "descontos_personalizados": [],
+        "total": 1786.58
+      },
+      "salario_liquido": 1863.42,
+      "observacoes": "Folha mensal",
+      "created_at": "2026-02-06T13:45:00.590259",
+      "updated_at": "2026-02-06T18:30:56.549982"
+    },
+    {
+      "id": 1222,
+      "funcionario": {
+        "id": 153,
+        "nome": "CLOVES ALEXANDRE DA SILVA JUNIOR",
+        "tipo_contrato": "CLT",
+        "dependentes": 0,
+        "pensao_alimenticia": 0
+      },
+      "periodo": {
+        "inicio": "2026-02-01",
+        "fim": "2026-02-28",
+        "data_pagamento": "2026-02-06"
+      },
+      "status": "gerado",
+      "proventos": {
+        "salario_base": 3710,
+        "bonus": 0,
+        "horas_extras": 0,
+        "adicional_noturno": 0,
+        "adicional_periculosidade": 0,
+        "adicional_insalubridade": 0,
+        "comissoes": 0,
+        "beneficios_personalizados": [],
+        "total": 3710
+      },
+      "descontos": {
+        "inss": 333.78,
+        "aliquota_inss": 0,
+        "irrf": 0,
+        "aliquota_irrf": 0,
+        "fgts": 296.8,
+        "vale_transporte": 0,
+        "cesta_basica_desconto": 0,
+        "plano_saude": 0,
+        "plano_odontologico": 0,
+        "adiantamento": 1484,
+        "faltas": 0,
+        "outros_descontos": 0,
+        "descontos_personalizados": [],
+        "total": 1817.78
+      },
+      "salario_liquido": 1892.22,
+      "observacoes": "Folha mensal",
+      "created_at": "2026-02-06T13:45:00.409962",
+      "updated_at": "2026-02-06T17:50:52.146723"
+    },
+    {
+      "id": 1221,
+      "funcionario": {
+        "id": 157,
+        "nome": "ANTONIO BARBOSA DA SILVA",
+        "tipo_contrato": "PJ",
+        "dependentes": 0,
+        "pensao_alimenticia": 0
+      },
+      "periodo": {
+        "inicio": "2026-02-01",
+        "fim": "2026-02-28",
+        "data_pagamento": "2026-02-06"
+      },
+      "status": "gerado",
+      "proventos": {
+        "salario_base": 0,
+        "bonus": 0,
+        "horas_extras": 0,
+        "adicional_noturno": 0,
+        "adicional_periculosidade": 0,
+        "adicional_insalubridade": 0,
+        "comissoes": 0,
+        "beneficios_personalizados": [],
+        "total": 0
+      },
+      "descontos": {
+        "inss": 0,
+        "aliquota_inss": 0,
+        "irrf": 0,
+        "aliquota_irrf": 0,
+        "fgts": 0,
+        "vale_transporte": 0,
+        "cesta_basica_desconto": 0,
+        "plano_saude": 0,
+        "plano_odontologico": 0,
+        "adiantamento": 0,
+        "faltas": 0,
+        "outros_descontos": 0,
+        "descontos_personalizados": [],
+        "total": 0
+      },
+      "salario_liquido": 0,
+      "observacoes": "Folha mensal",
+      "created_at": "2026-02-06T13:45:00.222764",
+      "updated_at": "2026-02-06T17:50:52.146723"
+    },
+    {
+      "id": 1220,
+      "funcionario": {
+        "id": 155,
+        "nome": "MARCOS PAULO MENÉZES PIRES",
+        "tipo_contrato": "CLT",
+        "dependentes": 0,
+        "pensao_alimenticia": 0
+      },
+      "periodo": {
+        "inicio": "2026-02-01",
+        "fim": "2026-02-28",
+        "data_pagamento": "2026-02-06"
+      },
+      "status": "gerado",
+      "proventos": {
+        "salario_base": 3000,
+        "bonus": 0,
+        "horas_extras": 0,
+        "adicional_noturno": 0,
+        "adicional_periculosidade": 0,
+        "adicional_insalubridade": 0,
+        "comissoes": 0,
+        "beneficios_personalizados": [],
+        "total": 3000
+      },
+      "descontos": {
+        "inss": 248.58,
+        "aliquota_inss": 0,
+        "irrf": 0,
+        "aliquota_irrf": 0,
+        "fgts": 240,
+        "vale_transporte": 0,
+        "cesta_basica_desconto": 0,
+        "plano_saude": 0,
+        "plano_odontologico": 0,
+        "adiantamento": 1200,
+        "faltas": 0,
+        "outros_descontos": 0,
+        "descontos_personalizados": [],
+        "total": 1448.58
+      },
+      "salario_liquido": 1551.42,
+      "observacoes": "Folha mensal",
+      "created_at": "2026-02-06T13:45:00.035445",
+      "updated_at": "2026-02-06T17:50:52.146723"
+    },
+    {
+      "id": 1219,
+      "funcionario": {
+        "id": 148,
+        "nome": "ARTHUR DA SILVA BARBOSA",
+        "tipo_contrato": "CLT",
+        "dependentes": 0,
+        "pensao_alimenticia": 0
+      },
+      "periodo": {
+        "inicio": "2026-02-01",
+        "fim": "2026-02-28",
+        "data_pagamento": "2026-02-06"
+      },
+      "status": "gerado",
+      "proventos": {
+        "salario_base": 3180,
+        "bonus": 0,
+        "horas_extras": 0,
+        "adicional_noturno": 0,
+        "adicional_periculosidade": 0,
+        "adicional_insalubridade": 0,
+        "comissoes": 0,
+        "beneficios_personalizados": [],
+        "total": 3180
+      },
+      "descontos": {
+        "inss": 270.18,
+        "aliquota_inss": 12,
+        "irrf": 0,
+        "aliquota_irrf": 0,
+        "fgts": 254.4,
+        "vale_transporte": 0,
+        "cesta_basica_desconto": 0,
+        "plano_saude": 0,
+        "plano_odontologico": 0,
+        "adiantamento": 1272,
+        "faltas": 0,
+        "outros_descontos": 0,
+        "descontos_personalizados": [],
+        "total": 1542.18
+      },
+      "salario_liquido": 1637.82,
+      "observacoes": "Folha mensal",
+      "created_at": "2026-02-06T13:44:59.873879",
+      "updated_at": "2026-02-06T17:50:52.146723"
+    },
+    {
+      "id": 1218,
+      "funcionario": {
+        "id": 150,
+        "nome": "VITOR GABRIEL DA SILVA",
+        "tipo_contrato": "CLT",
+        "dependentes": 0,
+        "pensao_alimenticia": 0
+      },
+      "periodo": {
+        "inicio": "2026-02-01",
+        "fim": "2026-02-28",
+        "data_pagamento": "2026-02-06"
+      },
+      "status": "gerado",
+      "proventos": {
+        "salario_base": 2650,
+        "bonus": 0,
+        "horas_extras": 0,
+        "adicional_noturno": 0,
+        "adicional_periculosidade": 0,
+        "adicional_insalubridade": 0,
+        "comissoes": 0,
+        "beneficios_personalizados": [],
+        "total": 2650
+      },
+      "descontos": {
+        "inss": 214.18,
+        "aliquota_inss": 0,
+        "irrf": 0,
+        "aliquota_irrf": 0,
+        "fgts": 212,
+        "vale_transporte": 0,
+        "cesta_basica_desconto": 0,
+        "plano_saude": 0,
+        "plano_odontologico": 0,
+        "adiantamento": 1060,
+        "faltas": 0,
+        "outros_descontos": 0,
+        "descontos_personalizados": [],
+        "total": 1274.18
+      },
+      "salario_liquido": 1375.82,
+      "observacoes": "Folha mensal",
+      "created_at": "2026-02-06T13:44:59.724367",
+      "updated_at": "2026-02-06T17:50:52.146723"
+    },
+    {
+      "id": 1217,
+      "funcionario": {
+        "id": 149,
+        "nome": "LUCCAS AUGUSTO DE SOUZA LOMBA",
+        "tipo_contrato": "CLT",
+        "dependentes": 0,
+        "pensao_alimenticia": 0
+      },
+      "periodo": {
+        "inicio": "2026-02-01",
+        "fim": "2026-02-28",
+        "data_pagamento": "2026-02-06"
+      },
+      "status": "gerado",
+      "proventos": {
+        "salario_base": 3000,
+        "bonus": 0,
+        "horas_extras": 0,
+        "adicional_noturno": 0,
+        "adicional_periculosidade": 0,
+        "adicional_insalubridade": 0,
+        "comissoes": 0,
+        "beneficios_personalizados": [],
+        "total": 3000
+      },
+      "descontos": {
+        "inss": 248.58,
+        "aliquota_inss": 0,
+        "irrf": 0,
+        "aliquota_irrf": 0,
+        "fgts": 240,
+        "vale_transporte": 0,
+        "cesta_basica_desconto": 0,
+        "plano_saude": 0,
+        "plano_odontologico": 0,
+        "adiantamento": 1200,
+        "faltas": 0,
+        "outros_descontos": 0,
+        "descontos_personalizados": [],
+        "total": 1448.58
+      },
+      "salario_liquido": 1551.42,
+      "observacoes": "Folha mensal",
+      "created_at": "2026-02-06T13:44:59.487426",
+      "updated_at": "2026-02-06T17:50:52.146723"
+    },
+    {
+      "id": 1216,
+      "funcionario": {
+        "id": 169,
+        "nome": "UMBERTO",
+        "tipo_contrato": "CLT",
+        "dependentes": 0,
+        "pensao_alimenticia": 0
+      },
+      "periodo": {
+        "inicio": "2026-02-01",
+        "fim": "2026-02-28",
+        "data_pagamento": "2026-02-06"
+      },
+      "status": "gerado",
+      "proventos": {
+        "salario_base": 3500,
+        "bonus": 0,
+        "horas_extras": 0,
+        "adicional_noturno": 0,
+        "adicional_periculosidade": 0,
+        "adicional_insalubridade": 0,
+        "comissoes": 0,
+        "beneficios_personalizados": [],
+        "total": 3500
+      },
+      "descontos": {
+        "inss": 385,
+        "aliquota_inss": 0,
+        "irrf": 0,
+        "aliquota_irrf": 0,
+        "fgts": 280,
+        "vale_transporte": 0,
+        "cesta_basica_desconto": 0,
+        "plano_saude": 0,
+        "plano_odontologico": 0,
+        "adiantamento": 0,
+        "faltas": 0,
+        "outros_descontos": 0,
+        "descontos_personalizados": [],
+        "total": 385
+      },
+      "salario_liquido": 3115,
+      "observacoes": "Folha mensal",
+      "created_at": "2026-02-06T13:44:59.329548",
+      "updated_at": "2026-02-06T17:50:52.146723"
+    },
+    {
+      "id": 1215,
+      "funcionario": {
+        "id": 154,
+        "nome": "LUCAS VEIGA CARNEIRO",
+        "tipo_contrato": "CLT",
+        "dependentes": 0,
+        "pensao_alimenticia": 0
+      },
+      "periodo": {
+        "inicio": "2026-02-01",
+        "fim": "2026-02-28",
+        "data_pagamento": "2026-02-06"
+      },
+      "status": "gerado",
+      "proventos": {
+        "salario_base": 2862,
+        "bonus": 0,
+        "horas_extras": 0,
+        "adicional_noturno": 0,
+        "adicional_periculosidade": 0,
+        "adicional_insalubridade": 0,
+        "comissoes": 0,
+        "beneficios_personalizados": [],
+        "total": 2862
+      },
+      "descontos": {
+        "inss": 233.26,
+        "aliquota_inss": 0,
+        "irrf": 0,
+        "aliquota_irrf": 0,
+        "fgts": 228.96,
+        "vale_transporte": 0,
+        "cesta_basica_desconto": 0,
+        "plano_saude": 0,
+        "plano_odontologico": 0,
+        "adiantamento": 1144.8,
+        "faltas": 0,
+        "outros_descontos": 0,
+        "descontos_personalizados": [],
+        "total": 1378.06
+      },
+      "salario_liquido": 1483.94,
+      "observacoes": "Folha mensal",
+      "created_at": "2026-02-06T13:44:59.152454",
+      "updated_at": "2026-02-06T17:50:52.146723"
+    },
+    {
+      "id": 1214,
+      "funcionario": {
+        "id": 129,
+        "nome": "MACIEL CARVALHO",
+        "tipo_contrato": "CLT",
+        "dependentes": 0,
+        "pensao_alimenticia": 0
+      },
+      "periodo": {
+        "inicio": "2026-02-01",
+        "fim": "2026-02-28",
+        "data_pagamento": "2026-02-06"
+      },
+      "status": "gerado",
+      "proventos": {
+        "salario_base": 4100,
+        "bonus": 0,
+        "horas_extras": 0,
+        "adicional_noturno": 0,
+        "adicional_periculosidade": 0,
+        "adicional_insalubridade": 0,
+        "comissoes": 0,
+        "beneficios_personalizados": [],
+        "total": 4100
+      },
+      "descontos": {
+        "inss": 380.58,
+        "aliquota_inss": 0,
+        "irrf": 0,
+        "aliquota_irrf": 0,
+        "fgts": 328,
+        "vale_transporte": 0,
+        "cesta_basica_desconto": 0,
+        "plano_saude": 0,
+        "plano_odontologico": 0,
+        "adiantamento": 1640,
+        "faltas": 0,
+        "outros_descontos": 0,
+        "descontos_personalizados": [],
+        "total": 2020.58
+      },
+      "salario_liquido": 2079.42,
+      "observacoes": "Folha mensal",
+      "created_at": "2026-02-06T13:44:59.006255",
+      "updated_at": "2026-02-06T17:50:52.146723"
+    },
+    {
+      "id": 1213,
+      "funcionario": {
+        "id": 156,
+        "nome": "LEONARDO RAMOS DA SILVA",
+        "tipo_contrato": "CLT",
+        "dependentes": 0,
+        "pensao_alimenticia": 0
+      },
+      "periodo": {
+        "inicio": "2026-02-01",
+        "fim": "2026-02-28",
+        "data_pagamento": "2026-02-06"
+      },
+      "status": "gerado",
+      "proventos": {
+        "salario_base": 3466.67,
+        "bonus": 0,
+        "horas_extras": 0,
+        "adicional_noturno": 0,
+        "adicional_periculosidade": 0,
+        "adicional_insalubridade": 0,
+        "comissoes": 0,
+        "beneficios_personalizados": [],
+        "total": 3466.67
+      },
+      "descontos": {
+        "inss": 304.58,
+        "aliquota_inss": 0,
+        "irrf": 0,
+        "aliquota_irrf": 0,
+        "fgts": 277.33,
+        "vale_transporte": 0,
+        "cesta_basica_desconto": 0,
+        "plano_saude": 0,
+        "plano_odontologico": 0,
+        "adiantamento": 1386.67,
+        "faltas": 0,
+        "outros_descontos": 0,
+        "descontos_personalizados": [
+          {
+            "descricao": "PENSÃO ALIMENTICIA",
+            "valor": 962
+          }
+        ],
+        "total": 2653.25
+      },
+      "salario_liquido": 813.42,
+      "observacoes": "Folha mensal",
+      "created_at": "2026-02-06T13:44:58.773775",
+      "updated_at": "2026-02-06T19:15:58.554182"
+    }
+  ]
+}
