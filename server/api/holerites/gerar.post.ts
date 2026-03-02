@@ -430,23 +430,44 @@ export default defineEventHandler(async (event) => {
           // ========================================
           
           // Buscar adiantamentos do mês atual
-          const mesAno = datasCalculadas.mes_referencia
+          // CORREÇÃO: Buscar adiantamentos que começam no dia 15 do mês de referência
+          const [anoRef, mesRef] = datasCalculadas.mes_referencia.split('-')
+          const dataInicioAdiantamento = `${anoRef}-${mesRef}-15`
+          
+          console.log(`🔍 Buscando adiantamentos do mês ${mesRef}/${anoRef} (data início: ${dataInicioAdiantamento})`)
+          
           const { data: adiantamentos } = await supabase
             .from('holerites')
-            .select('salario_base, observacoes, periodo_inicio')
+            .select('salario_base, salario_liquido, observacoes, periodo_inicio, periodo_fim')
             .eq('funcionario_id', (func as any).id)
-            .gte('periodo_inicio', mesAno + '-15') // Adiantamentos começam no dia 15
-            .lte('periodo_inicio', mesAno + '-15') // Apenas adiantamentos que começam no dia 15
+            .eq('periodo_inicio', dataInicioAdiantamento) // Adiantamentos começam EXATAMENTE no dia 15
+          
+          console.log(`📊 Adiantamentos encontrados:`, adiantamentos?.length || 0)
           
           let totalAdiantamentos = 0
           if (adiantamentos && adiantamentos.length > 0) {
-            totalAdiantamentos = adiantamentos.reduce((sum: number, h: any) => {
-              if (h.observacoes?.includes('Adiantamento')) {
-                return sum + (h.salario_base || 0)
+            console.log(`💸 Processando ${adiantamentos.length} adiantamento(s):`)
+            adiantamentos.forEach((h: any, index: number) => {
+              const valor = h.salario_liquido || h.salario_base || 0
+              console.log(`   ${index + 1}. Período: ${h.periodo_inicio} a ${h.periodo_fim}`)
+              console.log(`      Valor: R$ ${valor.toFixed(2)}`)
+              console.log(`      Obs: ${h.observacoes || 'N/A'}`)
+              
+              // Verificar se é realmente um adiantamento pela observação ou pelo período
+              const isAdiantamento = h.observacoes?.includes('Adiantamento') || 
+                                    h.observacoes?.includes('adiantamento') ||
+                                    h.periodo_inicio?.endsWith('-15')
+              
+              if (isAdiantamento) {
+                totalAdiantamentos += valor
+                console.log(`      ✅ Adicionado ao total`)
+              } else {
+                console.log(`      ⚠️ Não identificado como adiantamento, ignorado`)
               }
-              return sum
-            }, 0)
-            console.log(`💸 Adiantamentos do mês: R$ ${totalAdiantamentos.toFixed(2)}`)
+            })
+            console.log(`💰 Total de adiantamentos a descontar: R$ ${totalAdiantamentos.toFixed(2)}`)
+          } else {
+            console.log(`ℹ️ Nenhum adiantamento encontrado para este mês`)
           }
           
           // Calcular INSS (apenas para CLT)
