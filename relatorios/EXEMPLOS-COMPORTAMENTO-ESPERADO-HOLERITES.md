@@ -99,7 +99,7 @@ Data de Pagamento: 06/02/2026
 
 ### Cenário 5: Gerar Adiantamento Salarial
 
-**Data Atual:** 21/01/2026 (após dia 15)
+**Data Atual:** 21/01/2026 (terça-feira, após dia 15)
 
 **Ação:** Admin clica em "Gerar Adiantamento (40%)"
 
@@ -107,7 +107,7 @@ Data de Pagamento: 06/02/2026
 ```
 Competência: Janeiro de 2026
 Período: 15/01/2026 a 31/01/2026
-Data de Pagamento: 20/01/2026
+Data de Pagamento: 20/01/2026 (dia 20 é terça-feira, dia útil)
 Valor: 40% do salário base
 ```
 
@@ -116,6 +116,46 @@ Valor: 40% do salário base
 ADIANTAMENTO SALARIAL
 janeiro de 2026
 ```
+
+---
+
+### Cenário 5.1: Adiantamento com Dia 20 no Sábado
+
+**Data Atual:** 18/02/2026 (após dia 15)
+
+**Observação:** Dia 20/02/2026 cai no sábado
+
+**Ação:** Admin clica em "Gerar Adiantamento (40%)"
+
+**Resultado Esperado:**
+```
+Competência: Fevereiro de 2026
+Período: 15/02/2026 a 28/02/2026
+Data de Pagamento: 19/02/2026 (sexta-feira, antecipado do sábado)
+Valor: 40% do salário base
+```
+
+**Observação:** Sistema antecipa automaticamente para sexta-feira quando dia 20 cai no fim de semana.
+
+---
+
+### Cenário 5.2: Adiantamento com Dia 20 no Domingo
+
+**Data Atual:** 18/06/2026 (após dia 15)
+
+**Observação:** Dia 20/06/2026 cai no domingo
+
+**Ação:** Admin clica em "Gerar Adiantamento (40%)"
+
+**Resultado Esperado:**
+```
+Competência: Junho de 2026
+Período: 15/06/2026 a 30/06/2026
+Data de Pagamento: 18/06/2026 (sexta-feira, antecipado do domingo)
+Valor: 40% do salário base
+```
+
+**Observação:** Sistema antecipa automaticamente para sexta-feira quando dia 20 cai no domingo.
 
 ---
 
@@ -226,9 +266,11 @@ Data de Pagamento: 07/04/2026
 ### ✅ Sempre Verdadeiro para Adiantamento
 1. `periodo_inicio` sempre é dia 15
 2. `periodo_fim` sempre é o último dia do mês
-3. `data_pagamento` sempre é dia 20 do mesmo mês
+3. `data_pagamento` sempre é dia 20 do mesmo mês (ou dia útil anterior se cair em fim de semana)
 4. Valor sempre é 40% do salário base
 5. Sem descontos de INSS/IRRF
+6. Se dia 20 cair no sábado, data de pagamento é dia 19 (sexta)
+7. Se dia 20 cair no domingo, data de pagamento é dia 18 (sexta)
 
 ### ❌ Nunca Deve Acontecer
 1. Folha mensal mostrando mês diferente do período

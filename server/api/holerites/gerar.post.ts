@@ -32,6 +32,30 @@ function calcular5oDiaUtil(ano: number, mes: number): Date {
 }
 
 /**
+ * Calcula a data de pagamento do adiantamento (dia 20 ou dia útil anterior)
+ * Se o dia 20 cair em fim de semana ou feriado, antecipa para o dia útil anterior
+ */
+function calcularDiaPagamentoAdiantamento(ano: number, mes: number): Date {
+  let data = new Date(ano, mes - 1, 20) // Dia 20 do mês
+  const diaSemana = data.getDay()
+  
+  // Se cair no sábado (6), volta para sexta (dia 19)
+  if (diaSemana === 6) {
+    data.setDate(19)
+    console.log(`   ⚠️ Dia 20 cai no sábado, antecipando para sexta dia 19`)
+  }
+  // Se cair no domingo (0), volta para sexta (dia 18)
+  else if (diaSemana === 0) {
+    data.setDate(18)
+    console.log(`   ⚠️ Dia 20 cai no domingo, antecipando para sexta dia 18`)
+  }
+  
+  // TODO: Adicionar verificação de feriados se necessário
+  
+  return data
+}
+
+/**
  * Calcula as datas corretas para geração de holerites baseado na data atual
  */
 function calcularDatasHolerite(tipo: 'adiantamento' | 'mensal') {
@@ -42,14 +66,20 @@ function calcularDatasHolerite(tipo: 'adiantamento' | 'mensal') {
   
   if (tipo === 'adiantamento') {
     // REGRA: Adiantamento salarial é do dia 15 ao último dia do mês vigente
-    // Data de pagamento: dia 20 do mês vigente
+    // Data de pagamento: dia 20 do mês vigente (ou dia útil anterior se cair em fim de semana)
     
     if (diaAtual >= 15) {
       // Gerar adiantamento do mês atual (15 ao último dia)
       const periodoInicio = new Date(anoAtual, mesAtual - 1, 15)
       const ultimoDiaMes = new Date(anoAtual, mesAtual, 0).getDate()
       const periodoFim = new Date(anoAtual, mesAtual - 1, ultimoDiaMes)
-      const dataPagamento = new Date(anoAtual, mesAtual - 1, 20)
+      const dataPagamento = calcularDiaPagamentoAdiantamento(anoAtual, mesAtual)
+      
+      console.log(`📅 ADIANTAMENTO - Cálculo de Datas:`)
+      console.log(`   Data Atual: ${hoje.toISOString().split('T')[0]}`)
+      console.log(`   Mês Atual: ${mesAtual}/${anoAtual}`)
+      console.log(`   Período: ${periodoInicio.toISOString().split('T')[0]} a ${periodoFim.toISOString().split('T')[0]}`)
+      console.log(`   Data Pagamento: ${dataPagamento.toISOString().split('T')[0]} (dia 20 ou dia útil anterior)`)
       
       return {
         periodo_inicio: periodoInicio.toISOString().split('T')[0],
@@ -65,7 +95,13 @@ function calcularDatasHolerite(tipo: 'adiantamento' | 'mensal') {
       const periodoInicio = new Date(anoAnterior, mesAnterior - 1, 15)
       const ultimoDiaMes = new Date(anoAnterior, mesAnterior, 0).getDate()
       const periodoFim = new Date(anoAnterior, mesAnterior - 1, ultimoDiaMes)
-      const dataPagamento = new Date(anoAnterior, mesAnterior - 1, 20)
+      const dataPagamento = calcularDiaPagamentoAdiantamento(anoAnterior, mesAnterior)
+      
+      console.log(`📅 ADIANTAMENTO - Cálculo de Datas:`)
+      console.log(`   Data Atual: ${hoje.toISOString().split('T')[0]}`)
+      console.log(`   Mês Anterior: ${mesAnterior}/${anoAnterior}`)
+      console.log(`   Período: ${periodoInicio.toISOString().split('T')[0]} a ${periodoFim.toISOString().split('T')[0]}`)
+      console.log(`   Data Pagamento: ${dataPagamento.toISOString().split('T')[0]} (dia 20 ou dia útil anterior)`)
       
       return {
         periodo_inicio: periodoInicio.toISOString().split('T')[0],
