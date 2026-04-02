@@ -38,6 +38,7 @@
             <LayoutNavLink to="/admin/cargos" icon="briefcase" @click="$emit('close')">Cargos</LayoutNavLink>
             <LayoutNavLink to="/admin/holerites" icon="money" @click="$emit('close')">Holerites</LayoutNavLink>
             <LayoutNavLink to="/admin/avisos" icon="megaphone" @click="$emit('close')">Avisos</LayoutNavLink>
+            <LayoutNavLink to="/admin/documentos" icon="document" @click="$emit('close')">Documentos</LayoutNavLink>
           </template>
         </nav>
 
