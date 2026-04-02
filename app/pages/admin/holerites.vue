@@ -311,90 +311,91 @@
       </div>
     </UiModal>
 
-    <!-- Modal de Envio -->
+    <!-- Modal de Envio com Seleção de Funcionários -->
     <UiModal 
       v-model="mostrarModalEnvio" 
       title="Enviar Holerites por Email"
-      max-width="max-w-lg"
+      max-width="max-w-2xl"
+      content-max-height="calc(90vh - 120px)"
     >
       <div class="space-y-4">
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div class="flex items-start gap-3 mb-3">
-            <svg class="w-6 h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-            </svg>
-            <p class="text-sm text-blue-800">
-              <strong>Selecione o tipo de holerite para enviar:</strong>
+
+        <!-- Tipo de holerite -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+          <p class="text-xs font-semibold text-blue-800 mb-2">Tipo de holerite:</p>
+          <div class="flex gap-2">
+            <label v-for="opt in [{ value: 'todos', label: '📧 Todos' }, { value: 'adiantamento', label: '💰 Adiantamentos' }, { value: 'mensal', label: '📄 Folhas Mensais' }]" :key="opt.value"
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border cursor-pointer text-sm transition-colors"
+              :class="tipoEnvio === opt.value ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-blue-200 text-gray-700 hover:border-blue-400'"
+            >
+              <input type="radio" :value="opt.value" v-model="tipoEnvio" class="hidden" @change="atualizarHoleritesSelecionaveis" />
+              {{ opt.label }}
+            </label>
+          </div>
+        </div>
+
+        <!-- Lista de funcionários com checkbox -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-sm font-semibold text-gray-700">
+              Selecione os funcionários ({{ holeritesSelecionados.length }}/{{ holeritesSelecionaveis.length }})
             </p>
+            <div class="flex gap-2">
+              <button type="button" @click="selecionarTodos" class="text-xs text-blue-600 hover:text-blue-800 font-medium">Todos</button>
+              <span class="text-gray-300">|</span>
+              <button type="button" @click="deselecionarTodos" class="text-xs text-gray-500 hover:text-gray-700 font-medium">Nenhum</button>
+            </div>
           </div>
-          
-          <div class="space-y-3">
-            <div class="flex items-center gap-3 p-3 bg-white rounded-lg border border-blue-200">
-              <input 
-                type="radio" 
-                id="enviar-adiantamento" 
-                value="adiantamento"
-                v-model="tipoEnvio"
-                class="w-4 h-4 text-blue-600"
-              >
-              <label for="enviar-adiantamento" class="flex-1 cursor-pointer">
-                <strong class="text-gray-900">💰 Apenas Adiantamentos</strong><br>
-                <span class="text-xs text-gray-600">Enviar apenas holerites de adiantamento (primeira quinzena)</span>
-              </label>
+
+          <div class="border border-gray-200 rounded-lg overflow-hidden">
+            <div v-if="holeritesSelecionaveis.length === 0" class="p-6 text-center text-sm text-gray-500">
+              Nenhum holerite disponível para envio com os filtros atuais
             </div>
-            
-            <div class="flex items-center gap-3 p-3 bg-white rounded-lg border border-blue-200">
-              <input 
-                type="radio" 
-                id="enviar-mensal" 
-                value="mensal"
-                v-model="tipoEnvio"
-                class="w-4 h-4 text-blue-600"
+            <div v-else class="divide-y divide-gray-100 max-h-64 overflow-y-auto">
+              <label
+                v-for="h in holeritesSelecionaveis"
+                :key="h.id"
+                class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors"
+                :class="holeritesSelecionados.includes(h.id) ? 'bg-blue-50' : ''"
               >
-              <label for="enviar-mensal" class="flex-1 cursor-pointer">
-                <strong class="text-gray-900">📄 Apenas Folhas Mensais</strong><br>
-                <span class="text-xs text-gray-600">Enviar apenas holerites mensais completos</span>
-              </label>
-            </div>
-            
-            <div class="flex items-center gap-3 p-3 bg-white rounded-lg border border-blue-200">
-              <input 
-                type="radio" 
-                id="enviar-todos" 
-                value="todos"
-                v-model="tipoEnvio"
-                class="w-4 h-4 text-blue-600"
-              >
-              <label for="enviar-todos" class="flex-1 cursor-pointer">
-                <strong class="text-gray-900">📧 Todos os Holerites</strong><br>
-                <span class="text-xs text-gray-600">Enviar todos os holerites listados</span>
+                <input
+                  type="checkbox"
+                  :value="h.id"
+                  v-model="holeritesSelecionados"
+                  class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-gray-900 truncate">{{ h.funcionario?.nome_completo }}</p>
+                  <p class="text-xs text-gray-500">{{ h.funcionario?.cargo }} · {{ formatarMoeda(h.salario_liquido) }}</p>
+                </div>
+                <span
+                  class="text-xs px-2 py-0.5 rounded-full font-medium"
+                  :class="h.status === 'enviado' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'"
+                >
+                  {{ h.status === 'enviado' ? 'Enviado' : 'Pendente' }}
+                </span>
               </label>
             </div>
           </div>
         </div>
 
-        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-          <p class="text-sm text-gray-700">
-            <strong>Total a enviar:</strong> {{ contarHoleritesPorTipo() }} holerite(s)
+        <!-- Rodapé -->
+        <div class="flex items-center justify-between pt-3 border-t">
+          <p class="text-sm text-gray-600">
+            <strong>{{ holeritesSelecionados.length }}</strong> holerite(s) selecionado(s)
           </p>
-        </div>
-
-        <div class="flex gap-3 justify-end pt-4 border-t">
-          <UiButton 
-            variant="secondary" 
-            @click="mostrarModalEnvio = false"
-          >
-            Cancelar
-          </UiButton>
-          <UiButton 
-            @click="confirmarEnvioHolerites"
-            :disabled="loading || contarHoleritesPorTipo() === 0"
-          >
-            <svg v-if="!loading" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-            </svg>
-            {{ loading ? 'Enviando...' : 'Confirmar Envio' }}
-          </UiButton>
+          <div class="flex gap-3">
+            <UiButton variant="secondary" @click="mostrarModalEnvio = false">Cancelar</UiButton>
+            <UiButton
+              @click="confirmarEnvioHolerites"
+              :disabled="loading || holeritesSelecionados.length === 0"
+            >
+              <svg v-if="!loading" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+              </svg>
+              {{ loading ? 'Enviando...' : `Enviar ${holeritesSelecionados.length > 0 ? holeritesSelecionados.length : ''} Email(s)` }}
+            </UiButton>
+          </div>
         </div>
       </div>
     </UiModal>
@@ -564,6 +565,8 @@ const mostrarModalEnvio = ref(false)
 const mostrarModalDisponibilizar = ref(false)
 const tipoGeracao = ref<'adiantamento' | 'mensal'>('mensal')
 const tipoEnvio = ref<'adiantamento' | 'mensal' | 'todos'>('todos')
+const holeritesSelecionaveis = ref<Holerite[]>([])
+const holeritesSelecionados = ref<number[]>([])
 const tipoDisponibilizar = ref<'adiantamento' | 'mensal' | 'todos'>('todos')
 const holeriteSelecionado = ref<Holerite | null>(null)
 const mostrarNotificacao = ref(false)
@@ -656,7 +659,36 @@ const abrirModalGerar = (tipo: 'adiantamento' | 'mensal') => {
 
 const abrirModalEnvio = () => {
   tipoEnvio.value = 'todos'
+  atualizarHoleritesSelecionaveis()
   mostrarModalEnvio.value = true
+}
+
+const atualizarHoleritesSelecionaveis = () => {
+  if (tipoEnvio.value === 'adiantamento') {
+    holeritesSelecionaveis.value = holerites.value.filter(h => {
+      const dia = new Date(h.periodo_inicio + 'T00:00:00').getDate()
+      return dia >= 14
+    })
+  } else if (tipoEnvio.value === 'mensal') {
+    holeritesSelecionaveis.value = holerites.value.filter(h => {
+      const dia = new Date(h.periodo_inicio + 'T00:00:00').getDate()
+      return dia < 14
+    })
+  } else {
+    holeritesSelecionaveis.value = [...holerites.value]
+  }
+  // Manter apenas selecionados que ainda estão na lista
+  holeritesSelecionados.value = holeritesSelecionados.value.filter(id =>
+    holeritesSelecionaveis.value.some(h => h.id === id)
+  )
+}
+
+const selecionarTodos = () => {
+  holeritesSelecionados.value = holeritesSelecionaveis.value.map(h => h.id)
+}
+
+const deselecionarTodos = () => {
+  holeritesSelecionados.value = []
 }
 
 const abrirModalDisponibilizar = () => {
@@ -867,76 +899,40 @@ const confirmarGeracaoHolerites = async () => {
 
 const confirmarEnvioHolerites = async () => {
   mostrarModalEnvio.value = false
-  await enviarHoleritesPorTipo()
-}
-
-const enviarHoleritesPorTipo = async () => {
   loading.value = true
   try {
-    let holeritesFiltrados: Holerite[] = []
-    
-    if (tipoEnvio.value === 'todos') {
-      holeritesFiltrados = holerites.value.filter(h => h.status !== 'enviado')
-    } else if (tipoEnvio.value === 'adiantamento') {
-      holeritesFiltrados = holerites.value.filter(h => {
-        const diaFim = new Date(h.periodo_fim).getDate()
-        return diaFim <= 15 && h.status !== 'enviado'
-      })
-    } else {
-      holeritesFiltrados = holerites.value.filter(h => {
-        const diaFim = new Date(h.periodo_fim).getDate()
-        return diaFim > 15 && h.status !== 'enviado'
-      })
-    }
-    
+    const holeritesFiltrados = holerites.value.filter(h => holeritesSelecionados.value.includes(h.id))
+
     if (holeritesFiltrados.length === 0) {
-      notificacao.value = {
-        title: 'Aviso',
-        message: 'Nenhum holerite para enviar',
-        variant: 'warning'
-      }
+      notificacao.value = { title: 'Aviso', message: 'Nenhum holerite selecionado', variant: 'warning' }
       mostrarNotificacao.value = true
       loading.value = false
       return
     }
-    
-    // Enviar cada holerite
+
     let enviados = 0
     let erros = 0
-    
+
     for (const holerite of holeritesFiltrados) {
       try {
-        await $fetch(`/api/holerites/${holerite.id}/enviar-email`, {
-          method: 'POST'
-        })
+        await $fetch(`/api/holerites/${holerite.id}/enviar-email`, { method: 'POST' })
         enviados++
       } catch (error) {
         console.error(`Erro ao enviar holerite ${holerite.id}:`, error)
         erros++
       }
     }
-    
-    const tipoTexto = tipoEnvio.value === 'adiantamento' 
-      ? 'adiantamentos' 
-      : tipoEnvio.value === 'mensal' 
-        ? 'folhas mensais' 
-        : 'holerites'
-    
+
     notificacao.value = {
       title: 'Envio Concluído!',
-      message: `${enviados} ${tipoTexto} enviado(s) com sucesso${erros > 0 ? ` (${erros} erro(s))` : ''}`,
+      message: `${enviados} holerite(s) enviado(s) com sucesso${erros > 0 ? ` (${erros} erro(s))` : ''}`,
       variant: erros > 0 ? 'warning' : 'success'
     }
     mostrarNotificacao.value = true
-    
-    // Recarregar lista
+    holeritesSelecionados.value = []
     await carregarHolerites()
   } catch (error: any) {
-    notificacao.value = {
-      title: 'Erro!',
-      message: error.data?.message || 'Erro ao enviar holerites',
-      variant: 'error'
-    }
+    notificacao.value = { title: 'Erro!', message: error.data?.message || 'Erro ao enviar holerites', variant: 'error' }
     mostrarNotificacao.value = true
   } finally {
     loading.value = false

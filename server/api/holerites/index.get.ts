@@ -54,17 +54,6 @@ export default defineEventHandler(async (event) => {
     
     // Aplicar filtros
     
-    // Filtro por estilo (adiantamento/mensal)
-    if (estilo) {
-      if (estilo === 'adiantamento') {
-        // Adiantamentos: período termina até dia 15
-        queryBuilder = queryBuilder.lte('periodo_fim', new Date(new Date().getFullYear(), new Date().getMonth(), 15).toISOString().split('T')[0])
-      } else if (estilo === 'mensal') {
-        // Mensais: período termina após dia 15
-        queryBuilder = queryBuilder.gt('periodo_fim', new Date(new Date().getFullYear(), new Date().getMonth(), 15).toISOString().split('T')[0])
-      }
-    }
-    
     // Filtro por mês/ano - CORRIGIDO: usar último dia real do mês
     if (mes) {
       const [ano, mesNum] = mes.toString().split('-')
@@ -103,7 +92,7 @@ export default defineEventHandler(async (event) => {
     console.log('[HOLERITES] Holerites encontrados:', holerites?.length || 0)
     
     // Transformar dados para o formato esperado pelo frontend
-    const holeritesTratados = holerites?.map(h => ({
+    let holeritesTratados = holerites?.map(h => ({
       ...h,
       funcionario: {
         id: h.funcionarios.id,
@@ -113,6 +102,21 @@ export default defineEventHandler(async (event) => {
         empresa: h.funcionarios.empresas?.nome_fantasia || h.funcionarios.empresas?.nome || 'Empresa não definida'
       }
     })) || []
+
+    // Filtro por estilo aplicado no JS (evita problemas de cast date no Supabase)
+    // Adiantamento: periodo_inicio é dia 15 do mês
+    // Mensal: periodo_inicio é dia 01 do mês
+    if (estilo === 'adiantamento') {
+      holeritesTratados = holeritesTratados.filter(h => {
+        const dia = new Date(h.periodo_inicio + 'T00:00:00').getDate()
+        return dia >= 14 // dia 15 com margem
+      })
+    } else if (estilo === 'mensal') {
+      holeritesTratados = holeritesTratados.filter(h => {
+        const dia = new Date(h.periodo_inicio + 'T00:00:00').getDate()
+        return dia < 14 // dia 01 ao 13
+      })
+    }
     
     console.log('[HOLERITES] Holerites tratados:', holeritesTratados.length)
     
