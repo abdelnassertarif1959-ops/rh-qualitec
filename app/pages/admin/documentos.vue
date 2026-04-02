@@ -80,12 +80,16 @@
                 </svg>
               </div>
 
+              <!-- Título + descrição (coluna esquerda) -->
+              <div class="w-36 flex-shrink-0">
+                <p class="text-sm font-bold text-gray-900 truncate">{{ doc.titulo || '—' }}</p>
+                <p class="text-xs text-gray-500 truncate">{{ doc.descricao || '' }}</p>
+              </div>
+
+              <!-- Nome do arquivo + tamanho/data -->
               <div class="flex-1 min-w-0">
-                <!-- Título ou nome do arquivo -->
-                <p class="text-sm font-semibold text-gray-900 truncate">{{ doc.titulo || doc.nome_original }}</p>
-                <p v-if="doc.titulo" class="text-xs text-gray-400 truncate">{{ doc.nome_original }}</p>
-                <p v-if="doc.descricao" class="text-xs text-blue-600 truncate">{{ doc.descricao }}</p>
-                <p class="text-xs text-gray-500">{{ formatarTamanho(doc.tamanho_bytes) }} · {{ formatarData(doc.criado_em) }}</p>
+                <p class="text-sm text-gray-700 truncate">{{ doc.nome_original }}</p>
+                <p class="text-xs text-gray-400">{{ formatarTamanho(doc.tamanho_bytes) }} · {{ formatarData(doc.criado_em) }}</p>
               </div>
 
               <span v-if="isRecente(doc.criado_em)" class="text-xs bg-green-100 text-green-700 font-semibold px-2 py-0.5 rounded-full flex-shrink-0">

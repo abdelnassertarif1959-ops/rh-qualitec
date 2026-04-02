@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
 
   const { data, error } = await (supabase as any)
     .from('funcionario_documentos')
-    .select('*')
+    .select('id, nome_original, tipo_arquivo, tamanho_bytes, criado_em, titulo, descricao')
     .eq('funcionario_id', user.id)
     .order('criado_em', { ascending: false })
 
