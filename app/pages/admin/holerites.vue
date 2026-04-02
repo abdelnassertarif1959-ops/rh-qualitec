@@ -207,6 +207,7 @@
       v-model="modalVisualizacao" 
       title="Visualizar Holerite"
       max-width="max-w-3xl"
+      :close-on-backdrop="false"
     >
       <HoleriteModal 
         v-if="holeriteSelecionado" 
@@ -221,6 +222,7 @@
       v-model="modalEdicao" 
       title="Editar Holerite"
       max-width="max-w-4xl"
+      :close-on-backdrop="false"
     >
       <HoleriteEditForm
         v-if="holeriteSelecionado"

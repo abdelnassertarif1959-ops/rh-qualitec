@@ -1,11 +1,16 @@
 import nodemailer from 'nodemailer'
 
-// Configurar transporter do Gmail
+// Configurar transporter — Skymail / Office365
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.office365.com',
+  port: 587,
+  secure: false, // STARTTLS
   auth: {
-    user: process.env.GMAIL_EMAIL,
-    pass: process.env.GMAIL_APP_PASSWORD
+    user: process.env.NUXT_EMAIL_USER,
+    pass: process.env.NUXT_EMAIL_PASS
+  },
+  tls: {
+    ciphers: 'SSLv3'
   }
 })
 
@@ -18,7 +23,7 @@ interface EmailOptions {
 export async function enviarEmail({ to, subject, html }: EmailOptions) {
   try {
     const info = await transporter.sendMail({
-      from: `"Sistema RH Qualitec" <${process.env.GMAIL_EMAIL}>`,
+      from: `"Sistema RH Qualitec" <${process.env.NUXT_EMAIL_USER}>`,
       to,
       subject,
       html

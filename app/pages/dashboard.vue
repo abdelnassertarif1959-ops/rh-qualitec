@@ -206,6 +206,11 @@
         </div>
       </div>
 
+      <!-- Enviar Email Individual -->
+      <div class="mb-8">
+        <AdminEnviarEmailCard />
+      </div>
+
       <!-- Painel de Notificações e Aniversariantes -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <!-- Painel de Notificações -->
@@ -261,6 +266,8 @@
 </template>
 
 <script setup lang="ts">
+import AdminEnviarEmailCard from '~/components/admin/AdminEnviarEmailCard.vue'
+
 definePageMeta({ middleware: 'auth' })
 
 const { user, isAdmin } = useAuth()

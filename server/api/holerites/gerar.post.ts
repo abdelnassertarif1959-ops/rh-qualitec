@@ -313,10 +313,26 @@ export default defineEventHandler(async (event) => {
     console.log(`💰 Data de pagamento: ${data_pagamento}`)
     console.log(`📊 Mês de referência: ${datasCalculadas.mes_referencia}`)
 
-    // Buscar funcionários ativos
+    // Buscar funcionários ativos COM CONFIGURAÇÕES PERMANENTES
     let query = supabase
       .from('funcionarios')
-      .select('id, nome_completo, salario_base, numero_dependentes, pensao_alimenticia, tipo_contrato')
+      .select(`
+        id, 
+        nome_completo, 
+        salario_base, 
+        numero_dependentes, 
+        pensao_alimenticia, 
+        tipo_contrato,
+        inss_config_tipo,
+        inss_config_percentual,
+        inss_config_valor_fixo,
+        inss_config_referencia,
+        pensao_config_tipo,
+        pensao_config_percentual,
+        pensao_config_valor_fixo,
+        pensao_config_recorrente,
+        pensao_config_ativa
+      `)
       .eq('status', 'ativo')
 
     if (funcionario_ids && funcionario_ids.length > 0) {
@@ -521,6 +537,7 @@ export default defineEventHandler(async (event) => {
           let inss = 0
           let aliquotaEfetiva = 0
           let aliquotaFaixa = 0
+          let inssReferencia = ''
           
           const tipoContrato = (func as any).tipo_contrato || 'CLT'
           
@@ -531,16 +548,35 @@ export default defineEventHandler(async (event) => {
             aliquotaFaixa = 0
             console.log(`💼 Funcionário PJ - Sem desconto de INSS`)
           } else {
-            // Cálculo INSS 2026 usando função atualizada
-            const calculoINSS = calcularINSS2026(salarioBase)
-            inss = calculoINSS.valor
-            aliquotaEfetiva = calculoINSS.aliquotaEfetiva
-            aliquotaFaixa = calculoINSS.aliquotaFaixa
+            // USAR CONFIGURAÇÕES PERMANENTES DO FUNCIONÁRIO
+            const inssConfigTipo = (func as any).inss_config_tipo || 'percentual'
+            const inssConfigPercentual = (func as any).inss_config_percentual || 7.5
+            const inssConfigValorFixo = (func as any).inss_config_valor_fixo || 0
+            const inssConfigReferencia = (func as any).inss_config_referencia || ''
             
-            console.log(`📊 INSS 2026 - Salário: R$ ${salarioBase.toFixed(2)}`)
-            console.log(`   Faixa aplicada: ${calculoINSS.faixaAplicada}`)
-            console.log(`   Base de cálculo: R$ ${calculoINSS.baseCalculo.toFixed(2)}`)
-            console.log(`   INSS: R$ ${inss.toFixed(2)} (Efetiva: ${aliquotaEfetiva.toFixed(2)}% | Faixa: ${aliquotaFaixa}%)`)
+            console.log(`📊 Configurações INSS do funcionário:`)
+            console.log(`   Tipo: ${inssConfigTipo}`)
+            console.log(`   Percentual: ${inssConfigPercentual}%`)
+            console.log(`   Valor Fixo: R$ ${inssConfigValorFixo.toFixed(2)}`)
+            console.log(`   Referência: ${inssConfigReferencia}`)
+            
+            if (inssConfigTipo === 'fixo') {
+              // Usar valor fixo configurado
+              inss = inssConfigValorFixo
+              aliquotaFaixa = inssConfigPercentual
+              aliquotaEfetiva = inssConfigPercentual
+              inssReferencia = inssConfigReferencia
+              
+              console.log(`💵 INSS FIXO aplicado: R$ ${inss.toFixed(2)} (${aliquotaFaixa}%)`)
+              console.log(`   Referência: ${inssReferencia}`)
+            } else {
+              // Calcular INSS como percentual do salário bruto
+              inss = (salarioBase * inssConfigPercentual) / 100
+              aliquotaFaixa = inssConfigPercentual
+              aliquotaEfetiva = inssConfigPercentual
+              
+              console.log(`📊 INSS PERCENTUAL aplicado: ${inssConfigPercentual}% de R$ ${salarioBase.toFixed(2)} = R$ ${inss.toFixed(2)}`)
+            }
           }
           
           // Calcular IRRF conforme Lei 15.270/2025 com todas as deduções (apenas para CLT)
@@ -549,8 +585,36 @@ export default defineEventHandler(async (event) => {
           let aliquotaIRRF = 0
           let deducoesAplicadas = null
           
-          // Buscar pensão alimentícia do funcionário (para todos os tipos de contrato)
-          const pensaoAlimenticia = normalizarPensao((func as any).pensao_alimenticia)
+          // CALCULAR PENSÃO ALIMENTÍCIA USANDO CONFIGURAÇÕES PERMANENTES
+          let pensaoAlimenticia = 0
+          const pensaoConfigAtiva = (func as any).pensao_config_ativa || false
+          
+          if (pensaoConfigAtiva) {
+            const pensaoConfigTipo = (func as any).pensao_config_tipo || 'percentual'
+            const pensaoConfigPercentual = (func as any).pensao_config_percentual || 30
+            const pensaoConfigValorFixo = (func as any).pensao_config_valor_fixo || 0
+            
+            console.log(`💜 Configurações Pensão do funcionário:`)
+            console.log(`   Ativa: ${pensaoConfigAtiva}`)
+            console.log(`   Tipo: ${pensaoConfigTipo}`)
+            console.log(`   Percentual: ${pensaoConfigPercentual}%`)
+            console.log(`   Valor Fixo: R$ ${pensaoConfigValorFixo.toFixed(2)}`)
+            
+            if (pensaoConfigTipo === 'fixo') {
+              // Usar valor fixo configurado
+              pensaoAlimenticia = pensaoConfigValorFixo
+              console.log(`💵 Pensão FIXA aplicada: R$ ${pensaoAlimenticia.toFixed(2)}`)
+            } else {
+              // Calcular pensão como percentual do salário líquido (após INSS e IRRF)
+              // Precisamos calcular o IRRF primeiro para saber o líquido
+              // Por enquanto, vamos calcular com base no salário bruto - INSS
+              const salarioLiquidoBase = salarioBase - inss
+              pensaoAlimenticia = (salarioLiquidoBase * pensaoConfigPercentual) / 100
+              console.log(`📊 Pensão PERCENTUAL aplicada: ${pensaoConfigPercentual}% de R$ ${salarioLiquidoBase.toFixed(2)} = R$ ${pensaoAlimenticia.toFixed(2)}`)
+            }
+          } else {
+            console.log(`ℹ️ Pensão alimentícia não configurada para este funcionário`)
+          }
           
           if (tipoContrato === 'PJ') {
             // Funcionários PJ não têm desconto de IRRF
@@ -642,6 +706,7 @@ export default defineEventHandler(async (event) => {
             comissoes: 0,
             
             inss: inss,
+            inss_referencia: inssReferencia,
             base_inss: salarioBase,
             aliquota_inss: aliquotaFaixa,
             irrf: irrf,
@@ -652,8 +717,16 @@ export default defineEventHandler(async (event) => {
             plano_saude: 0,
             plano_odontologico: 0,
             adiantamento: totalAdiantamentos,
+            pensao_alimenticia: pensaoAlimenticia,
             faltas: 0,
             outros_descontos: 0,
+            
+            // Salvar configurações usadas (para histórico)
+            inss_tipo: (func as any).inss_config_tipo || 'percentual',
+            inss_percentual: (func as any).inss_config_percentual || 7.5,
+            pensao_tipo: (func as any).pensao_config_tipo || 'percentual',
+            pensao_percentual: (func as any).pensao_config_percentual || 30,
+            pensao_recorrente: (func as any).pensao_config_recorrente || false,
             
             beneficios: [],
             descontos_personalizados: descontosPersonalizados,
