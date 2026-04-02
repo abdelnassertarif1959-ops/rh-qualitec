@@ -19,6 +19,7 @@
       <LayoutNavLink v-if="!isAdmin" to="/holerites" icon="document">Meus Holerites</LayoutNavLink>
       <LayoutNavLink to="/meus-dados" icon="user">Meus Dados</LayoutNavLink>
       <LayoutNavLink v-if="!isAdmin" to="/arquivos" icon="document">Arquivos</LayoutNavLink>
+      <LayoutNavLink v-if="!isAdmin" to="/codigo-etica" icon="document">Código de Ética</LayoutNavLink>
 
       <template v-if="isAdmin">
         <div class="pt-4 mt-4 border-t border-gray-200">
@@ -61,6 +62,7 @@
         <LayoutNavLink to="/admin/holerites" icon="money">Holerites</LayoutNavLink>
         <LayoutNavLink to="/admin/avisos" icon="megaphone">Avisos</LayoutNavLink>
         <LayoutNavLink to="/admin/documentos" icon="document">Documentos</LayoutNavLink>
+        <LayoutNavLink to="/admin/codigo-etica" icon="document">Código de Ética</LayoutNavLink>
       </template>
     </nav>
 
