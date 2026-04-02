@@ -68,6 +68,11 @@
         :form="form" 
       />
 
+      <!-- Aba: Documentos (apenas edição) -->
+      <div v-if="abaAtiva === 'documentos' && isEditing && form.id">
+        <FuncionarioDocumentos :funcionario-id="form.id" />
+      </div>
+
       <!-- Aba: Benefícios e Descontos -->
       <div v-if="abaAtiva === 'beneficios'" class="space-y-6">
         <div class="flex items-center gap-2">
@@ -715,6 +720,7 @@ import FuncionarioDadosPessoais from './FuncionarioDadosPessoais.vue'
 import FuncionarioDadosProfissionais from './FuncionarioDadosProfissionais.vue'
 import FuncionarioAcessoSistema from './FuncionarioAcessoSistema.vue'
 import FuncionarioDadosFinanceiros from './FuncionarioDadosFinanceiros.vue'
+import FuncionarioDocumentos from './FuncionarioDocumentos.vue'
 
 interface Props {
   form: any
@@ -763,7 +769,12 @@ const tabs = [
     id: 'beneficios', 
     label: 'Benefícios e Descontos', 
     iconPath: 'M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7'
-  }
+  },
+  ...(props.isEditing && props.form?.id ? [{
+    id: 'documentos',
+    label: 'Documentos',
+    iconPath: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+  }] : [])
 ]
 
 // Opções para os selects (apenas as que ainda são usadas no componente principal)
