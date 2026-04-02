@@ -1,38 +1,43 @@
 // API para listar todas as empresas
+import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAuth } from '../../utils/authMiddleware'
 
 export default defineEventHandler(async (event) => {
-  // SEGURANÇA: Verificar autenticação
   const requestingUser = await requireAuth(event)
   console.log('🏢 [LISTAR-EMPRESAS] Usuário autenticado:', requestingUser.nome_completo)
-  
-  const config = useRuntimeConfig()
-  const supabaseUrl = config.public.supabaseUrl
-  const supabaseKey = config.public.supabaseKey
+
+  const supabase = serverSupabaseServiceRole(event)
 
   try {
-    const response = await fetch(
-      `${supabaseUrl}/rest/v1/empresas?select=*&order=nome.asc`,
-      {
-        headers: {
-          'apikey': supabaseKey,
-          'Authorization': `Bearer ${supabaseKey}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    )
+    // Buscar empresas
+    const { data: empresas, error } = await supabase
+      .from('empresas')
+      .select('*')
+      .order('nome', { ascending: true })
 
-    if (!response.ok) {
-      throw new Error('Erro ao buscar empresas')
-    }
+    if (error) throw error
 
-    const empresas = await response.json()
-    return { success: true, data: empresas }
+    // Buscar contagem de funcionários ativos por empresa
+    const { data: funcCounts } = await supabase
+      .from('funcionarios')
+      .select('empresa_id')
+      .eq('status', 'ativo')
+
+    // Montar mapa de contagem
+    const contagemMap: Record<number, number> = {}
+    funcCounts?.forEach((f: any) => {
+      contagemMap[f.empresa_id] = (contagemMap[f.empresa_id] || 0) + 1
+    })
+
+    // Adicionar funcionarios_count em cada empresa
+    const empresasComContagem = (empresas || []).map((emp: any) => ({
+      ...emp,
+      funcionarios_count: contagemMap[emp.id] || 0
+    }))
+
+    return { success: true, data: empresasComContagem }
   } catch (error: any) {
     console.error('Erro ao buscar empresas:', error)
-    throw createError({
-      statusCode: 500,
-      message: 'Erro ao buscar empresas'
-    })
+    throw createError({ statusCode: 500, message: 'Erro ao buscar empresas' })
   }
 })
