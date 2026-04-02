@@ -589,8 +589,10 @@ const abrirModalEnviarEmail = async (aviso: any) => {
   carregandoFuncionarios.value = true
   try {
     const res = await $fetch<any>('/api/funcionarios')
-    funcionariosLista.value = (res.data || []).filter((f: any) =>
-      f.status === 'ativo' && f.tipo_acesso !== 'admin' && (f.email_login || f.email_pessoal)
+    // A API retorna o array diretamente
+    const lista = Array.isArray(res) ? res : (res.data || [])
+    funcionariosLista.value = lista.filter((f: any) =>
+      f.tipo_acesso !== 'admin' && (f.email_login || f.email_pessoal)
     )
   } catch {
     funcionariosLista.value = []
