@@ -68,6 +68,52 @@
         icon-path="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
       />
 
+      <DashboardCard
+        v-if="!isAdmin"
+        to="/arquivos"
+        title="Arquivos"
+        description="Anexe atestados, documentos, etc"
+        color="orange"
+        icon-path="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+      />
+
+      <!-- Card Documentos (admin) — mesmo estilo dos outros cards do grid -->
+      <NuxtLink
+        v-if="isAdmin"
+        to="/admin/documentos"
+        class="block bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:border-orange-300 transition-all duration-200 group relative"
+      >
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110 bg-gradient-to-br from-orange-500 to-orange-600 relative">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <span
+              v-if="totalDocumentosRecentes > 0"
+              class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1"
+            >
+              {{ totalDocumentosRecentes > 9 ? '9+' : totalDocumentosRecentes }}
+            </span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-lg font-semibold text-gray-900 mb-1 group-hover:text-orange-600 transition-colors">
+              Documentos
+            </h3>
+            <p class="text-sm text-gray-600 leading-relaxed">
+              <template v-if="totalDocumentosRecentes > 0">
+                <span class="text-orange-600 font-medium">{{ totalDocumentosRecentes }} novo(s)</span> nas últimas 48h
+              </template>
+              <template v-else>Arquivos enviados pelos funcionários</template>
+            </p>
+          </div>
+          <div class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </div>
+      </NuxtLink>
+
       <div 
         class="block bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:border-purple-300 transition-all duration-200 group"
       >
@@ -290,6 +336,7 @@ const stats = ref({
 const loading = ref(true)
 const dadosCompletos = ref<any>(null)
 const empresaUsuario = ref<any>(null)
+const totalDocumentosRecentes = ref(0)
 
 // Estados dos popups
 const mostrarPopupAdmin = ref(false)
@@ -380,8 +427,6 @@ const carregarDados = async () => {
     if (isAdmin.value) {
       try {
         const statsData = await $fetch('/api/dashboard/stats')
-
-        // Garantir que os valores sejam números válidos
         stats.value = {
           totalFuncionarios: Number(statsData?.totalFuncionarios) || 0,
           totalDepartamentos: Number(statsData?.totalDepartamentos) || 0,
@@ -390,13 +435,15 @@ const carregarDados = async () => {
         }
       } catch (error) {
         console.error('Erro ao carregar dados do admin:', error)
-        // Manter valores padrão em caso de erro
-        stats.value = {
-          totalFuncionarios: 0,
-          totalDepartamentos: 0,
-          folhaMensal: 0,
-          totalAniversariantes: 0
-        }
+        stats.value = { totalFuncionarios: 0, totalDepartamentos: 0, folhaMensal: 0, totalAniversariantes: 0 }
+      }
+
+      // Buscar documentos recentes
+      try {
+        const docsRes = await $fetch<{ total: number }>('/api/admin/documentos/recentes')
+        totalDocumentosRecentes.value = docsRes.total || 0
+      } catch {
+        totalDocumentosRecentes.value = 0
       }
     }
   } catch (error) {
