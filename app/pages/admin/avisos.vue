@@ -57,15 +57,26 @@
                 </button>
               </div>
             </div>
-            <button
-              @click="confirmarDeletar(aviso.id)"
-              class="ml-4 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-              title="Deletar aviso"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-              </svg>
-            </button>
+            <div class="flex items-center gap-1 ml-4">
+              <button
+                @click="abrirModalEnviarEmail(aviso)"
+                class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                title="Enviar por email"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+              </button>
+              <button
+                @click="confirmarDeletar(aviso.id)"
+                class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                title="Deletar aviso"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -210,6 +221,78 @@
           </form>
         </AnimatedModalBody>
       </AnimatedModal>
+
+      <!-- Modal Enviar Email -->
+      <UiModal v-model="modalEmailAberto" title="Enviar Aviso por Email" max-width="max-w-lg">
+        <div class="space-y-4">
+          <p class="text-sm text-gray-600">
+            Selecione os destinatários para o aviso <strong>{{ avisoParaEmail?.titulo }}</strong>
+          </p>
+
+          <!-- Todos ou selecionados -->
+          <div class="flex gap-3">
+            <button
+              type="button"
+              @click="modoEnvio = 'todos'"
+              :class="['flex-1 py-2 px-4 rounded-lg border text-sm font-medium transition-colors', modoEnvio === 'todos' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50']"
+            >
+              Todos os funcionários
+            </button>
+            <button
+              type="button"
+              @click="modoEnvio = 'selecionados'"
+              :class="['flex-1 py-2 px-4 rounded-lg border text-sm font-medium transition-colors', modoEnvio === 'selecionados' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50']"
+            >
+              Selecionar funcionários
+            </button>
+          </div>
+
+          <!-- Lista de seleção -->
+          <div v-if="modoEnvio === 'selecionados'" class="space-y-2 max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-3">
+            <div v-if="carregandoFuncionarios" class="text-center py-4">
+              <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600 mx-auto"></div>
+            </div>
+            <template v-else>
+              <label
+                v-for="func in funcionariosLista"
+                :key="func.id"
+                class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  :value="func.id"
+                  v-model="funcionariosSelecionados"
+                  class="w-4 h-4 text-blue-600 rounded"
+                />
+                <div>
+                  <p class="text-sm font-medium text-gray-900">{{ func.nome_completo }}</p>
+                  <p class="text-xs text-gray-500">{{ func.email_login || func.email_pessoal || 'Sem email' }}</p>
+                </div>
+              </label>
+            </template>
+          </div>
+
+          <!-- Resultado do envio -->
+          <div v-if="resultadoEnvio" :class="['p-3 rounded-lg text-sm', resultadoEnvio.erros?.length ? 'bg-yellow-50 text-yellow-800' : 'bg-green-50 text-green-800']">
+            ✅ {{ resultadoEnvio.enviados }} email(s) enviado(s) de {{ resultadoEnvio.total }}
+            <span v-if="resultadoEnvio.erros?.length"> · {{ resultadoEnvio.erros.length }} falha(s)</span>
+          </div>
+
+          <div class="flex gap-3 justify-end pt-2">
+            <UiButton variant="secondary" @click="fecharModalEmail">Fechar</UiButton>
+            <UiButton
+              :disabled="enviandoEmail || (modoEnvio === 'selecionados' && funcionariosSelecionados.length === 0)"
+              @click="enviarEmailAviso"
+            >
+              <svg v-if="enviandoEmail" class="w-4 h-4 mr-1.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+              </svg>
+              {{ enviandoEmail ? 'Enviando...' : 'Enviar' }}
+            </UiButton>
+          </div>
+        </div>
+      </UiModal>
 
       <!-- Modal de Comentários -->
       <AvisosModalAvisos 
@@ -483,6 +566,62 @@ const inserirEmoji = (emoji: string) => {
   }
   
   emojiPickerAberto.value = false
+}
+
+// --- Envio de email ---
+const modalEmailAberto = ref(false)
+const avisoParaEmail = ref<any>(null)
+const modoEnvio = ref<'todos' | 'selecionados'>('todos')
+const funcionariosLista = ref<any[]>([])
+const funcionariosSelecionados = ref<string[]>([])
+const carregandoFuncionarios = ref(false)
+const enviandoEmail = ref(false)
+const resultadoEnvio = ref<any>(null)
+
+const abrirModalEnviarEmail = async (aviso: any) => {
+  avisoParaEmail.value = aviso
+  modoEnvio.value = 'todos'
+  funcionariosSelecionados.value = []
+  resultadoEnvio.value = null
+  modalEmailAberto.value = true
+
+  // Carregar lista de funcionários
+  carregandoFuncionarios.value = true
+  try {
+    const res = await $fetch<any>('/api/funcionarios')
+    funcionariosLista.value = (res.data || []).filter((f: any) =>
+      f.status === 'ativo' && f.tipo_acesso !== 'admin' && (f.email_login || f.email_pessoal)
+    )
+  } catch {
+    funcionariosLista.value = []
+  } finally {
+    carregandoFuncionarios.value = false
+  }
+}
+
+const enviarEmailAviso = async () => {
+  if (!avisoParaEmail.value) return
+  enviandoEmail.value = true
+  resultadoEnvio.value = null
+  try {
+    const res = await $fetch<any>(`/api/avisos/${avisoParaEmail.value.id}/reenviar-email`, {
+      method: 'POST',
+      body: {
+        funcionario_ids: modoEnvio.value === 'selecionados' ? funcionariosSelecionados.value : null
+      }
+    })
+    resultadoEnvio.value = res
+  } catch (e: any) {
+    resultadoEnvio.value = { enviados: 0, total: 0, erros: [e?.data?.message || 'Erro ao enviar'] }
+  } finally {
+    enviandoEmail.value = false
+  }
+}
+
+const fecharModalEmail = () => {
+  modalEmailAberto.value = false
+  avisoParaEmail.value = null
+  resultadoEnvio.value = null
 }
 
 const confirmarDeletar = async (avisoId: string) => {
