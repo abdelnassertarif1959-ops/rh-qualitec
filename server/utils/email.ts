@@ -1,18 +1,24 @@
 import nodemailer from 'nodemailer'
 
-// Configurar transporter — Skymail / Office365
-const transporter = nodemailer.createTransport({
-  host: 'smtp.office365.com',
-  port: 587,
-  secure: false, // STARTTLS
-  auth: {
-    user: process.env.NUXT_EMAIL_USER,
-    pass: process.env.NUXT_EMAIL_PASS
-  },
-  tls: {
-    ciphers: 'SSLv3'
-  }
-})
+// Transporter Skymail — criado sob demanda para pegar runtimeConfig atualizado
+function criarTransporter() {
+  const config = useRuntimeConfig()
+  return nodemailer.createTransport({
+    host: 'smtp.skymail.net.br',
+    port: 465,
+    secure: true,
+    auth: {
+      user: config.emailUser || process.env.NUXT_EMAIL_USER,
+      pass: config.emailPass || process.env.NUXT_EMAIL_PASS
+    },
+    tls: { rejectUnauthorized: false },
+    pool: true,
+    maxConnections: 5,
+    connectionTimeout: 180000,
+    greetingTimeout: 60000,
+    socketTimeout: 180000
+  } as any)
+}
 
 interface EmailOptions {
   to: string
@@ -21,14 +27,18 @@ interface EmailOptions {
 }
 
 export async function enviarEmail({ to, subject, html }: EmailOptions) {
+  const config = useRuntimeConfig()
+  const remetente = config.emailUser || process.env.NUXT_EMAIL_USER
+
+  const transporter = criarTransporter()
+
   try {
     const info = await transporter.sendMail({
-      from: `"Sistema RH Qualitec" <${process.env.NUXT_EMAIL_USER}>`,
+      from: `"Sistema RH Qualitec" <${remetente}>`,
       to,
       subject,
       html
     })
-
     console.log('✅ Email enviado:', info.messageId)
     return { success: true, messageId: info.messageId }
   } catch (error) {

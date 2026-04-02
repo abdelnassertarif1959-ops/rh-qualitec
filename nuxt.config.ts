@@ -59,6 +59,11 @@ export default defineNuxtConfig({
       path: '/'
     },
     
+    // Email (Skymail)
+    emailUser: process.env.NUXT_EMAIL_USER,
+    emailPass: process.env.NUXT_EMAIL_PASS,
+    adminKey: process.env.NUXT_ADMIN_KEY,
+
     public: {
       supabaseUrl: process.env.SUPABASE_URL || process.env.NUXT_PUBLIC_SUPABASE_URL,
       supabaseKey: process.env.SUPABASE_ANON_KEY || process.env.NUXT_PUBLIC_SUPABASE_KEY,
