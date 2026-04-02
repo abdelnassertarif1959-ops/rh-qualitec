@@ -58,7 +58,7 @@
       </div>
 
       <!-- Ações -->
-      <div class="flex gap-2">
+      <div class="flex gap-2 flex-wrap">
         <UiButton variant="ghost" @click="$emit('edit', funcionario)">
           <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -72,6 +72,31 @@
           </svg>
           Holerites
         </UiButton>
+
+        <!-- Botão Anexar Arquivo -->
+        <div class="relative">
+          <input
+            ref="inputAnexo"
+            type="file"
+            class="hidden"
+            multiple
+            @change="onAnexarArquivo"
+          />
+          <UiButton
+            variant="ghost"
+            :disabled="anexando"
+            @click="inputAnexo?.click()"
+          >
+            <svg v-if="!anexando" class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+            </svg>
+            <svg v-else class="w-4 h-4 mr-1.5 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+            </svg>
+            {{ anexando ? 'Enviando...' : 'Anexar' }}
+          </UiButton>
+        </div>
         
         <UiButton 
           variant="ghost" 
@@ -132,6 +157,30 @@ const emit = defineEmits<{
 }>()
 
 const enviandoEmail = ref(false)
+const anexando = ref(false)
+const inputAnexo = ref<HTMLInputElement | null>(null)
+
+const onAnexarArquivo = async (e: Event) => {
+  const files = (e.target as HTMLInputElement).files
+  if (!files || files.length === 0) return
+  anexando.value = true
+  let sucesso = 0
+  let falha = 0
+  for (const file of Array.from(files)) {
+    if (file.size > 10 * 1024 * 1024) { falha++; continue }
+    try {
+      const form = new FormData()
+      form.append('file', file)
+      form.append('funcionario_id', String(props.funcionario.id))
+      await $fetch('/api/admin/documentos/upload', { method: 'POST', body: form })
+      sucesso++
+    } catch { falha++ }
+  }
+  anexando.value = false
+  if (inputAnexo.value) inputAnexo.value.value = ''
+  if (sucesso > 0) emit('email-enviado', `${sucesso} arquivo(s) anexado(s) com sucesso!`)
+  if (falha > 0) emit('email-erro', `${falha} arquivo(s) não puderam ser enviados.`)
+}
 
 const verHolerites = () => {
   // Navegar para página de holerites do funcionário
