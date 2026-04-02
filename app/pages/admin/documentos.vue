@@ -1,93 +1,134 @@
 <template>
   <div>
-    <UiPageHeader title="Documentos dos Funcionários" description="Visualize e baixe os arquivos enviados pelos funcionários" />
+    <UiPageHeader title="Documentos dos Funcionários" description="Visualize, baixe e configure os tipos de documentos" />
 
-    <!-- Filtro por funcionário -->
-    <UiCard class="mb-6" padding="p-4">
-      <div class="flex items-center gap-3">
-        <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-        </svg>
-        <input
-          v-model="busca"
-          type="text"
-          placeholder="Buscar por funcionário ou nome do arquivo..."
-          class="flex-1 outline-none text-sm text-gray-700 placeholder:text-gray-400"
-        />
-        <span class="text-xs text-gray-500">{{ documentosFiltrados.length }} arquivo(s)</span>
-      </div>
-    </UiCard>
-
-    <!-- Loading -->
-    <div v-if="carregando" class="flex justify-center py-12">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    <!-- Abas -->
+    <div class="border-b border-gray-200 mb-6">
+      <nav class="-mb-px flex space-x-8">
+        <button
+          v-for="aba in abas"
+          :key="aba.id"
+          @click="abaAtiva = aba.id"
+          :class="[
+            'py-3 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2',
+            abaAtiva === aba.id
+              ? 'border-blue-500 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+          ]"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="aba.iconPath"/>
+          </svg>
+          {{ aba.label }}
+        </button>
+      </nav>
     </div>
 
-    <!-- Vazio -->
-    <UiCard v-else-if="documentosFiltrados.length === 0">
-      <div class="text-center py-10 text-gray-500">
-        <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>
-        <p class="font-medium">Nenhum documento encontrado</p>
-      </div>
-    </UiCard>
+    <!-- Aba: Documentos -->
+    <div v-if="abaAtiva === 'documentos'">
+      <!-- Filtro -->
+      <UiCard class="mb-6" padding="p-4">
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input
+            v-model="busca"
+            type="text"
+            placeholder="Buscar por funcionário, título ou nome do arquivo..."
+            class="flex-1 outline-none text-sm text-gray-700 placeholder:text-gray-400"
+          />
+          <span class="text-xs text-gray-500">{{ documentosFiltrados.length }} arquivo(s)</span>
+        </div>
+      </UiCard>
 
-    <!-- Lista agrupada por funcionário -->
-    <div v-else class="space-y-4">
-      <UiCard v-for="(grupo, nome) in documentosAgrupados" :key="nome">
+      <!-- Loading -->
+      <div v-if="carregando" class="flex justify-center py-12">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+
+      <!-- Vazio -->
+      <UiCard v-else-if="documentosFiltrados.length === 0">
+        <div class="text-center py-10 text-gray-500">
+          <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <p class="font-medium">Nenhum documento encontrado</p>
+        </div>
+      </UiCard>
+
+      <!-- Lista agrupada por funcionário -->
+      <div v-else class="space-y-4">
+        <UiCard v-for="(grupo, nome) in documentosAgrupados" :key="nome">
+          <template #header>
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <span class="text-blue-700 font-bold text-sm">{{ iniciais(String(nome)) }}</span>
+              </div>
+              <div>
+                <p class="font-semibold text-gray-900">{{ nome }}</p>
+                <p class="text-xs text-gray-500">{{ grupo.length }} arquivo(s)</p>
+              </div>
+            </div>
+          </template>
+
+          <div class="divide-y divide-gray-100">
+            <div v-for="doc in grupo" :key="doc.id" class="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" :class="corIcone(doc.tipo_arquivo)">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <!-- Título ou nome do arquivo -->
+                <p class="text-sm font-semibold text-gray-900 truncate">{{ doc.titulo || doc.nome_original }}</p>
+                <p v-if="doc.titulo" class="text-xs text-gray-400 truncate">{{ doc.nome_original }}</p>
+                <p v-if="doc.descricao" class="text-xs text-blue-600 truncate">{{ doc.descricao }}</p>
+                <p class="text-xs text-gray-500">{{ formatarTamanho(doc.tamanho_bytes) }} · {{ formatarData(doc.criado_em) }}</p>
+              </div>
+
+              <span v-if="isRecente(doc.criado_em)" class="text-xs bg-green-100 text-green-700 font-semibold px-2 py-0.5 rounded-full flex-shrink-0">
+                Novo
+              </span>
+
+              <button
+                type="button"
+                class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors flex-shrink-0"
+                title="Baixar"
+                @click="baixar(doc)"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </UiCard>
+      </div>
+    </div>
+
+    <!-- Aba: Configurar Tipos -->
+    <div v-if="abaAtiva === 'tipos'">
+      <UiCard>
         <template #header>
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <span class="text-blue-700 font-bold text-sm">{{ iniciais(String(nome)) }}</span>
-            </div>
-            <div>
-              <p class="font-semibold text-gray-900">{{ nome }}</p>
-              <p class="text-xs text-gray-500">{{ grupo.length }} arquivo(s)</p>
-            </div>
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <span class="font-semibold text-gray-900">Tipos de Documentos</span>
           </div>
         </template>
-
-        <div class="divide-y divide-gray-100">
-          <div
-            v-for="doc in grupo"
-            :key="doc.id"
-            class="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
-          >
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" :class="corIcone(doc.tipo_arquivo)">
-              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-              </svg>
-            </div>
-
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-900 truncate">{{ doc.nome_original }}</p>
-              <p class="text-xs text-gray-500">{{ formatarTamanho(doc.tamanho_bytes) }} · {{ formatarData(doc.criado_em) }}</p>
-            </div>
-
-            <!-- Badge novo (últimas 48h) -->
-            <span v-if="isRecente(doc.criado_em)" class="text-xs bg-green-100 text-green-700 font-semibold px-2 py-0.5 rounded-full">
-              Novo
-            </span>
-
-            <button
-              type="button"
-              class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors flex-shrink-0"
-              title="Baixar"
-              @click="baixar(doc)"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-              </svg>
-            </button>
-          </div>
-        </div>
+        <AdminDocumentoTiposConfig />
       </UiCard>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import AdminDocumentoTiposConfig from '~/components/admin/DocumentoTiposConfig.vue'
+
 definePageMeta({ middleware: ['auth', 'admin'] })
 
 interface Documento {
@@ -97,8 +138,16 @@ interface Documento {
   tamanho_bytes: number
   criado_em: string
   funcionario_id: number
+  titulo: string | null
+  descricao: string | null
   funcionarios: { nome_completo: string } | null
 }
+
+const abaAtiva = ref('documentos')
+const abas = [
+  { id: 'documentos', label: 'Documentos', iconPath: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+  { id: 'tipos', label: 'Configurar Tipos', iconPath: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065zM15 12a3 3 0 11-6 0 3 3 0 016 0z' }
+]
 
 const carregando = ref(true)
 const documentos = ref<Documento[]>([])
@@ -121,6 +170,7 @@ const documentosFiltrados = computed(() => {
   const t = busca.value.toLowerCase()
   return documentos.value.filter(d =>
     d.nome_original.toLowerCase().includes(t) ||
+    (d.titulo || '').toLowerCase().includes(t) ||
     (d.funcionarios?.nome_completo || '').toLowerCase().includes(t)
   )
 })
@@ -135,9 +185,7 @@ const documentosAgrupados = computed(() => {
   return grupos
 })
 
-const isRecente = (data: string) => {
-  return Date.now() - new Date(data).getTime() < 48 * 60 * 60 * 1000
-}
+const isRecente = (data: string) => Date.now() - new Date(data).getTime() < 48 * 60 * 60 * 1000
 
 const baixar = async (doc: Documento) => {
   const response = await fetch(`/api/admin/documentos/${doc.id}/download`)

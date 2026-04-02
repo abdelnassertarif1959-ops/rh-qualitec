@@ -75,17 +75,10 @@
 
         <!-- Botão Anexar Arquivo -->
         <div class="relative">
-          <input
-            ref="inputAnexo"
-            type="file"
-            class="hidden"
-            multiple
-            @change="onAnexarArquivo"
-          />
           <UiButton
             variant="ghost"
             :disabled="anexando"
-            @click="inputAnexo?.click()"
+            @click="abrirModalAnexo"
           >
             <svg v-if="!anexando" class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
@@ -124,9 +117,80 @@
       </div>
     </div>
   </UiCard>
+
+  <!-- Modal Anexar Rápido -->
+  <UiModal v-model="modalAnexo" title="Anexar Documento" max-width="max-w-md">
+    <div class="space-y-4">
+      <!-- Tipo -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo do documento</label>
+        <select
+          v-model="anexoForm.tipo_id"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          @change="onTipoAnexoChange"
+        >
+          <option value="">Selecione um tipo...</option>
+          <option v-for="t in tipos" :key="t.id" :value="t.id">{{ t.nome }}</option>
+          <option value="outro">Outro (digitar manualmente)</option>
+        </select>
+      </div>
+
+      <!-- Título manual -->
+      <div v-if="anexoForm.tipo_id === 'outro'">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Título *</label>
+        <input
+          v-model="anexoForm.titulo"
+          type="text"
+          placeholder="Ex: Declaração de residência"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <!-- Descrição -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Descrição (opcional)</label>
+        <textarea
+          v-model="anexoForm.descricao"
+          rows="2"
+          placeholder="Observação sobre o documento..."
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+        />
+      </div>
+
+      <!-- Área de upload -->
+      <div
+        class="border-2 border-dashed rounded-xl p-5 text-center transition-colors cursor-pointer"
+        :class="arrastando ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'"
+        @dragover.prevent="arrastando = true"
+        @dragleave="arrastando = false"
+        @drop.prevent="onDropAnexo"
+        @click="inputAnexo?.click()"
+      >
+        <input ref="inputAnexo" type="file" class="hidden" multiple @change="onAnexarArquivo" />
+        <svg class="w-8 h-8 text-gray-400 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+        </svg>
+        <p class="text-sm font-medium text-gray-700">Clique ou arraste o arquivo</p>
+        <p class="text-xs text-gray-500 mt-0.5">Todos os tipos · Máximo 10MB</p>
+      </div>
+
+      <!-- Progresso -->
+      <div v-if="anexando" class="p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-3">
+        <svg class="w-4 h-4 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+        </svg>
+        <span class="text-sm text-blue-700">Enviando...</span>
+      </div>
+
+      <div v-if="erroAnexo" class="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{{ erroAnexo }}</div>
+    </div>
+  </UiModal>
 </template>
 
 <script setup lang="ts">
+import { useDocumentoTipos } from '~/composables/useDocumentoTipos'
+
 interface Props {
   funcionario: {
     id: number
@@ -156,29 +220,78 @@ const emit = defineEmits<{
   'email-erro': [mensagem: string]
 }>()
 
+const { tipos, carregar: carregarTipos } = useDocumentoTipos()
+
 const enviandoEmail = ref(false)
 const anexando = ref(false)
+const arrastando = ref(false)
+const modalAnexo = ref(false)
+const erroAnexo = ref<string | null>(null)
 const inputAnexo = ref<HTMLInputElement | null>(null)
+
+const anexoForm = ref<{ tipo_id: number | string; titulo: string; descricao: string }>({
+  tipo_id: '', titulo: '', descricao: ''
+})
+
+const abrirModalAnexo = async () => {
+  await carregarTipos()
+  anexoForm.value = { tipo_id: '', titulo: '', descricao: '' }
+  erroAnexo.value = null
+  modalAnexo.value = true
+}
+
+const onTipoAnexoChange = () => {
+  const tipo = tipos.value.find(t => t.id === anexoForm.value.tipo_id)
+  if (tipo?.descricao_padrao) anexoForm.value.descricao = tipo.descricao_padrao
+  if (anexoForm.value.tipo_id !== 'outro') anexoForm.value.titulo = ''
+}
 
 const onAnexarArquivo = async (e: Event) => {
   const files = (e.target as HTMLInputElement).files
   if (!files || files.length === 0) return
+  await enviarArquivos(Array.from(files))
+  if (inputAnexo.value) inputAnexo.value.value = ''
+}
+
+const onDropAnexo = async (e: DragEvent) => {
+  arrastando.value = false
+  const files = e.dataTransfer?.files
+  if (!files) return
+  await enviarArquivos(Array.from(files))
+}
+
+const enviarArquivos = async (files: File[]) => {
   anexando.value = true
+  erroAnexo.value = null
   let sucesso = 0
   let falha = 0
-  for (const file of Array.from(files)) {
+
+  const tipoSelecionado = tipos.value.find(t => t.id === anexoForm.value.tipo_id)
+  const titulo = anexoForm.value.tipo_id === 'outro'
+    ? anexoForm.value.titulo
+    : (tipoSelecionado?.nome || '')
+
+  for (const file of files) {
     if (file.size > 10 * 1024 * 1024) { falha++; continue }
     try {
       const form = new FormData()
       form.append('file', file)
       form.append('funcionario_id', String(props.funcionario.id))
+      if (titulo) form.append('titulo', titulo)
+      if (anexoForm.value.descricao) form.append('descricao', anexoForm.value.descricao)
+      if (anexoForm.value.tipo_id && anexoForm.value.tipo_id !== 'outro') {
+        form.append('tipo_id', String(anexoForm.value.tipo_id))
+      }
       await $fetch('/api/admin/documentos/upload', { method: 'POST', body: form })
       sucesso++
     } catch { falha++ }
   }
+
   anexando.value = false
-  if (inputAnexo.value) inputAnexo.value.value = ''
-  if (sucesso > 0) emit('email-enviado', `${sucesso} arquivo(s) anexado(s) com sucesso!`)
+  if (sucesso > 0) {
+    modalAnexo.value = false
+    emit('email-enviado', `${sucesso} arquivo(s) anexado(s) com sucesso!`)
+  }
   if (falha > 0) emit('email-erro', `${falha} arquivo(s) não puderam ser enviados.`)
 }
 

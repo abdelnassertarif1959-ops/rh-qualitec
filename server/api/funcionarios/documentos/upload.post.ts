@@ -15,6 +15,14 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Arquivo inválido' })
   }
 
+  const tituloField = formData.find(f => f.name === 'titulo')
+  const descricaoField = formData.find(f => f.name === 'descricao')
+  const tipoIdField = formData.find(f => f.name === 'tipo_id')
+
+  const titulo = tituloField?.data?.toString()?.trim() || null
+  const descricao = descricaoField?.data?.toString()?.trim() || null
+  const tipoId = tipoIdField?.data ? Number(tipoIdField.data.toString()) : null
+
   const MAX_SIZE = 10 * 1024 * 1024 // 10MB
   if (arquivo.data.length > MAX_SIZE) {
     throw createError({ statusCode: 400, message: 'Arquivo muito grande. Máximo 10MB.' })
@@ -30,9 +38,12 @@ export default defineEventHandler(async (event) => {
       nome_original: arquivo.filename,
       tipo_arquivo: arquivo.type || 'application/octet-stream',
       tamanho_bytes: arquivo.data.length,
-      conteudo: hexConteudo
+      conteudo: hexConteudo,
+      titulo,
+      descricao,
+      tipo_id: tipoId && !isNaN(tipoId) ? tipoId : null
     })
-    .select('id, nome_original, tipo_arquivo, tamanho_bytes, criado_em')
+    .select('id, nome_original, tipo_arquivo, tamanho_bytes, criado_em, titulo, descricao, tipo_id')
     .single()
 
   if (error) throw createError({ statusCode: 500, message: error.message })

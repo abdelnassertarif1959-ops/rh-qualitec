@@ -1,35 +1,17 @@
 <template>
   <div class="space-y-4">
-    <!-- Upload -->
-    <div
-      class="border-2 border-dashed rounded-xl p-6 text-center transition-colors cursor-pointer"
-      :class="arrastando ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'"
-      @dragover.prevent="arrastando = true"
-      @dragleave="arrastando = false"
-      @drop.prevent="onDrop"
-      @click="inputArquivo?.click()"
-    >
-      <input ref="inputArquivo" type="file" class="hidden" multiple @change="onFileChange" />
-      <svg class="w-10 h-10 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-      </svg>
-      <p class="text-sm font-medium text-gray-700">Clique ou arraste arquivos aqui</p>
-      <p class="text-xs text-gray-500 mt-1">Todos os tipos · Máximo 10MB por arquivo</p>
-    </div>
-
-    <!-- Progresso -->
-    <div v-if="enviando" class="p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-3">
-      <svg class="w-4 h-4 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
-      </svg>
-      <span class="text-sm text-blue-700">Enviando {{ nomeEnviando }}...</span>
+    <!-- Botão de upload -->
+    <div class="flex justify-end">
+      <UiButton size="sm" @click="abrirModal">
+        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+        </svg>
+        Anexar Documento
+      </UiButton>
     </div>
 
     <!-- Erro -->
-    <div v-if="erro" class="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-      {{ erro }}
-    </div>
+    <div v-if="erro" class="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{{ erro }}</div>
 
     <!-- Lista -->
     <div v-if="carregando" class="text-center py-6">
@@ -52,8 +34,10 @@
           </svg>
         </div>
         <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-gray-900 truncate">{{ doc.nome_original }}</p>
-          <p class="text-xs text-gray-500">{{ formatarTamanho(doc.tamanho_bytes) }} · {{ formatarData(doc.criado_em) }}</p>
+          <p class="text-sm font-semibold text-gray-900 truncate">{{ doc.titulo || doc.nome_original }}</p>
+          <p v-if="doc.titulo" class="text-xs text-gray-500 truncate">{{ doc.nome_original }}</p>
+          <p v-if="doc.descricao" class="text-xs text-blue-600 truncate">{{ doc.descricao }}</p>
+          <p class="text-xs text-gray-400">{{ formatarTamanho(doc.tamanho_bytes) }} · {{ formatarData(doc.criado_em) }}</p>
         </div>
         <div class="flex items-center gap-1 flex-shrink-0">
           <button type="button" class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors" title="Baixar" @click="baixar(doc)">
@@ -70,15 +54,82 @@
       </div>
     </div>
 
+    <!-- Modal de upload -->
+    <UiModal v-model="modalUpload" title="Anexar Documento" max-width="max-w-md">
+      <div class="space-y-4">
+        <!-- Tipo -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Tipo do documento</label>
+          <select
+            v-model="uploadForm.tipo_id"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            @change="onTipoChange"
+          >
+            <option value="">Selecione um tipo...</option>
+            <option v-for="t in tipos" :key="t.id" :value="t.id">{{ t.nome }}</option>
+            <option value="outro">Outro (digitar manualmente)</option>
+          </select>
+        </div>
+
+        <!-- Título manual (quando "Outro") -->
+        <div v-if="uploadForm.tipo_id === 'outro'">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Título *</label>
+          <input
+            v-model="uploadForm.titulo"
+            type="text"
+            placeholder="Ex: Declaração de residência"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <!-- Descrição -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Descrição (opcional)</label>
+          <textarea
+            v-model="uploadForm.descricao"
+            rows="2"
+            placeholder="Observação sobre o documento..."
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+          />
+        </div>
+
+        <!-- Área de upload -->
+        <div
+          class="border-2 border-dashed rounded-xl p-5 text-center transition-colors cursor-pointer"
+          :class="arrastando ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'"
+          @dragover.prevent="arrastando = true"
+          @dragleave="arrastando = false"
+          @drop.prevent="onDrop"
+          @click="inputArquivo?.click()"
+        >
+          <input ref="inputArquivo" type="file" class="hidden" multiple @change="onFileChange" />
+          <svg class="w-8 h-8 text-gray-400 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+          </svg>
+          <p class="text-sm font-medium text-gray-700">Clique ou arraste o arquivo</p>
+          <p class="text-xs text-gray-500 mt-0.5">Todos os tipos · Máximo 10MB</p>
+        </div>
+
+        <!-- Progresso -->
+        <div v-if="enviando" class="p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-3">
+          <svg class="w-4 h-4 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+          </svg>
+          <span class="text-sm text-blue-700">Enviando {{ nomeEnviando }}...</span>
+        </div>
+
+        <div v-if="erroUpload" class="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{{ erroUpload }}</div>
+      </div>
+    </UiModal>
+
     <!-- Modal confirmação exclusão -->
     <UiModal v-model="modalExclusao" title="Excluir Documento" max-width="max-w-sm">
       <div class="space-y-4">
-        <p class="text-sm text-gray-700">Tem certeza que deseja excluir <strong>{{ docParaExcluir?.nome_original }}</strong>?</p>
+        <p class="text-sm text-gray-700">Tem certeza que deseja excluir <strong>{{ docParaExcluir?.titulo || docParaExcluir?.nome_original }}</strong>?</p>
         <div class="flex gap-3 justify-end">
           <UiButton variant="secondary" @click="modalExclusao = false">Cancelar</UiButton>
-          <UiButton variant="danger" :disabled="excluindo" @click="excluir">
-            {{ excluindo ? 'Excluindo...' : 'Excluir' }}
-          </UiButton>
+          <UiButton variant="danger" :disabled="excluindo" @click="excluir">{{ excluindo ? 'Excluindo...' : 'Excluir' }}</UiButton>
         </div>
       </div>
     </UiModal>
@@ -86,26 +137,57 @@
 </template>
 
 <script setup lang="ts">
+import { useDocumentoTipos } from '~/composables/useDocumentoTipos'
+
 interface Documento {
   id: string
   nome_original: string
   tipo_arquivo: string
   tamanho_bytes: number
   criado_em: string
+  titulo: string | null
+  descricao: string | null
+  tipo_id: number | null
 }
 
 const props = defineProps<{ funcionarioId: number | string }>()
+
+const { tipos } = useDocumentoTipos()
 
 const documentos = ref<Documento[]>([])
 const carregando = ref(true)
 const enviando = ref(false)
 const nomeEnviando = ref('')
 const erro = ref<string | null>(null)
+const erroUpload = ref<string | null>(null)
 const arrastando = ref(false)
+const modalUpload = ref(false)
 const modalExclusao = ref(false)
 const docParaExcluir = ref<Documento | null>(null)
 const excluindo = ref(false)
 const inputArquivo = ref<HTMLInputElement | null>(null)
+
+const uploadForm = ref<{ tipo_id: number | string; titulo: string; descricao: string }>({
+  tipo_id: '',
+  titulo: '',
+  descricao: ''
+})
+
+const abrirModal = () => {
+  uploadForm.value = { tipo_id: '', titulo: '', descricao: '' }
+  erroUpload.value = null
+  modalUpload.value = true
+}
+
+const onTipoChange = () => {
+  const tipo = tipos.value.find(t => t.id === uploadForm.value.tipo_id)
+  if (tipo?.descricao_padrao) {
+    uploadForm.value.descricao = tipo.descricao_padrao
+  }
+  if (uploadForm.value.tipo_id !== 'outro') {
+    uploadForm.value.titulo = ''
+  }
+}
 
 const carregarDocumentos = async () => {
   carregando.value = true
@@ -121,20 +203,34 @@ const carregarDocumentos = async () => {
 
 const uploadArquivo = async (file: File) => {
   if (file.size > 10 * 1024 * 1024) {
-    erro.value = `${file.name}: arquivo muito grande (máx 10MB)`
+    erroUpload.value = `${file.name}: arquivo muito grande (máx 10MB)`
     return
   }
   enviando.value = true
   nomeEnviando.value = file.name
-  erro.value = null
+  erroUpload.value = null
+
   try {
     const form = new FormData()
     form.append('file', file)
     form.append('funcionario_id', String(props.funcionarioId))
+
+    const tipoSelecionado = tipos.value.find(t => t.id === uploadForm.value.tipo_id)
+    const titulo = uploadForm.value.tipo_id === 'outro'
+      ? uploadForm.value.titulo
+      : (tipoSelecionado?.nome || '')
+
+    if (titulo) form.append('titulo', titulo)
+    if (uploadForm.value.descricao) form.append('descricao', uploadForm.value.descricao)
+    if (uploadForm.value.tipo_id && uploadForm.value.tipo_id !== 'outro') {
+      form.append('tipo_id', String(uploadForm.value.tipo_id))
+    }
+
     await $fetch('/api/admin/documentos/upload', { method: 'POST', body: form })
     await carregarDocumentos()
+    modalUpload.value = false
   } catch (e: any) {
-    erro.value = e?.data?.message || `Erro ao enviar ${file.name}`
+    erroUpload.value = e?.data?.message || `Erro ao enviar ${file.name}`
   } finally {
     enviando.value = false
     nomeEnviando.value = ''
@@ -158,7 +254,7 @@ const onDrop = async (e: DragEvent) => {
 const baixar = async (doc: Documento) => {
   try {
     const response = await fetch(`/api/admin/documentos/${doc.id}/download`)
-    if (!response.ok) throw new Error('Erro ao baixar')
+    if (!response.ok) throw new Error()
     const blob = await response.blob()
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')

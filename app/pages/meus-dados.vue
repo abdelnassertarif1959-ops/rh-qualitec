@@ -499,6 +499,9 @@
       </div>
     </UiCard>
 
+    <!-- Meus Documentos (apenas funcionários) -->
+    <MeusDocumentos v-if="!isAdmin" />
+
     <!-- Notificação -->
     <UiNotification 
       :show="mostrarNotificacao"
@@ -521,6 +524,8 @@
 </template>
 
 <script setup lang="ts">
+import MeusDocumentos from '~/components/funcionarios/MeusDocumentos.vue'
+
 definePageMeta({ middleware: 'auth' })
 
 const { user, isAdmin, updateUser } = useAuth()

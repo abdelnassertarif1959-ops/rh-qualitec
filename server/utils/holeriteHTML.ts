@@ -82,8 +82,8 @@ export function gerarHoleriteHTML(holerite: any, funcionario: any, empresa: any)
   const diaFim = periodoFim.getDate()
   let tipoFolha = 'Folha Mensal'
   let isFolhaMensal = true // Apenas folha mensal completa mostra bases de cálculo
-  let corTema = '#2563eb' // Azul para folha mensal
-  let corFundo = '#eff6ff' // Azul claro para folha mensal
+  let corTema = '#0ea5e9' // Azul Qualitec para folha mensal
+  let corFundo = '#f0f9ff' // Azul claro Qualitec para folha mensal
   
   // Verificar se é adiantamento baseado no período (dia 15 ao último dia do mês)
   if (isAdiantamento) {
@@ -1005,11 +1005,11 @@ export function gerarHoleriteHTML(holerite: any, funcionario: any, empresa: any)
       <table>
         <thead>
           <tr>
-            <th style="width: 12%;">Código</th>
-            <th style="width: 38%;">Descrição</th>
-            <th style="width: 15%;" class="text-center">Referência</th>
-            <th style="width: 17.5%;" class="text-right">Vencimentos</th>
-            <th style="width: 17.5%;" class="text-right">Descontos</th>
+            <th style="width: 12%; padding: 10px 6px;">Código</th>
+            <th style="width: 38%; padding: 10px 6px;">Descrição</th>
+            <th style="width: 15%; padding: 10px 6px; text-align: center;">Referência</th>
+            <th style="width: 17.5%; padding: 10px 6px; text-align: right;">Vencimentos</th>
+            <th style="width: 17.5%; padding: 10px 6px; text-align: right;">Descontos</th>
           </tr>
         </thead>
         <tbody>
