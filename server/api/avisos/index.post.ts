@@ -129,7 +129,6 @@ export default defineEventHandler(async (event) => {
         .select('id, nome_completo, email_login, email_pessoal, empresas:empresa_id(nome, nome_fantasia)')
         .eq('status', 'ativo')
         .neq('tipo_acesso', 'admin')
-        .eq('receber_avisos_email', true)
 
       if (funcionarios && funcionarios.length > 0) {
         const dataAviso = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
