@@ -991,9 +991,14 @@ const salvarEdicaoHolerite = async (dadosAtualizados: any) => {
     loading.value = true
     
     // Chamar API para atualizar
-    const resultado: any = await $fetch(`/api/holerites/${holeriteSelecionado.value.id}`, {
+    await $fetch(`/api/holerites/${holeriteSelecionado.value.id}`, {
       method: 'PATCH',
       body: dadosAtualizados
+    })
+
+    // Recalcular totais incluindo itens personalizados ativos na data de geração
+    await $fetch(`/api/holerites/${holeriteSelecionado.value.id}/recalcular`, {
+      method: 'POST'
     })
     
     modalEdicao.value = false

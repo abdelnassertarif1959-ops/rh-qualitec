@@ -663,6 +663,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   save: [data: any]
   cancel: []
+  atualizado: [data: any]
 }>()
 
 // Estados
@@ -861,8 +862,9 @@ const adicionarItem = async () => {
       }
     })
 
-    // Recarregar lista
+    // Recarregar lista e recalcular totais do holerite
     await carregarItensPersonalizados(funcId)
+    await recalcularTotais()
     cancelarNovoItem()
     alert('✅ Item adicionado com sucesso!')
   } catch (error: any) {
@@ -877,6 +879,26 @@ const adicionarItem = async () => {
   }
 }
 
+// Recalcular totais do holerite incluindo itens personalizados
+const recalcularTotais = async () => {
+  try {
+    const holeriteId = props.holerite.id
+    if (!holeriteId) return
+
+    const resultado = await $fetch<{ success: boolean; data: any }>(`/api/holerites/${holeriteId}/recalcular`, {
+      method: 'POST'
+    })
+
+    if (resultado.success) {
+      // Emitir evento para o pai atualizar os totais exibidos
+      emit('atualizado', resultado.data)
+      console.log('✅ Totais recalculados:', resultado.data)
+    }
+  } catch (error) {
+    console.error('Erro ao recalcular totais:', error)
+  }
+}
+
 // Remover item personalizado
 const removerItem = async (itemId: number) => {
   if (!confirm('Deseja realmente remover este item?')) return
@@ -888,6 +910,7 @@ const removerItem = async (itemId: number) => {
 
     const funcId = props.holerite.funcionario_id || props.holerite.funcionario?.id
     await carregarItensPersonalizados(funcId)
+    await recalcularTotais()
     alert('Item removido com sucesso!')
   } catch (error) {
     console.error('Erro ao remover item:', error)

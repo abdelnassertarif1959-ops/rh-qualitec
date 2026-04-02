@@ -18,10 +18,12 @@ export default defineEventHandler(async (event) => {
   const tituloField = formData.find(f => f.name === 'titulo')
   const descricaoField = formData.find(f => f.name === 'descricao')
   const tipoIdField = formData.find(f => f.name === 'tipo_id')
+  const dataReferenciaField = formData.find(f => f.name === 'data_referencia')
 
   const titulo = tituloField?.data?.toString()?.trim() || null
   const descricao = descricaoField?.data?.toString()?.trim() || null
   const tipoId = tipoIdField?.data ? Number(tipoIdField.data.toString()) : null
+  const dataReferencia = dataReferenciaField?.data?.toString()?.trim() || null
 
   const MAX_SIZE = 10 * 1024 * 1024 // 10MB
   if (arquivo.data.length > MAX_SIZE) {
@@ -41,9 +43,10 @@ export default defineEventHandler(async (event) => {
       conteudo: hexConteudo,
       titulo,
       descricao,
-      tipo_id: tipoId && !isNaN(tipoId) ? tipoId : null
+      tipo_id: tipoId && !isNaN(tipoId) ? tipoId : null,
+      data_referencia: dataReferencia
     })
-    .select('id, nome_original, tipo_arquivo, tamanho_bytes, criado_em, titulo, descricao, tipo_id')
+    .select('id, nome_original, tipo_arquivo, tamanho_bytes, criado_em, titulo, descricao, tipo_id, data_referencia')
     .single()
 
   if (error) throw createError({ statusCode: 500, message: error.message })

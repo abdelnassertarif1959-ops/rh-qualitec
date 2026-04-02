@@ -2,7 +2,8 @@ import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireOwnershipOrAdmin } from '../../../utils/authMiddleware'
 
 export default defineEventHandler(async (event) => {
-  const funcionarioId = getRouterParam(event, 'funcionarioId')
+  const params = event.context.params || {}
+  const funcionarioId = params.funcionarioId || params.id || Object.values(params)[0]
   
   // SEGURANÇA: Verificar ownership ou admin
   const requestingUser = await requireOwnershipOrAdmin(event, funcionarioId!)

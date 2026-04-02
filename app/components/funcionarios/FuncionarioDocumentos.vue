@@ -37,7 +37,11 @@
           <p class="text-sm font-semibold text-gray-900 truncate">{{ doc.titulo || doc.nome_original }}</p>
           <p v-if="doc.titulo" class="text-xs text-gray-500 truncate">{{ doc.nome_original }}</p>
           <p v-if="doc.descricao" class="text-xs text-blue-600 truncate">{{ doc.descricao }}</p>
-          <p class="text-xs text-gray-400">{{ formatarTamanho(doc.tamanho_bytes) }} · {{ formatarData(doc.criado_em) }}</p>
+          <p class="text-xs text-gray-400">
+            {{ formatarTamanho(doc.tamanho_bytes) }} · 
+            <span v-if="doc.data_referencia" class="font-medium text-gray-600">Ref: {{ formatarData(doc.data_referencia) }}</span>
+            <span v-else>{{ formatarData(doc.criado_em) }}</span>
+          </p>
         </div>
         <div class="flex items-center gap-1 flex-shrink-0">
           <button type="button" class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors" title="Baixar" @click="baixar(doc)">
@@ -80,6 +84,20 @@
             placeholder="Ex: Declaração de residência"
             class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+        </div>
+
+        <!-- Data de Referência -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Data de referência 
+            <span class="text-xs text-gray-500">(mês/ano do documento)</span>
+          </label>
+          <input
+            v-model="uploadForm.data_referencia"
+            type="date"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <p class="text-xs text-gray-500 mt-1">Ex: para docs de Jan/2024, use 01/01/2024</p>
         </div>
 
         <!-- Descrição -->
@@ -148,6 +166,7 @@ interface Documento {
   titulo: string | null
   descricao: string | null
   tipo_id: number | null
+  data_referencia: string | null
 }
 
 const props = defineProps<{ funcionarioId: number | string }>()
@@ -167,14 +186,20 @@ const docParaExcluir = ref<Documento | null>(null)
 const excluindo = ref(false)
 const inputArquivo = ref<HTMLInputElement | null>(null)
 
-const uploadForm = ref<{ tipo_id: number | string; titulo: string; descricao: string }>({
+const uploadForm = ref<{ tipo_id: number | string; titulo: string; descricao: string; data_referencia: string }>({
   tipo_id: '',
   titulo: '',
-  descricao: ''
+  descricao: '',
+  data_referencia: new Date().toISOString().split('T')[0] // Data atual como padrão
 })
 
 const abrirModal = () => {
-  uploadForm.value = { tipo_id: '', titulo: '', descricao: '' }
+  uploadForm.value = {
+    tipo_id: '',
+    titulo: '',
+    descricao: '',
+    data_referencia: new Date().toISOString().split('T')[0]
+  }
   erroUpload.value = null
   modalUpload.value = true
 }
@@ -224,6 +249,9 @@ const uploadArquivo = async (file: File) => {
     if (uploadForm.value.descricao) form.append('descricao', uploadForm.value.descricao)
     if (uploadForm.value.tipo_id && uploadForm.value.tipo_id !== 'outro') {
       form.append('tipo_id', String(uploadForm.value.tipo_id))
+    }
+    if (uploadForm.value.data_referencia) {
+      form.append('data_referencia', uploadForm.value.data_referencia)
     }
 
     await $fetch('/api/admin/documentos/upload', { method: 'POST', body: form })
@@ -294,7 +322,7 @@ const formatarTamanho = (bytes: number) => {
 }
 
 const formatarData = (data: string) =>
-  new Date(data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  new Date(data + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
 
 const corIcone = (tipo: string) => {
   if (tipo.includes('pdf')) return 'bg-red-500'

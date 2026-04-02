@@ -2,13 +2,19 @@ import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../../../utils/authMiddleware'
 
 export default defineEventHandler(async (event) => {
+  // O Nuxt pode capturar o param como 'id' ou 'funcionarioId' dependendo do roteamento
+  const params = event.context.params || {}
+  const id = params.id || params.funcionarioId || Object.values(params)[0]
+
   await requireAdmin(event)
+
   const supabase = serverSupabaseServiceRole(event)
-  const id = getRouterParam(event, 'id')
 
-  if (!id) throw createError({ statusCode: 400, message: 'ID obrigatório' })
+  if (!id) {
+    throw createError({ statusCode: 400, message: 'ID obrigatório' })
+  }
 
-  const { error } = await supabase
+  const { error } = await (supabase as any)
     .from('funcionario_documentos')
     .delete()
     .eq('id', id)

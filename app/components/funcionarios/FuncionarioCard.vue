@@ -146,6 +146,20 @@
         />
       </div>
 
+      <!-- Data de Referência -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          Data de referência 
+          <span class="text-xs text-gray-500">(mês/ano do documento)</span>
+        </label>
+        <input
+          v-model="anexoForm.data_referencia"
+          type="date"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <p class="text-xs text-gray-500 mt-1">Ex: para docs de Jan/2024, use 01/01/2024</p>
+      </div>
+
       <!-- Descrição -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Descrição (opcional)</label>
@@ -229,13 +243,21 @@ const modalAnexo = ref(false)
 const erroAnexo = ref<string | null>(null)
 const inputAnexo = ref<HTMLInputElement | null>(null)
 
-const anexoForm = ref<{ tipo_id: number | string; titulo: string; descricao: string }>({
-  tipo_id: '', titulo: '', descricao: ''
+const anexoForm = ref<{ tipo_id: number | string; titulo: string; descricao: string; data_referencia: string }>({
+  tipo_id: '', 
+  titulo: '', 
+  descricao: '',
+  data_referencia: new Date().toISOString().split('T')[0] // Data atual como padrão
 })
 
 const abrirModalAnexo = async () => {
   await carregarTipos()
-  anexoForm.value = { tipo_id: '', titulo: '', descricao: '' }
+  anexoForm.value = { 
+    tipo_id: '', 
+    titulo: '', 
+    descricao: '',
+    data_referencia: new Date().toISOString().split('T')[0]
+  }
   erroAnexo.value = null
   modalAnexo.value = true
 }
@@ -281,6 +303,9 @@ const enviarArquivos = async (files: File[]) => {
       if (anexoForm.value.descricao) form.append('descricao', anexoForm.value.descricao)
       if (anexoForm.value.tipo_id && anexoForm.value.tipo_id !== 'outro') {
         form.append('tipo_id', String(anexoForm.value.tipo_id))
+      }
+      if (anexoForm.value.data_referencia) {
+        form.append('data_referencia', anexoForm.value.data_referencia)
       }
       await $fetch('/api/admin/documentos/upload', { method: 'POST', body: form })
       sucesso++

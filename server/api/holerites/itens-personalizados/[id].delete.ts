@@ -6,7 +6,8 @@ export default defineEventHandler(async (event) => {
   const requestingUser = await requireAdmin(event)
   console.log('[API] Admin autenticado deletando item personalizado:', requestingUser.nome_completo)
   
-  const id = getRouterParam(event, 'id')
+  const params = event.context.params || {}
+  const id = params.id || params.funcionarioId || Object.values(params)[0]
   const supabase = serverSupabaseServiceRole(event)
 
   try {

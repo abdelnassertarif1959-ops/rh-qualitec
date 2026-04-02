@@ -98,13 +98,35 @@ export default defineEventHandler(async (event) => {
         // Aplicar as alterações aos dados atuais
         const dadosAtualizados = { ...holeriteAtual, ...dadosParaAtualizar }
 
+        // Buscar itens personalizados ativos pela DATA DE GERAÇÃO do holerite
+        // Usa created_at (quando foi gerado/pago), não o período de competência (março, fev, etc.)
+        const dataGeracao = holeriteAtual.created_at 
+          ? holeriteAtual.created_at.split('T')[0] 
+          : new Date().toISOString().split('T')[0]
+
+        const { data: itensPersonalizados } = await (supabase as any)
+          .from('holerite_itens_personalizados')
+          .select('*')
+          .eq('funcionario_id', holeriteAtual.funcionario_id)
+          .eq('ativo', true)
+          .lte('data_inicio', dataGeracao)
+          .or(`data_fim.is.null,data_fim.gte.${dataGeracao}`)
+
+        const beneficiosPersonalizados = (itensPersonalizados || []).filter((i: any) => i.tipo === 'beneficio')
+        const descontosPersonalizados = (itensPersonalizados || []).filter((i: any) => i.tipo === 'desconto')
+
+        const totalBeneficiosPersonalizados = beneficiosPersonalizados.reduce((acc: number, i: any) => acc + Number(i.valor || 0), 0)
+        const totalDescontosPersonalizados = descontosPersonalizados.reduce((acc: number, i: any) => acc + Number(i.valor || 0), 0)
+
+        console.log(`📋 Itens personalizados no recálculo: benefícios=${beneficiosPersonalizados.length} (R$${totalBeneficiosPersonalizados}), descontos=${descontosPersonalizados.length} (R$${totalDescontosPersonalizados})`)
+
         // Calcular salário proporcional aos dias trabalhados
         const salarioBase = Number(dadosAtualizados.salario_base || 0)
         const diasTrabalhados = Number(dadosAtualizados.dias_trabalhados || 30)
         const valorDia = salarioBase / 30
         const salarioProporcional = valorDia * diasTrabalhados
 
-        // Calcular totais (usando salário proporcional)
+        // Calcular totais incluindo itens personalizados
         const totalProventos = 
           salarioProporcional +
           Number(dadosAtualizados.bonus || 0) +
@@ -112,7 +134,8 @@ export default defineEventHandler(async (event) => {
           Number(dadosAtualizados.adicional_noturno || 0) +
           Number(dadosAtualizados.adicional_periculosidade || 0) +
           Number(dadosAtualizados.adicional_insalubridade || 0) +
-          Number(dadosAtualizados.comissoes || 0)
+          Number(dadosAtualizados.comissoes || 0) +
+          totalBeneficiosPersonalizados
 
         const totalDescontos = 
           Number(dadosAtualizados.inss || 0) +
@@ -123,11 +146,21 @@ export default defineEventHandler(async (event) => {
           Number(dadosAtualizados.plano_odontologico || 0) +
           Number(dadosAtualizados.adiantamento || 0) +
           Number(dadosAtualizados.faltas || 0) +
-          Number(dadosAtualizados.pensao_alimenticia || 0)
+          Number(dadosAtualizados.pensao_alimenticia || 0) +
+          totalDescontosPersonalizados
 
         const salarioLiquido = totalProventos - totalDescontos
 
-        // Adicionar os totais calculados aos dados para atualizar
+        // Atualizar JSONB dos itens personalizados no holerite
+        dadosParaAtualizar.beneficios = beneficiosPersonalizados.map((i: any) => ({
+          descricao: i.descricao,
+          valor: Number(i.valor)
+        }))
+        dadosParaAtualizar.descontos_personalizados = descontosPersonalizados.map((i: any) => ({
+          descricao: i.descricao,
+          valor: Number(i.valor)
+        }))
+
         dadosParaAtualizar.total_proventos = totalProventos
         dadosParaAtualizar.total_descontos = totalDescontos
         dadosParaAtualizar.salario_liquido = salarioLiquido
@@ -137,10 +170,11 @@ export default defineEventHandler(async (event) => {
           salarioBase,
           diasTrabalhados,
           salarioProporcional,
+          totalBeneficiosPersonalizados,
+          totalDescontosPersonalizados,
           totalProventos,
           totalDescontos,
-          salarioLiquido,
-          adiantamento: dadosAtualizados.adiantamento
+          salarioLiquido
         })
       }
     }

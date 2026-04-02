@@ -89,12 +89,27 @@
               <!-- Nome do arquivo + tamanho/data -->
               <div class="flex-1 min-w-0">
                 <p class="text-sm text-gray-700 truncate">{{ doc.nome_original }}</p>
-                <p class="text-xs text-gray-400">{{ formatarTamanho(doc.tamanho_bytes) }} · {{ formatarData(doc.criado_em) }}</p>
+                <p class="text-xs text-gray-400">
+                  {{ formatarTamanho(doc.tamanho_bytes) }} · 
+                  <span v-if="doc.data_referencia" class="font-medium text-gray-600">Ref: {{ formatarData(doc.data_referencia) }}</span>
+                  <span v-else>{{ formatarData(doc.criado_em) }}</span>
+                </p>
               </div>
 
               <span v-if="isRecente(doc.criado_em)" class="text-xs bg-green-100 text-green-700 font-semibold px-2 py-0.5 rounded-full flex-shrink-0">
                 Novo
               </span>
+
+              <button
+                type="button"
+                class="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+                title="Editar"
+                @click="abrirModalEdicao(doc)"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+              </button>
 
               <button
                 type="button"
@@ -104,6 +119,17 @@
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+              </button>
+
+              <button
+                type="button"
+                class="p-1.5 text-red-500 hover:bg-red-100 rounded-lg transition-colors flex-shrink-0"
+                title="Excluir"
+                @click="confirmarExclusao(doc)"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                 </svg>
               </button>
             </div>
@@ -127,6 +153,39 @@
         <AdminDocumentoTiposConfig />
       </UiCard>
     </div>
+
+    <!-- Modal Editar -->
+    <UiModal v-model="modalEdicao" title="Editar Documento" max-width="max-w-md">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Título</label>
+          <input v-model="edicaoTitulo" type="text" placeholder="Ex: Atestado médico..." class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+          <textarea v-model="edicaoDescricao" rows="3" placeholder="Descreva o documento..." class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" />
+        </div>
+        <div class="flex gap-3 justify-end pt-1">
+          <UiButton variant="secondary" @click="modalEdicao = false">Cancelar</UiButton>
+          <UiButton :disabled="salvandoEdicao" @click="salvarEdicao">
+            {{ salvandoEdicao ? 'Salvando...' : 'Salvar' }}
+          </UiButton>
+        </div>
+      </div>
+    </UiModal>
+
+    <!-- Modal Excluir -->
+    <UiModal v-model="modalExclusao" title="Excluir Documento" max-width="max-w-sm">
+      <div class="space-y-4">
+        <p class="text-sm text-gray-700">Tem certeza que deseja excluir <strong>{{ docParaExcluir?.titulo || docParaExcluir?.nome_original }}</strong>?</p>
+        <div class="flex gap-3 justify-end">
+          <UiButton variant="secondary" @click="modalExclusao = false">Cancelar</UiButton>
+          <UiButton variant="danger" :disabled="excluindo" @click="excluir">
+            {{ excluindo ? 'Excluindo...' : 'Excluir' }}
+          </UiButton>
+        </div>
+      </div>
+    </UiModal>
   </div>
 </template>
 
@@ -144,6 +203,7 @@ interface Documento {
   funcionario_id: number
   titulo: string | null
   descricao: string | null
+  data_referencia: string | null
   funcionarios: { nome_completo: string } | null
 }
 
@@ -202,6 +262,64 @@ const baixar = async (doc: Documento) => {
   URL.revokeObjectURL(url)
 }
 
+// Editar
+const modalEdicao = ref(false)
+const docParaEditar = ref<Documento | null>(null)
+const edicaoTitulo = ref('')
+const edicaoDescricao = ref('')
+const salvandoEdicao = ref(false)
+
+const abrirModalEdicao = (doc: Documento) => {
+  docParaEditar.value = doc
+  edicaoTitulo.value = doc.titulo || ''
+  edicaoDescricao.value = doc.descricao || ''
+  modalEdicao.value = true
+}
+
+const salvarEdicao = async () => {
+  if (!docParaEditar.value) return
+  salvandoEdicao.value = true
+  try {
+    const { fetchWithCsrf } = useCsrf()
+    await fetchWithCsrf(`/api/admin/documentos/${docParaEditar.value.id}`, {
+      method: 'PATCH',
+      body: { titulo: edicaoTitulo.value.trim() || null, descricao: edicaoDescricao.value.trim() || null }
+    })
+    modalEdicao.value = false
+    await carregarDocumentos()
+  } catch (e) {
+    console.error('Erro ao salvar:', e)
+  } finally {
+    salvandoEdicao.value = false
+  }
+}
+
+// Excluir
+const modalExclusao = ref(false)
+const docParaExcluir = ref<Documento | null>(null)
+const excluindo = ref(false)
+
+const confirmarExclusao = (doc: Documento) => {
+  docParaExcluir.value = doc
+  modalExclusao.value = true
+}
+
+const excluir = async () => {
+  if (!docParaExcluir.value) return
+  excluindo.value = true
+  try {
+    const { fetchWithCsrf } = useCsrf()
+    await fetchWithCsrf(`/api/admin/documentos/${docParaExcluir.value.id}`, { method: 'DELETE' })
+    modalExclusao.value = false
+    docParaExcluir.value = null
+    await carregarDocumentos()
+  } catch (e) {
+    console.error('Erro ao excluir:', e)
+  } finally {
+    excluindo.value = false
+  }
+}
+
 const iniciais = (nome: string) =>
   nome.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()
 
@@ -212,7 +330,7 @@ const formatarTamanho = (bytes: number) => {
 }
 
 const formatarData = (data: string) =>
-  new Date(data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+  new Date(data + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
 
 const corIcone = (tipo: string) => {
   if (tipo.includes('pdf')) return 'bg-red-500'
