@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <UiCard id="meus-documentos-card" class="mb-6">
     <template #header>
       <div class="flex items-center gap-2">
@@ -68,7 +68,12 @@
 
         <div class="flex-1 min-w-0">
           <p class="text-sm font-medium text-gray-900 truncate">{{ doc.nome_original }}</p>
-          <p class="text-xs text-gray-500">{{ formatarTamanho(doc.tamanho_bytes) }} · {{ formatarData(doc.criado_em) }}</p>
+          <p class="text-xs text-gray-400">{{ formatarTamanho(doc.tamanho_bytes) }} &middot; {{ formatarData(doc.criado_em) }}</p>
+          <div v-if="doc.documento_tipos?.nome || doc.titulo || doc.descricao" class="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+            <span v-if="doc.documento_tipos?.nome" class="text-xs font-semibold text-gray-700">{{ doc.documento_tipos.nome }}</span>
+            <span v-else-if="doc.titulo" class="text-xs font-semibold text-gray-700">{{ doc.titulo }}</span>
+            <span v-if="doc.descricao" class="text-xs text-gray-500 truncate">{{ doc.descricao }}</span>
+          </div>
         </div>
 
         <div class="flex items-center gap-1 flex-shrink-0">
@@ -244,3 +249,5 @@ const corIcone = (tipo: string) => {
 
 onMounted(() => carregarDocumentos())
 </script>
+
+
