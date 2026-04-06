@@ -273,6 +273,33 @@
           </div>
         </div>
 
+        <!-- Mês de referência manual -->
+        <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+          <label class="block text-sm font-semibold text-gray-700 mb-2">
+            📅 Mês de referência (competência)
+          </label>
+          <div class="flex gap-3">
+            <select v-model="opcoesGeracao.mes" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+              <option value="1">Janeiro</option>
+              <option value="2">Fevereiro</option>
+              <option value="3">Março</option>
+              <option value="4">Abril</option>
+              <option value="5">Maio</option>
+              <option value="6">Junho</option>
+              <option value="7">Julho</option>
+              <option value="8">Agosto</option>
+              <option value="9">Setembro</option>
+              <option value="10">Outubro</option>
+              <option value="11">Novembro</option>
+              <option value="12">Dezembro</option>
+            </select>
+            <select v-model="opcoesGeracao.ano" class="w-28 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+              <option v-for="a in [2024, 2025, 2026, 2027]" :key="a" :value="a">{{ a }}</option>
+            </select>
+          </div>
+          <p class="text-xs text-gray-500 mt-1">Defina o mês/ano correto da competência antes de gerar.</p>
+        </div>
+
         <div class="flex items-center gap-3 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
           <input 
             type="checkbox" 
@@ -574,7 +601,9 @@ const notificacao = ref<Notificacao>({ title: '', message: '', variant: 'info' }
 
 // Opções de geração
 const opcoesGeracao = ref({
-  recriar: false
+  recriar: false,
+  mes: new Date().getMonth() + 1,
+  ano: new Date().getFullYear()
 })
 
 // Filtros
@@ -860,8 +889,9 @@ const gerarHoleritesAutomaticos = async () => {
       method: 'POST',
       body: {
         tipo: tipoGeracao.value,
-        recriar: opcoesGeracao.value.recriar
-        // Não enviamos datas manuais, deixamos a API calcular automaticamente
+        recriar: opcoesGeracao.value.recriar,
+        mes_referencia_manual: opcoesGeracao.value.mes,
+        ano_referencia_manual: opcoesGeracao.value.ano
       }
     })
     

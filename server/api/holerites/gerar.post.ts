@@ -58,9 +58,40 @@ function calcularDiaPagamentoAdiantamento(ano: number, mes: number): Date {
 /**
  * Calcula as datas corretas para geração de holerites baseado na data atual
  */
-function calcularDatasHolerite(tipo: 'adiantamento' | 'mensal') {
+function calcularDatasHolerite(tipo: 'adiantamento' | 'mensal', mesManual?: number, anoManual?: number) {
   const hoje = new Date()
   const diaAtual = hoje.getDate()
+  
+  // Se mês/ano manual fornecido, usar diretamente
+  if (mesManual && anoManual) {
+    const mes = Number(mesManual)
+    const ano = Number(anoManual)
+    
+    if (tipo === 'adiantamento') {
+      const periodoInicio = new Date(ano, mes - 1, 15)
+      const ultimoDiaMes = new Date(ano, mes, 0).getDate()
+      const periodoFim = new Date(ano, mes - 1, ultimoDiaMes)
+      const dataPagamento = calcularDiaPagamentoAdiantamento(ano, mes)
+      return {
+        periodo_inicio: periodoInicio.toISOString().split('T')[0],
+        periodo_fim: periodoFim.toISOString().split('T')[0],
+        data_pagamento: dataPagamento.toISOString().split('T')[0],
+        mes_referencia: `${ano}-${String(mes).padStart(2, '0')}`
+      }
+    } else {
+      const periodoInicio = new Date(ano, mes - 1, 1)
+      const ultimoDiaMes = new Date(ano, mes, 0).getDate()
+      const periodoFim = new Date(ano, mes - 1, ultimoDiaMes)
+      const dataPagamento = calcular5oDiaUtil(ano, mes)
+      return {
+        periodo_inicio: periodoInicio.toISOString().split('T')[0],
+        periodo_fim: periodoFim.toISOString().split('T')[0],
+        data_pagamento: dataPagamento.toISOString().split('T')[0],
+        mes_referencia: `${ano}-${String(mes).padStart(2, '0')}`
+      }
+    }
+  }
+
   const mesAtual = hoje.getMonth() + 1
   const anoAtual = hoje.getFullYear()
   
@@ -296,13 +327,17 @@ export default defineEventHandler(async (event) => {
       // Permitir override manual das datas (opcional)
       periodo_inicio_manual,
       periodo_fim_manual,
-      data_pagamento_manual
+      data_pagamento_manual,
+      // Mês/ano de referência manual (novo)
+      mes_referencia_manual,
+      ano_referencia_manual
     } = body
 
     console.log(`🎯 Tipo de geração: ${tipo}`)
     
     // Calcular datas automaticamente baseado na data atual e tipo
-    const datasCalculadas = calcularDatasHolerite(tipo)
+    // Se mês/ano manual fornecido, usar eles como base
+    const datasCalculadas = calcularDatasHolerite(tipo, mes_referencia_manual, ano_referencia_manual)
     
     // Usar datas manuais se fornecidas, senão usar as calculadas
     const periodo_inicio = periodo_inicio_manual || datasCalculadas.periodo_inicio
