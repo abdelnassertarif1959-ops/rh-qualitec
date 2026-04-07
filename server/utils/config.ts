@@ -1,27 +1,17 @@
 // Utilitário para obter URL base correta em qualquer ambiente
 export function getBaseUrl(): string {
-  // Em produção no Vercel
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`
-  }
-  
-  // Se NODE_ENV é production mas não tem VERCEL_URL, usar URL conhecida
-  if (process.env.NODE_ENV === 'production') {
-    return 'https://rhqualitec.vercel.app'
-  }
-  
-  // Se tem VERCEL ou VERCEL_ENV (indicadores do Vercel)
-  if (process.env.VERCEL || process.env.VERCEL_ENV) {
-    return 'https://rhqualitec.vercel.app'
-  }
-  
-  // URL personalizada se definida
+  // URL personalizada tem prioridade máxima (configurada nas env vars da Vercel)
   if (process.env.NUXT_PUBLIC_BASE_URL && !process.env.NUXT_PUBLIC_BASE_URL.includes('localhost')) {
     return process.env.NUXT_PUBLIC_BASE_URL
   }
+
+  // Em produção sempre usar a URL fixa do projeto
+  if (process.env.NODE_ENV === 'production' || process.env.VERCEL || process.env.VERCEL_ENV) {
+    return 'https://rhqualitec.vercel.app'
+  }
   
   // Fallback para desenvolvimento
-  return 'http://localhost:3000'
+  return 'http://localhost:3001'
 }
 
 // Log para debug
