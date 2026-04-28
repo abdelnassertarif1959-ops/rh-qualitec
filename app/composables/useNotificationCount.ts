@@ -77,10 +77,22 @@ export const useNotificationCount = () => {
 
     } catch (err: any) {
       console.error('❌ [NOTIFICATION-COUNT] Erro ao buscar contagem:', err)
-      globalError.value = err.message || 'Erro ao carregar notificações'
       
-      // Em caso de erro, manter o último valor conhecido
-      // Não zerar para evitar "flicker" na UI
+      // Verificar se é erro de autenticação (401)
+      if (err.statusCode === 401 || err.status === 401) {
+        console.warn('⚠️ [NOTIFICATION-COUNT] Erro de autenticação detectado - parando polling')
+        stopPolling()
+        globalError.value = 'Sessão expirada'
+        globalUnreadCount.value = 0
+        
+        // Opcional: redirecionar para login
+        // const { logout } = useAuth()
+        // logout()
+      } else {
+        globalError.value = err.message || 'Erro ao carregar notificações'
+        // Em caso de erro não-auth, manter o último valor conhecido
+        // Não zerar para evitar "flicker" na UI
+      }
     } finally {
       globalIsLoading.value = false
     }

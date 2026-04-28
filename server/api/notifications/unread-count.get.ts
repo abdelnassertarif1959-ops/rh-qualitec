@@ -11,11 +11,11 @@ import { requireAuth } from '../../utils/authMiddleware'
  * No futuro, pode ser expandido para notificações por usuário.
  */
 export default defineEventHandler(async (event) => {
-  // SEGURANÇA: Verificar autenticação
-  const requestingUser = await requireAuth(event)
-  console.log('[API] Usuário autenticado consultando contagem de notificações:', requestingUser.nome_completo)
-  
   try {
+    // SEGURANÇA: Verificar autenticação
+    const requestingUser = await requireAuth(event)
+    console.log('[API] Usuário autenticado consultando contagem de notificações:', requestingUser.nome_completo)
+    
     const supabase = serverSupabaseServiceRole(event)
 
     console.log('📊 [UNREAD-COUNT] Buscando contagem de notificações não lidas...')
@@ -54,7 +54,12 @@ export default defineEventHandler(async (event) => {
   } catch (error: any) {
     console.error('💥 [UNREAD-COUNT] Erro na API:', error)
     
-    // Em caso de erro, retornar 0 para não quebrar a UI
+    // Se for erro de autenticação, propagar o erro 401
+    if (error.statusCode === 401) {
+      throw error
+    }
+    
+    // Em caso de outros erros, retornar 0 para não quebrar a UI
     return {
       success: false,
       unreadCount: 0,

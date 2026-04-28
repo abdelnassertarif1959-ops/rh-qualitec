@@ -46,12 +46,6 @@
       />
       
       <UiSelect 
-        v-model="form.jornada_trabalho_id" 
-        :options="jornadaOptionsComputed" 
-        label="Jornada de Trabalho"
-      />
-      
-      <UiSelect 
         v-model="form.responsavel_id" 
         :options="responsavelOptions" 
         label="Responsável Direto" 
@@ -75,7 +69,6 @@ interface Props {
   empresasOptions: Array<{ value: string | number, label: string }>
   departamentosOptions: Array<{ value: string | number, label: string }>
   cargosOptions: Array<{ value: string | number, label: string }>
-  jornadaOptionsComputed: Array<{ value: string | number, label: string }>
   responsavelOptions: Array<{ value: string | number | null, label: string }>
 }
 

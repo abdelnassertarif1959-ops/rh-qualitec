@@ -63,7 +63,6 @@ export default defineEventHandler(async (event) => {
     if (body.empresa_id !== undefined) dadosParaAtualizar.empresa_id = cleanValue(body.empresa_id)
     if (body.departamento_id !== undefined) dadosParaAtualizar.departamento_id = cleanValue(body.departamento_id)
     if (body.cargo_id !== undefined) dadosParaAtualizar.cargo_id = cleanValue(body.cargo_id)
-    if (body.jornada_trabalho_id !== undefined) dadosParaAtualizar.jornada_trabalho_id = cleanValue(body.jornada_trabalho_id)
     if (body.responsavel_id !== undefined) dadosParaAtualizar.responsavel_id = cleanValue(body.responsavel_id)
     if (body.tipo_contrato !== undefined) dadosParaAtualizar.tipo_contrato = cleanValue(body.tipo_contrato)
     if (body.data_admissao !== undefined) dadosParaAtualizar.data_admissao = cleanValue(body.data_admissao)

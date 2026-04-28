@@ -275,9 +275,9 @@ const formatarPeriodoReferencia = (inicio: string | undefined, fim: string | und
     const dataInicio = new Date(inicio + 'T00:00:00')
     const dataFim = new Date(fim + 'T00:00:00')
     
-    // Verificar se é adiantamento (período do dia 15 ao último dia do mês)
+    // Verificar se é adiantamento (período do dia 15 ou 20)
     const diaInicio = dataInicio.getDate()
-    const isAdiantamento = diaInicio === 15
+    const isAdiantamento = diaInicio === 15 || diaInicio === 20
     
     if (isAdiantamento) {
       // Para adiantamentos, mostrar o período completo
@@ -285,12 +285,9 @@ const formatarPeriodoReferencia = (inicio: string | undefined, fim: string | und
       const dataFimFormatada = dataFim.toLocaleDateString('pt-BR')
       return `${dataInicioFormatada} - ${dataFimFormatada}`
     } else {
-      // Para folha mensal, mostrar o mês ANTERIOR completo
-      // Exemplo: Holerite gerado em 09/02/2026 deve mostrar "Janeiro de 2026"
-      const mesAnterior = new Date(dataInicio)
-      mesAnterior.setMonth(mesAnterior.getMonth() - 1)
-      
-      const mesNome = mesAnterior.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+      // Para folha mensal, mostrar o mês do periodo_inicio (mês trabalhado)
+      // Exemplo: periodo_inicio = 01/04/2026 → "Abril de 2026"
+      const mesNome = dataInicio.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
       return mesNome.charAt(0).toUpperCase() + mesNome.slice(1) // Capitalizar primeira letra
     }
   } catch (error) {

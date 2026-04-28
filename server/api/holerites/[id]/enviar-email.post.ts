@@ -24,9 +24,9 @@ function buildReferencia(periodo_inicio: string, isAdiantamento: boolean = false
   const ano = periodoInicio.getFullYear()
   const mes = periodoInicio.getMonth() // 0-11
   
-  // Para folha mensal: mês trabalhado = mês anterior ao pagamento
-  // Para adiantamento: mês trabalhado = mesmo mês
-  const mesReferencia = isAdiantamento ? mes : mes - 1
+  // O mês de referência é SEMPRE o mês do periodo_inicio (mês trabalhado)
+  // Exemplo: periodo_inicio = 01/04/2026 → "abril de 2026"
+  const mesReferencia = mes
   
   // Calcular primeiro e último dia do mês de referência
   const refInicio = new Date(ano, mesReferencia, 1)

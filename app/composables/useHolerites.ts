@@ -28,8 +28,8 @@ export const useHolerites = () => {
   }
 
   // Função para formatar período de referência
-  // REGRA: Holerites mensais mostram o mês ANTERIOR completo
-  // Exemplo: Holerite gerado em 09/02/2026 mostra "01/01/2026 - 31/01/2026" ou "Janeiro de 2026"
+  // REGRA: O mês de referência é SEMPRE o mês do periodo_inicio (mês trabalhado)
+  // Exemplo: periodo_inicio = 01/04/2026 → "abril de 2026"
   const formatarPeriodoReferencia = (
     periodoInicio: string, 
     periodoFim: string, 
@@ -40,9 +40,9 @@ export const useHolerites = () => {
       const dataInicio = new Date(periodoInicio + 'T00:00:00')
       const dataFim = new Date(periodoFim + 'T00:00:00')
       
-      // Verificar se é adiantamento (período do dia 15 ao último dia do mês)
+      // Verificar se é adiantamento (período do dia 15 ou 20)
       const diaInicio = dataInicio.getDate()
-      const isAdiantamentoTemp = diaInicio === 15
+      const isAdiantamentoTemp = diaInicio === 15 || diaInicio === 20
       
       if (isAdiantamentoTemp) {
         // Para adiantamentos, sempre mostrar o período completo
@@ -50,22 +50,19 @@ export const useHolerites = () => {
         const dataFimFormatada = dataFim.toLocaleDateString('pt-BR')
         return `${dataInicioFormatada} - ${dataFimFormatada}`
       } else {
-        // Para folha mensal, mostrar o mês ANTERIOR
-        const mesAnterior = new Date(dataInicio)
-        mesAnterior.setMonth(mesAnterior.getMonth() - 1)
-        
+        // Para folha mensal, mostrar o mês do periodo_inicio (mês trabalhado)
         if (formato === 'completo') {
-          // Formato completo: "01/01/2026 - 31/01/2026"
-          const primeiroDia = new Date(mesAnterior.getFullYear(), mesAnterior.getMonth(), 1)
-          const ultimoDia = new Date(mesAnterior.getFullYear(), mesAnterior.getMonth() + 1, 0)
+          // Formato completo: "01/04/2026 - 30/04/2026"
+          const primeiroDia = new Date(dataInicio.getFullYear(), dataInicio.getMonth(), 1)
+          const ultimoDia = new Date(dataInicio.getFullYear(), dataInicio.getMonth() + 1, 0)
           
           const primeiroDiaFormatado = primeiroDia.toLocaleDateString('pt-BR')
           const ultimoDiaFormatado = ultimoDia.toLocaleDateString('pt-BR')
           
           return `${primeiroDiaFormatado} - ${ultimoDiaFormatado}`
         } else {
-          // Formato mês: "Janeiro de 2026"
-          const mesNome = mesAnterior.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+          // Formato mês: "abril de 2026"
+          const mesNome = dataInicio.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
           return mesNome.charAt(0).toUpperCase() + mesNome.slice(1)
         }
       }

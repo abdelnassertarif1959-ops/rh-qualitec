@@ -153,7 +153,6 @@ export default defineEventHandler(async (event) => {
     'empresas',
     'departamentos',
     'cargos',
-    'jornadas_trabalho',
     'funcionarios',
     'holerites',
     'funcionario_beneficios',

@@ -14,8 +14,7 @@ interface NotificationData {
 
 /**
  * Calcula o mês de referência correto baseado no periodo_inicio
- * Para folha mensal: mês trabalhado = mês anterior ao pagamento
- * Para adiantamento: mês trabalhado = mesmo mês
+ * O mês de referência é SEMPRE o mês do periodo_inicio (mês trabalhado)
  */
 function calcularMesReferencia(periodo_inicio: string): { mesAno: string; tipoHolerite: string } {
   const [anoInicio, mesInicio, diaInicio] = periodo_inicio.split('-').map(Number)
@@ -23,7 +22,7 @@ function calcularMesReferencia(periodo_inicio: string): { mesAno: string; tipoHo
   
   // Determinar tipo de holerite
   let tipoHolerite = 'mensal'
-  const isAdiantamento = periodoInicio.getDate() === 15
+  const isAdiantamento = periodoInicio.getDate() === 15 || periodoInicio.getDate() === 20
   
   if (isAdiantamento) {
     tipoHolerite = 'adiantamento'
@@ -33,10 +32,9 @@ function calcularMesReferencia(periodo_inicio: string): { mesAno: string; tipoHo
     tipoHolerite = '2ª quinzena'
   }
   
-  // Para folha mensal: mês trabalhado = mês anterior ao pagamento
-  // Para adiantamento: mês trabalhado = mesmo mês
-  const mesReferencia = isAdiantamento ? mesInicio - 1 : mesInicio - 2
-  const mesAno = new Date(anoInicio, mesReferencia, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+  // O mês de referência é SEMPRE o mês do periodo_inicio (mês trabalhado)
+  // Exemplo: periodo_inicio = 01/04/2026 → "abril de 2026"
+  const mesAno = periodoInicio.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
   
   return { mesAno, tipoHolerite }
 }
@@ -203,7 +201,6 @@ export async function notificarAlteracaoDados(
     empresa_id: 'Empresa',
     departamento_id: 'Departamento',
     cargo_id: 'Cargo',
-    jornada_trabalho_id: 'Jornada de Trabalho',
     responsavel_id: 'Responsável',
     tipo_contrato: 'Tipo de Contrato',
     data_admissao: 'Data de Admissão',

@@ -13,23 +13,15 @@ export function gerarHoleriteHTML(holerite: any, funcionario: any, empresa: any)
   const periodoInicio = new Date(anoInicio, mesInicio - 1, diaInicioData)
   const periodoFim = new Date(anoFim, mesFim - 1, diaFimData)
   
-  // Determinar se é adiantamento (dia 15)
+  // Determinar se é adiantamento (dia 15 ou 20)
   const diaInicio = periodoInicio.getDate()
-  const isAdiantamento = diaInicio === 15
+  const isAdiantamento = diaInicio === 15 || diaInicio === 20
   
   // REGRA DO MÊS DE REFERÊNCIA:
-  // - Adiantamento (pago dia 20): mostrar período completo (ex: "15/01/2026 - 31/01/2026")
-  // - Folha Mensal (paga 5º dia útil): mês trabalhado = MÊS ANTERIOR (ex: período 01/02-28/02 = "Janeiro de 2026")
-  let mesReferencia: Date
-  if (isAdiantamento) {
-    // Adiantamento: usar o mês do período_inicio (mês vigente)
-    mesReferencia = periodoInicio
-  } else {
-    // Folha Mensal: usar o mês ANTERIOR ao período_inicio (mês trabalhado)
-    // Exemplo: período 01/02/2026 - 28/02/2026 = Janeiro de 2026
-    mesReferencia = new Date(periodoInicio)
-    mesReferencia.setMonth(mesReferencia.getMonth() - 1)
-  }
+  // - Adiantamento (pago dia 20): mostrar o mês do período (ex: "15/04/2026 - 30/04/2026" = "abril de 2026")
+  // - Folha Mensal (paga 5º dia útil): mostrar o mês do período trabalhado (ex: período 01/04-30/04 = "abril de 2026")
+  // O mês de referência é SEMPRE o mês do periodo_inicio
+  const mesReferencia = periodoInicio
   
   const mesAno = mesReferencia.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
   

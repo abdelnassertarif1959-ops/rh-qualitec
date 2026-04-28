@@ -185,7 +185,6 @@ export function templateBoasVindas(dados: {
           <li>✅ Visualizar seus holerites</li>
           <li>✅ Acompanhar seus benefícios</li>
           <li>✅ Atualizar seus dados pessoais</li>
-          <li>✅ Consultar sua jornada de trabalho</li>
         </ul>
         
         <center>

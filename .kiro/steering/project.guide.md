@@ -67,10 +67,7 @@ my-nuxt-app/
 3. **Responsabilidade única**  
    - Um arquivo faz **uma única coisa bem feita**. Se crescer, quebre.
 
-4. **Tipos corretos**  
-   - Sempre tipar props, emits, retornos, estados e contratos de API.  
-   - Evitar `any`; preferir tipagem explícita.
-
+4. **Tipos corretos**  s
 5. **Sempre TypeScript**  
    - `lang="ts"` nos componentes Vue.  
    - Tipos globais no `/shared/types` ou `app/types`.

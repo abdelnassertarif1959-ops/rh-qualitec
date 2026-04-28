@@ -55,7 +55,6 @@
         </UiNotificationBadge>
         
         <LayoutNavLink to="/admin/funcionarios" icon="users">Funcionários</LayoutNavLink>
-        <LayoutNavLink to="/admin/jornadas" icon="clock">Jornadas de Trabalho</LayoutNavLink>
         <LayoutNavLink to="/admin/empresas" icon="office">Empresas</LayoutNavLink>
         <LayoutNavLink to="/admin/departamentos" icon="building">Departamentos</LayoutNavLink>
         <LayoutNavLink to="/admin/cargos" icon="briefcase">Cargos</LayoutNavLink>

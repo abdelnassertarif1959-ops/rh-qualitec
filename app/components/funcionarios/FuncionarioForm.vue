@@ -51,7 +51,6 @@
           :empresas-options="empresasOptions || []"
           :departamentos-options="departamentosOptions || []"
           :cargos-options="cargosOptions || []"
-          :jornada-options-computed="jornadaOptionsComputed || []"
           :responsavel-options="responsavelOptions || []"
         />
       </div>
@@ -810,14 +809,6 @@ const calcularValorDiarioCB = () => {
   }
 }
 
-const { 
-  formatarHorario, 
-  formatarHorasDecimais, 
-  obterNomeDia, 
-  obterAbrevDia 
-} = useJornadas()
-
-const { opcoesJornadas, carregarJornadas } = useJornadas()
 const { empresas, carregarEmpresas, obterOpcoesEmpresas } = useEmpresas()
 const { opcoesDepartamentos, carregarDepartamentos } = useDepartamentos()
 const { opcoesCargos, carregarCargos } = useCargos()
@@ -965,7 +956,6 @@ onMounted(async () => {
     // Carregar dados das APIs
     console.log('📡 [FuncionarioForm] Carregando dados das APIs...')
     await Promise.all([
-      carregarJornadas().catch(e => console.error('❌ Erro jornadas:', e)),
       carregarEmpresas().catch(e => console.error('❌ Erro empresas:', e)),
       carregarDepartamentos().catch(e => console.error('❌ Erro departamentos:', e)),
       carregarCargos().catch(e => console.error('❌ Erro cargos:', e)),
@@ -1067,7 +1057,6 @@ watch(() => props.form.nome_completo, async (novoNome, nomeAntigo) => {
   if ((novoNome && !nomeAntigo) || (!novoNome && nomeAntigo)) {
     console.log('🔄 Recarregando dados dos selects...')
     await Promise.all([
-      carregarJornadas(),
       carregarEmpresas(),
       carregarDepartamentos(),
       carregarCargos()
@@ -1110,9 +1099,6 @@ const responsavelOptions = computed(() => {
 
 // Opções de empresas vindas do banco de dados
 const empresasOptions = computed(() => obterOpcoesEmpresas.value)
-
-// Opções de jornadas
-const jornadaOptionsComputed = computed(() => opcoesJornadas.value)
 
 // Funções para gerenciar descontos personalizados
 const adicionarDesconto = () => {

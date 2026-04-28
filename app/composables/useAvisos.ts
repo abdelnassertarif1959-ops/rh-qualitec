@@ -20,8 +20,15 @@ export const useAvisos = () => {
         error.value = (response as any).message || 'Erro ao buscar avisos'
       }
     } catch (err: any) {
-      console.error('Erro ao buscar avisos:', err)
-      error.value = err.message || 'Erro ao buscar avisos'
+      // Se for erro 401, não logar (usuário não autenticado)
+      if (err.statusCode === 401 || err.status === 401) {
+        console.warn('⚠️ [AVISOS] Usuário não autenticado - avisos não carregados')
+        avisos.value = []
+        error.value = null // Não mostrar erro para usuário não autenticado
+      } else {
+        console.error('Erro ao buscar avisos:', err)
+        error.value = err.message || 'Erro ao buscar avisos'
+      }
     } finally {
       loading.value = false
     }
@@ -39,6 +46,12 @@ export const useAvisos = () => {
       }
       return []
     } catch (err: any) {
+      // Se for erro 401, não logar (usuário não autenticado)
+      if (err.statusCode === 401 || err.status === 401) {
+        console.warn('⚠️ [AVISOS] Usuário não autenticado - avisos não carregados')
+        return []
+      }
+      
       console.error('Erro ao buscar avisos:', err)
       return []
     }

@@ -135,7 +135,6 @@ const form = ref({
   tipo_contrato: 'CLT',
   data_admissao: '',
   matricula: '',
-  jornada_trabalho_id: '',
   
   // Acesso ao Sistema
   email_login: '',
@@ -405,7 +404,6 @@ const abrirModal = async (func?: any) => {
       tipo_contrato: 'CLT',
       data_admissao: '',
       matricula: '',
-      jornada_trabalho_id: '',
       
       // Acesso ao Sistema
       email_login: '',

@@ -87,7 +87,6 @@ export default defineEventHandler(async (event) => {
       empresa_id: cleanValue(body.empresa_id),
       departamento_id: cleanValue(body.departamento_id),
       cargo_id: cleanValue(body.cargo_id),
-      jornada_trabalho_id: cleanValue(body.jornada_trabalho_id),
       responsavel_id: processResponsavelId(body.responsavel_id),
       responsavel_cadastro_id: responsavelCadastroId, // NOVO CAMPO
       tipo_contrato: cleanValue(body.tipo_contrato),

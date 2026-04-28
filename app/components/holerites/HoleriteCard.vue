@@ -277,25 +277,10 @@ const formatarPeriodoReferencia = (): string => {
   }
   
   const dataInicio = parseDateOnly(props.holerite.periodo_inicio)
-  const dataFim = parseDateOnly(props.holerite.periodo_fim)
   
-  // Determinar se é adiantamento
-  const diaInicio = dataInicio.getDate()
-  const isAdiantamentoTemp = diaInicio === 15
-  
-  // Calcular data de referência
-  let dataReferencia
-  if (isAdiantamentoTemp) {
-    // Adiantamento: usar periodo_inicio (mesmo mês)
-    dataReferencia = dataInicio
-  } else {
-    // Folha Mensal: subtrair 1 mês do periodo_fim para obter o mês trabalhado
-    dataReferencia = new Date(dataFim)
-    dataReferencia.setMonth(dataReferencia.getMonth() - 1)
-  }
-  
-  // Retornar apenas o nome do mês (capitalizado)
-  const mesNome = dataReferencia.toLocaleDateString('pt-BR', { month: 'long' })
+  // O mês de referência é SEMPRE o mês do periodo_inicio (mês trabalhado)
+  // Exemplo: periodo_inicio = 01/04/2026 → "Abril"
+  const mesNome = dataInicio.toLocaleDateString('pt-BR', { month: 'long' })
   return mesNome.charAt(0).toUpperCase() + mesNome.slice(1)
 }
 </script>

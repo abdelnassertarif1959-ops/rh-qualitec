@@ -38,6 +38,16 @@
             placeholder="Buscar por funcionário, título ou nome do arquivo..."
             class="flex-1 outline-none text-sm text-gray-700 placeholder:text-gray-400"
           />
+          <button
+            v-if="Object.keys(documentosAgrupados).length > 0"
+            @click="toggleTodos"
+            class="text-xs text-blue-600 hover:text-blue-700 font-medium px-3 py-1.5 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1.5"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="todosExpandidos ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'"/>
+            </svg>
+            {{ todosExpandidos ? 'Colapsar Todos' : 'Expandir Todos' }}
+          </button>
           <span class="text-xs text-gray-500">{{ documentosFiltrados.length }} arquivo(s)</span>
         </div>
       </UiCard>
@@ -61,18 +71,33 @@
       <div v-else class="space-y-4">
         <UiCard v-for="(grupo, nome) in documentosAgrupados" :key="nome">
           <template #header>
-            <div class="flex items-center gap-3">
+            <button 
+              @click="toggleGrupo(String(nome))"
+              class="w-full flex items-center gap-3 hover:bg-gray-50 -m-4 p-4 rounded-t-xl transition-colors"
+            >
               <div class="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <span class="text-blue-700 font-bold text-sm">{{ iniciais(String(nome)) }}</span>
               </div>
-              <div>
+              <div class="flex-1 text-left">
                 <p class="font-semibold text-gray-900">{{ nome }}</p>
                 <p class="text-xs text-gray-500">{{ grupo.length }} arquivo(s)</p>
               </div>
-            </div>
+              <svg 
+                class="w-5 h-5 text-gray-400 transition-transform duration-200"
+                :class="{ 'rotate-180': isGrupoExpandido(String(nome)) }"
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
           </template>
 
-          <div class="divide-y divide-gray-100">
+          <div 
+            v-show="isGrupoExpandido(String(nome))"
+            class="divide-y divide-gray-100"
+          >
             <div v-for="doc in grupo" :key="doc.id" class="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
               <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" :class="corIcone(doc.tipo_arquivo)">
                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -217,6 +242,9 @@ const carregando = ref(true)
 const documentos = ref<Documento[]>([])
 const busca = ref('')
 
+// Estado de expansão dos grupos (todos expandidos por padrão)
+const gruposExpandidos = ref<Record<string, boolean>>({})
+
 const carregarDocumentos = async () => {
   carregando.value = true
   try {
@@ -248,6 +276,32 @@ const documentosAgrupados = computed(() => {
   }
   return grupos
 })
+
+// Função para alternar expansão de um grupo
+const toggleGrupo = (nome: string) => {
+  gruposExpandidos.value[nome] = !gruposExpandidos.value[nome]
+}
+
+// Verificar se um grupo está expandido (padrão: colapsado)
+const isGrupoExpandido = (nome: string) => {
+  return gruposExpandidos.value[nome] ?? false
+}
+
+// Verificar se todos os grupos estão expandidos
+const todosExpandidos = computed(() => {
+  const nomes = Object.keys(documentosAgrupados.value)
+  if (nomes.length === 0) return false
+  return nomes.every(nome => gruposExpandidos.value[nome] === true)
+})
+
+// Expandir ou colapsar todos os grupos
+const toggleTodos = () => {
+  const expandir = !todosExpandidos.value
+  const nomes = Object.keys(documentosAgrupados.value)
+  nomes.forEach(nome => {
+    gruposExpandidos.value[nome] = expandir
+  })
+}
 
 const isRecente = (data: string) => Date.now() - new Date(data).getTime() < 48 * 60 * 60 * 1000
 
