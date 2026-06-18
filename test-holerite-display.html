@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Formatação de Período</title>
+</head>
+<body>
+    <h1>Teste de Formatação do Período de Referência</h1>
+    
+    <div id="resultado"></div>
+    
+    <script>
+        // Simular os dados do holerite
+        const holerite = {
+            periodo_inicio: "2026-02-01",
+            periodo_fim: "2026-02-28"
+        };
+        
+        // Função para determinar se é adiantamento
+        function isAdiantamento(periodoInicio, periodoFim) {
+            const inicio = new Date(periodoInicio);
+            const fim = new Date(periodoFim);
+            return inicio.getDate() === 15 && fim.getDate() >= 28;
+        }
+        
+        // Função para formatar período de referência
+        function formatarPeriodoReferencia(periodoInicio, periodoFim) {
+            if (!periodoInicio || !periodoFim) {
+                return 'Período não definido';
+            }
+            
+            // Para adiantamentos, mostrar o período completo
+            if (isAdiantamento(periodoInicio, periodoFim)) {
+                const dataInicio = new Date(periodoInicio).toLocaleDateString('pt-BR');
+                const dataFim = new Date(periodoFim).toLocaleDateString('pt-BR');
+                return `${dataInicio} até ${dataFim}`;
+            }
+            
+            // Para folha mensal, mostrar o mês vigente (baseado no período fim)
+            const dataFim = new Date(periodoFim);
+            const mesNome = dataFim.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+            return mesNome.charAt(0).toUpperCase() + mesNome.slice(1);
+        }
+        
+        // Testar a função
+        const resultado = formatarPeriodoReferencia(holerite.periodo_inicio, holerite.periodo_fim);
+        
+        document.getElementById('resultado').innerHTML = `
+            <h2>Dados do Holerite:</h2>
+            <p><strong>Período Início:</strong> ${holerite.periodo_inicio}</p>
+            <p><strong>Período Fim:</strong> ${holerite.periodo_fim}</p>
+            <p><strong>É Adiantamento:</strong> ${isAdiantamento(holerite.periodo_inicio, holerite.periodo_fim) ? 'Sim' : 'Não'}</p>
+            <h2>Resultado da Formatação:</h2>
+            <p style="font-size: 18px; font-weight: bold; color: blue;">${resultado}</p>
+            <h2>Esperado:</h2>
+            <p style="font-size: 18px; font-weight: bold; color: green;">Fevereiro de 2026</p>
+        `;
+    </script>
+</body>
+</html>

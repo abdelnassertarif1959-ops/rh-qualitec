@@ -1,0 +1,42 @@
+{
+  "date": "2026-02-12T11:44:11.106Z",
+  "summary": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0,
+    "warnings": 2,
+    "recommendations": 2
+  },
+  "vulnerabilities": [],
+  "warnings": [
+    {
+      "severity": "MÉDIO",
+      "category": "Headers",
+      "issue": "Header de segurança 'Content-Security-Policy' não configurado",
+      "file": "nuxt.config.ts",
+      "recommendation": "Adicionar header Content-Security-Policy para melhor segurança"
+    },
+    {
+      "severity": "CRÍTICO",
+      "category": "Exposição de Dados",
+      "issue": "API pode estar retornando senhas sem sanitização",
+      "file": "server\\api\\auth\\login.post.ts",
+      "recommendation": "Usar sanitizeUserData() para remover campos sensíveis"
+    }
+  ],
+  "recommendations": [
+    {
+      "priority": "MÉDIO",
+      "category": "Autenticação",
+      "recommendation": "Considerar implementar JWT para tokens mais seguros",
+      "benefit": "Tokens assinados, stateless e com expiração automática"
+    },
+    {
+      "priority": "MÉDIO",
+      "category": "Autenticação",
+      "recommendation": "Implementar autenticação de dois fatores (2FA)",
+      "benefit": "Camada adicional de segurança para contas administrativas"
+    }
+  ]
+}

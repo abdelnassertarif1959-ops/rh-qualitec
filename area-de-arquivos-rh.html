@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Área de Arquivos RH</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap" rel="stylesheet">
+  <style>
+    :root, [data-theme="light"] {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem;
+      --color-bg: #eef4fb;
+      --color-surface: #f8fbff;
+      --color-surface-2: #ffffff;
+      --color-surface-offset: #e9f0f8;
+      --color-surface-offset-2: #dde7f3;
+      --color-surface-dynamic: #d4dfef;
+      --color-border: rgba(27, 51, 84, 0.10);
+      --color-divider: rgba(27, 51, 84, 0.08);
+      --color-text: #1b2d45;
+      --color-text-muted: #667a96;
+      --color-text-faint: #95a6bd;
+      --color-primary: #2f6fed;
+      --color-primary-hover: #225ed4;
+      --color-primary-highlight: #dce9ff;
+      --color-success: #2f9e68;
+      --color-warning: #d08a26;
+      --color-error: #c45464;
+      --color-purple: #7c64d9;
+      --color-blue: #2e88d8;
+      --color-gold: #c9992f;
+      --radius-sm: 0.5rem; --radius-md: 0.75rem; --radius-lg: 1rem; --radius-xl: 1.5rem; --radius-full: 9999px;
+      --shadow-sm: 0 10px 30px rgba(43, 68, 109, 0.06);
+      --shadow-md: 0 16px 40px rgba(43, 68, 109, 0.10);
+      --shadow-lg: 0 24px 60px rgba(43, 68, 109, 0.14);
+      --sidebar-w: 276px;
+    }
+    [data-theme="dark"] {
+      --color-bg: #0f1723; --color-surface: #131d2b; --color-surface-2: #182334; --color-surface-offset: #1a2637; --color-surface-offset-2: #223046; --color-surface-dynamic: #2c3d57;
+      --color-border: rgba(219, 231, 245, 0.10); --color-divider: rgba(219, 231, 245, 0.08);
+      --color-text: #ebf2fb; --color-text-muted: #a4b3c8; --color-text-faint: #73839b;
+      --color-primary: #6ba2ff; --color-primary-hover: #86b4ff; --color-primary-highlight: rgba(107, 162, 255, 0.14);
+      --shadow-sm: 0 10px 30px rgba(0, 0, 0, 0.24); --shadow-md: 0 16px 40px rgba(0, 0, 0, 0.32); --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.4);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      min-height: 100dvh; font-family: 'Satoshi', Inter, sans-serif; font-size: var(--text-base); color: var(--color-text);
+      background:
+        radial-gradient(circle at top left, rgba(83, 146, 255, 0.15), transparent 26%),
+        radial-gradient(circle at top right, rgba(124, 100, 217, 0.08), transparent 22%),
+        var(--color-bg);
+      line-height: 1.5;
+    }
+    button, select { font: inherit; color: inherit; }
+    .dashboard {
+      display: grid; grid-template-columns: var(--sidebar-w) 1fr; height: 100dvh;
+    }
+    .sidebar {
+      background: linear-gradient(180deg, rgba(255,255,255,0.75), rgba(255,255,255,0.4)), var(--color-surface);
+      border-right: 1px solid var(--color-divider); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-8); overflow-y: auto;
+      backdrop-filter: blur(18px);
+    }
+    .brand { display: flex; align-items: center; gap: var(--space-4); }
+    .brand-mark {
+      width: 46px; height: 46px; border-radius: 14px; background: linear-gradient(135deg, var(--color-primary), #76a7ff);
+      display: grid; place-items: center; color: white; box-shadow: var(--shadow-md);
+    }
+    .brand-copy h1 { font-size: var(--text-lg); font-weight: 800; letter-spacing: -0.02em; }
+    .brand-copy p { font-size: var(--text-xs); color: var(--color-text-muted); }
+    .nav-section { display: grid; gap: var(--space-2); }
+    .nav-label { font-size: var(--text-xs); color: var(--color-text-faint); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: var(--space-2); }
+    .nav-item {
+      display: flex; align-items: center; gap: var(--space-3); padding: 0.9rem 1rem; border-radius: var(--radius-lg);
+      color: var(--color-text-muted); text-decoration: none; font-size: var(--text-sm); font-weight: 600; background: transparent;
+    }
+    .nav-item.active {
+      background: linear-gradient(180deg, rgba(47,111,237,0.16), rgba(47,111,237,0.08)); color: var(--color-primary); box-shadow: inset 0 0 0 1px rgba(47,111,237,0.12);
+    }
+    .nav-item .dot { width: 10px; height: 10px; border-radius: 50%; background: currentColor; opacity: 0.88; }
+    .storage-card {
+      margin-top: auto; padding: var(--space-5); border-radius: var(--radius-xl); background: linear-gradient(160deg, rgba(47,111,237,0.14), rgba(255,255,255,0.72));
+      border: 1px solid rgba(47,111,237,0.10); box-shadow: var(--shadow-sm);
+    }
+    .storage-card h3 { font-size: var(--text-sm); margin-bottom: var(--space-2); }
+    .storage-card p { font-size: var(--text-xs); color: var(--color-text-muted); margin-bottom: var(--space-4); }
+    .bar { height: 8px; background: rgba(47,111,237,0.12); border-radius: var(--radius-full); overflow: hidden; }
+    .bar > span { display: block; width: 72%; height: 100%; background: linear-gradient(90deg, var(--color-primary), #7eb0ff); }
+    .workspace {
+      display: grid; grid-template-rows: auto 1fr; overflow: hidden;
+    }
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between; gap: var(--space-6); padding: var(--space-6) var(--space-8);
+      border-bottom: 1px solid var(--color-divider); background: rgba(248, 251, 255, 0.72); backdrop-filter: blur(16px); position: sticky; top: 0; z-index: 5;
+    }
+    .headline h2 { font-size: var(--text-xl); font-weight: 800; letter-spacing: -0.03em; }
+    .headline p { color: var(--color-text-muted); font-size: var(--text-sm); margin-top: var(--space-2); }
+    .top-actions { display: flex; align-items: center; gap: var(--space-3); }
+    .icon-btn, .action-btn {
+      height: 46px; border-radius: 14px; border: 1px solid var(--color-border); background: rgba(255,255,255,0.78); box-shadow: var(--shadow-sm);
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .icon-btn { width: 46px; }
+    .action-btn { padding: 0 1rem; gap: var(--space-2); font-size: var(--text-sm); font-weight: 700; }
+    .action-btn.primary { background: linear-gradient(135deg, var(--color-primary), #5f92ff); color: white; border: none; }
+    .content {
+      overflow-y: auto; overscroll-behavior: contain; padding: var(--space-8);
+    }
+    .hero-grid {
+      display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(300px, 0.78fr); gap: var(--space-6); align-items: start;
+    }
+    .surface {
+      background: rgba(255,255,255,0.82); border: 1px solid var(--color-border); border-radius: 28px; box-shadow: var(--shadow-md); backdrop-filter: blur(18px);
+    }
+    .calendar-panel { padding: var(--space-6); }
+    .toolbar {
+      display: grid; grid-template-columns: 1fr auto auto; gap: var(--space-4); align-items: center; margin-bottom: var(--space-6);
+    }
+    .filters { display: grid; grid-template-columns: repeat(4, minmax(140px, 1fr)); gap: var(--space-3); }
+    .field {
+      background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 16px; padding: 0.85rem 0.95rem; display: grid; gap: 0.2rem;
+    }
+    .field span { font-size: var(--text-xs); color: var(--color-text-faint); text-transform: uppercase; letter-spacing: 0.08em; }
+    .field strong { font-size: var(--text-sm); }
+    .view-switch, .month-nav { display: flex; align-items: center; gap: var(--space-2); }
+    .pill-btn {
+      border: 1px solid var(--color-border); background: var(--color-surface); border-radius: var(--radius-full); padding: 0.72rem 1rem; font-size: var(--text-sm); font-weight: 700; color: var(--color-text-muted);
+    }
+    .pill-btn.active { color: var(--color-primary); background: var(--color-primary-highlight); border-color: rgba(47,111,237,0.12); }
+    .month-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-5); padding: 0 var(--space-2);
+    }
+    .month-title h3 { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; }
+    .month-title p { color: var(--color-text-muted); font-size: var(--text-sm); }
+    .legend { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+    .legend-item { display: inline-flex; align-items: center; gap: 0.45rem; color: var(--color-text-muted); font-size: var(--text-xs); }
+    .legend-swatch { width: 10px; height: 10px; border-radius: 50%; }
+    .weekdays, .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--space-3); }
+    .weekdays { margin-bottom: var(--space-3); }
+    .weekday {
+      padding: 0.25rem 0.65rem; font-size: var(--text-xs); font-weight: 700; color: var(--color-text-faint); text-transform: uppercase; letter-spacing: 0.12em;
+    }
+    .day {
+      min-height: 154px; background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(242,247,255,0.88)); border: 1px solid rgba(27, 51, 84, 0.08);
+      border-radius: 22px; padding: 0.85rem; display: flex; flex-direction: column; gap: 0.6rem; position: relative;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+    .day.muted { opacity: 0.46; }
+    .day.high-volume { background: linear-gradient(180deg, rgba(47,111,237,0.12), rgba(255,255,255,0.95)); border-color: rgba(47,111,237,0.16); }
+    .day-header { display: flex; align-items: center; justify-content: space-between; }
+    .day-number { font-weight: 800; letter-spacing: -0.02em; }
+    .volume-badge {
+      font-size: 11px; border-radius: var(--radius-full); padding: 0.2rem 0.45rem; background: rgba(47,111,237,0.12); color: var(--color-primary); font-weight: 800;
+    }
+    .file-list { display: flex; flex-direction: column; gap: 0.45rem; margin-top: 0.15rem; }
+    .file-pill {
+      display: inline-flex; align-items: center; gap: 0.42rem; width: max-content; max-width: 100%; padding: 0.38rem 0.65rem; border-radius: 999px; font-size: 12px; font-weight: 700;
+      background: rgba(47,111,237,0.08); color: var(--color-text); white-space: nowrap;
+    }
+    .file-pill::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: currentColor; opacity: 0.75; }
+    .tag-das { color: var(--color-primary); background: rgba(47,111,237,0.12); }
+    .tag-holerite { color: var(--color-success); background: rgba(47,158,104,0.14); }
+    .tag-atestado { color: var(--color-warning); background: rgba(208,138,38,0.15); }
+    .tag-contrato { color: var(--color-purple); background: rgba(124,100,217,0.13); }
+    .tag-recibo { color: var(--color-error); background: rgba(196,84,100,0.12); }
+    .more-stack { margin-top: auto; color: var(--color-text-faint); font-size: 12px; font-weight: 700; }
+    .side-panel {
+      display: grid; gap: var(--space-5);
+    }
+    .summary-card, .recent-card, .quick-card, .heat-card { padding: var(--space-6); }
+    .metric-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); margin-top: var(--space-5); }
+    .mini-metric {
+      padding: 1rem; border-radius: 18px; background: linear-gradient(180deg, rgba(47,111,237,0.09), rgba(255,255,255,0.9)); border: 1px solid rgba(47,111,237,0.09);
+    }
+    .mini-metric span { display: block; font-size: var(--text-xs); color: var(--color-text-muted); margin-bottom: 0.35rem; }
+    .mini-metric strong { font-size: 1.3rem; font-weight: 900; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+    .card-title { display: flex; justify-content: space-between; align-items: start; gap: var(--space-4); margin-bottom: var(--space-4); }
+    .card-title h4 { font-size: var(--text-lg); font-weight: 800; letter-spacing: -0.02em; }
+    .card-title p { font-size: var(--text-sm); color: var(--color-text-muted); margin-top: 0.25rem; }
+    .list { display: grid; gap: var(--space-3); }
+    .list-item {
+      display: grid; grid-template-columns: auto 1fr auto; gap: var(--space-3); align-items: center; padding: 0.95rem 1rem; border-radius: 18px; background: var(--color-surface);
+      border: 1px solid var(--color-border);
+    }
+    .list-icon { width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; background: var(--color-primary-highlight); color: var(--color-primary); font-weight: 800; }
+    .list-item strong { display: block; font-size: var(--text-sm); }
+    .list-item span { display: block; font-size: var(--text-xs); color: var(--color-text-muted); }
+    .chip-group { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .stat-chip {
+      padding: 0.6rem 0.8rem; border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 800; background: var(--color-surface-offset); color: var(--color-text-muted); border: 1px solid var(--color-border);
+    }
+    .quick-actions { display: grid; gap: var(--space-3); }
+    .quick-button {
+      display: flex; align-items: center; justify-content: space-between; padding: 1rem 1rem; border-radius: 18px; background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(234,242,255,0.92)); border: 1px solid rgba(47,111,237,0.1); font-weight: 700;
+    }
+    .activity {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.6rem; margin-top: var(--space-4);
+    }
+    .activity-bar {
+      height: 72px; border-radius: 18px; background: linear-gradient(180deg, rgba(47,111,237,0.08), rgba(47,111,237,0.18)); position: relative; overflow: hidden;
+    }
+    .activity-bar span {
+      position: absolute; bottom: 0; left: 0; right: 0; border-radius: 18px; background: linear-gradient(180deg, var(--color-primary), #8bb5ff);
+    }
+    .calendar-note {
+      margin-top: var(--space-5); padding: 1rem 1.1rem; border-radius: 18px; background: rgba(47,111,237,0.08); color: var(--color-text-muted); font-size: var(--text-sm);
+    }
+    .mobile-menu { display: none; }
+    .theme-icon { width: 19px; height: 19px; border-radius: 50%; background: linear-gradient(135deg, #ffe38b, #ffb347); box-shadow: inset -5px -4px 0 rgba(255,255,255,0.55); }
+    @media (max-width: 1220px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .filters { grid-template-columns: repeat(2, minmax(140px, 1fr)); }
+      .toolbar { grid-template-columns: 1fr; }
+      .month-nav, .view-switch { justify-content: space-between; }
+    }
+    @media (max-width: 980px) {
+      .dashboard { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .mobile-menu { display: inline-flex; }
+      html, body { overflow: auto; }
+      .workspace { min-height: 100dvh; }
+      .topbar { padding: var(--space-5); }
+      .content { padding: var(--space-5); }
+    }
+    @media (max-width: 780px) {
+      .weekdays, .calendar-grid { gap: var(--space-2); }
+      .day { min-height: 128px; padding: 0.7rem; border-radius: 18px; }
+      .metric-strip { grid-template-columns: 1fr; }
+      .top-actions { flex-wrap: wrap; justify-content: flex-end; }
+      .filters { grid-template-columns: 1fr; }
+      .activity { grid-template-columns: repeat(5, minmax(0,1fr)); }
+      .headline h2 { font-size: 1.85rem; }
+
+    @media (max-width: 620px) {
+      .calendar-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .weekdays { display: none; }
+      .day { min-height: auto; }
+      .toolbar { margin-bottom: var(--space-5); }
+      .month-header { flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logo RH Files">
+            <rect x="3" y="4" width="18" height="16" rx="4" fill="white" fill-opacity="0.22"/>
+            <path d="M7 8.5H16.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <path d="M7 12H14" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <path d="M7 15.5H12" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="brand-copy">
+          <h1>Atlas RH</h1>
+          <p>Controle documental</p>
+        </div>
+      </div>
+
+      <nav class="nav-section" aria-label="Menu principal">
+        <div class="nav-label">Menu</div>
+        <a class="nav-item" href="#"><span class="dot"></span>Início</a>
+        <a class="nav-item" href="#"><span class="dot"></span>Holerites</a>
+        <a class="nav-item" href="#"><span class="dot"></span>Meus Dados</a>
+        <a class="nav-item active" href="#"><span class="dot"></span>Arquivos</a>
+      </nav>
+
+      <nav class="nav-section" aria-label="Atalhos">
+        <div class="nav-label">Atalhos</div>
+        <a class="nav-item" href="#"><span class="dot"></span>Assinaturas</a>
+        <a class="nav-item" href="#"><span class="dot"></span>Solicitações</a>
+        <a class="nav-item" href="#"><span class="dot"></span>Histórico</a>
+      </nav>
+
+      <div class="storage-card">
+        <h3>Espaço documental</h3>
+        <p>1.248 arquivos organizados por competência, colaborador e categoria.</p>
+        <div class="bar" aria-hidden="true"><span></span></div>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <div class="headline">
+          <h2>Arquivos</h2>
+          <p>Consulte documentos por ano, mês e tipo em uma visualização cronológica clara e elegante.</p>
+        </div>
+        <div class="top-actions">
+          <button class="icon-btn mobile-menu" aria-label="Abrir menu">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+          </button>
+          <button class="icon-btn" data-theme-toggle aria-label="Alternar tema"><span class="theme-icon"></span></button>
+          <button class="action-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            Filtrar documentos
+          </button>
+          <button class="action-btn primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M4 20h16"/></svg>
+            Enviar arquivo
+          </button>
+        </div>
+      </header>
+
+      <main class="content">
+        <section class="hero-grid">
+          <div class="surface calendar-panel">
+            <div class="toolbar">
+              <div class="filters">
+                <div class="field"><span>Ano</span><strong>2026</strong></div>
+                <div class="field"><span>Mês</span><strong>Março</strong></div>
+                <div class="field"><span>Tipo de documento</span><strong>Todos</strong></div>
+                <div class="field"><span>Colaborador</span><strong>Fernanda Lima</strong></div>
+              </div>
+              <div class="month-nav">
+                <button class="pill-btn">◀ Fevereiro</button>
+                <button class="pill-btn active">Março 2026</button>
+                <button class="pill-btn">Abril ▶</button>
+              </div>
+              <div class="view-switch">
+                <button class="pill-btn active">Mês</button>
+                <button class="pill-btn">Ano</button>
+                <button class="pill-btn">Linha do tempo</button>
+              </div>
+            </div>
+
+            <div class="month-header">
+              <div class="month-title">
+                <h3>Calendário de arquivos</h3>
+                <p>Visualize rapidamente os documentos anexados em cada competência.</p>
+              </div>
+              <div class="legend">
+                <span class="legend-item"><span class="legend-swatch" style="background: var(--color-primary);"></span>DAS</span>
+                <span class="legend-item"><span class="legend-swatch" style="background: var(--color-success);"></span>Holerite</span>
+                <span class="legend-item"><span class="legend-swatch" style="background: var(--color-warning);"></span>Atestado</span>
+                <span class="legend-item"><span class="legend-swatch" style="background: var(--color-purple);"></span>Contrato</span>
+                <span class="legend-item"><span class="legend-swatch" style="background: var(--color-error);"></span>Recibo</span>
+              </div>
+            </div>
+
+            <div class="weekdays">
+              <div class="weekday">Dom</div><div class="weekday">Seg</div><div class="weekday">Ter</div><div class="weekday">Qua</div><div class="weekday">Qui</div><div class="weekday">Sex</div><div class="weekday">Sáb</div>
+            </div>
+
+            <div class="calendar-grid">
+              <article class="day muted"><div class="day-header"><span class="day-number">23</span></div></article>
+              <article class="day muted"><div class="day-header"><span class="day-number">24</span></div></article>
+              <article class="day muted"><div class="day-header"><span class="day-number">25</span></div></article>
+              <article class="day muted"><div class="day-header"><span class="day-number">26</span></div></article>
+              <article class="day muted"><div class="day-header"><span class="day-number">27</span></div></article>
+              <article class="day muted"><div class="day-header"><span class="day-number">28</span></div></article>
+              <article class="day"><div class="day-header"><span class="day-number">1</span></div><div class="file-list"><span class="file-pill tag-recibo">Recibo</span></div></article>
+
+              <article class="day"><div class="day-header"><span class="day-number">2</span></div></article>
+              <article class="day"><div class="day-header"><span class="day-number">3</span></div><div class="file-list"><span class="file-pill tag-atestado">Atestado</span></div></article>
+              <article class="day high-volume"><div class="day-header"><span class="day-number">4</span><span class="volume-badge">3</span></div><div class="file-list"><span class="file-pill tag-das">DAS</span><span class="file-pill tag-holerite">Holerite</span><span class="file-pill tag-recibo">Recibo</span></div></article>
+              <article class="day"><div class="day-header"><span class="day-number">5</span></div></article>
+              <article class="day"><div class="day-header"><span class="day-number">6</span></div><div class="file-list"><span class="file-pill tag-contrato">Contrato</span></div></article>
+              <article class="day"><div class="day-header"><span class="day-number">7</span></div></article>
+              <article class="day"><div class="day-header"><span class="day-number">8</span></div></article>
+
+              <article class="day"><div class="day-header"><span class="day-number">9</span></div><div class="file-list"><span class="file-pill tag-holerite">Holerite</span></div></article>
+              <article class="day"><div class="day-header"><span class="day-number">10</span></div></article>
+              <article class="day high-volume"><div class="day-header"><span class="day-number">11</span><span class="volume-badge">4</span></div><div class="file-list"><span class="file-pill tag-das">DAS</span><span class="file-pill tag-recibo">Recibo</span><span class="file-pill tag-atestado">Atestado</span></div><div class="more-stack">+1 contrato</div></article>
+              <article class="day"><div class="day-header"><span class="day-number">12</span></div></article>
+              <article class="day"><div class="day-header"><span class="day-number">13</span></div><div class="file-list"><span class="file-pill tag-holerite">Holerite</span><span class="file-pill tag-recibo">Recibo</span></div></article>
+              <article class="day"><div class="day-header"><span class="day-number">14</span></div></article>
+              <article class="day"><div class="day-header"><span class="day-number">15</span></div></article>
+
+              <article class="day"><div class="day-header"><span class="day-number">16</span></div></article>
+              <article class="day"><div class="day-header"><span class="day-number">17</span></div><div class="file-list"><span class="file-pill tag-atestado">Atestado</span><span class="file-pill tag-recibo">Recibo</span></div></article>
+              <article class="day"><div class="day-header"><span class="day-number">18</span></div></article>
+              <article class="day high-volume"><div class="day-header"><span class="day-number">19</span><span class="volume-badge">5</span></div><div class="file-list"><span class="file-pill tag-das">DAS</span><span class="file-pill tag-holerite">Holerite</span><span class="file-pill tag-contrato">Contrato</span></div><div class="more-stack">+2 recibos</div></article>
+              <article class="day"><div class="day-header"><span class="day-number">20</span></div></article>
+              <article class="day"><div class="day-header"><span class="day-number">21</span></div></article>
+              <article class="day"><div class="day-header"><span class="day-number">22</span></div><div class="file-list"><span class="file-pill tag-recibo">Recibo</span></div></article>
+
+              <article class="day"><div class="day-header"><span class="day-number">23</span></div></article>
+              <article class="day"><div class="day-header"><span class="day-number">24</span></div><div class="file-list"><span class="file-pill tag-contrato">Contrato</span><span class="file-pill tag-das">DAS</span></div></article>
+              <article class="day"><div class="day-header"><span class="day-number">25</span></div></article>
+              <article class="day"><div class="day-header"><span class="day-number">26</span></div></article>
+              <article class="day high-volume"><div class="day-header"><span class="day-number">27</span><span class="volume-badge">4</span></div><div class="file-list"><span class="file-pill tag-holerite">Holerite</span><span class="file-pill tag-recibo">Recibo</span><span class="file-pill tag-das">DAS</span></div><div class="more-stack">+1 atestado</div></article>
+              <article class="day"><div class="day-header"><span class="day-number">28</span></div></article>
+              <article class="day"><div class="day-header"><span class="day-number">29</span></div></article>
+
+              <article class="day"><div class="day-header"><span class="day-number">30</span></div><div class="file-list"><span class="file-pill tag-holerite">Holerite</span><span class="file-pill tag-recibo">Recibo</span></div></article>
+              <article class="day"><div class="day-header"><span class="day-number">31</span></div><div class="file-list"><span class="file-pill tag-das">DAS</span></div></article>
+              <article class="day muted"><div class="day-header"><span class="day-number">1</span></div></article>
+              <article class="day muted"><div class="day-header"><span class="day-number">2</span></div></article>
+              <article class="day muted"><div class="day-header"><span class="day-number">3</span></div></article>
+              <article class="day muted"><div class="day-header"><span class="day-number">4</span></div></article>
+              <article class="day muted"><div class="day-header"><span class="day-number">5</span></div></article>
+            </div>
+
+            <div class="calendar-note">Dias com fundo azul suave indicam maior concentração de documentos, facilitando a leitura por volume e competência.</div>
+          </div>
+
+          <aside class="side-panel">
+            <section class="surface summary-card">
+              <div class="card-title">
+                <div>
+                  <h4>Resumo do mês</h4>
+                  <p>Visão rápida da movimentação documental.</p>
+                </div>
+                <button class="pill-btn active">Mar/2026</button>
+              </div>
+              <div class="metric-strip">
+                <div class="mini-metric"><span>Arquivos enviados</span><strong>42</strong></div>
+                <div class="mini-metric"><span>Dias com envio</span><strong>14</strong></div>
+                <div class="mini-metric"><span>Pico mensal</span><strong>19/03</strong></div>
+              </div>
+              <div class="activity" aria-hidden="true">
+                <div class="activity-bar"><span style="height: 42%"></span></div>
+                <div class="activity-bar"><span style="height: 66%"></span></div>
+                <div class="activity-bar"><span style="height: 84%"></span></div>
+                <div class="activity-bar"><span style="height: 58%"></span></div>
+                <div class="activity-bar"><span style="height: 95%"></span></div>
+              </div>
+            </section>
+
+            <section class="surface recent-card">
+              <div class="card-title">
+                <div>
+                  <h4>Documentos recentes</h4>
+                  <p>Últimos anexos registrados.</p>
+                </div>
+              </div>
+              <div class="list">
+                <div class="list-item"><div class="list-icon">HL</div><div><strong>Holerite de Março</strong><span>31 mar • 09:12 • Fernanda Lima</span></div><span class="stat-chip">PDF</span></div>
+                <div class="list-item"><div class="list-icon">DS</div><div><strong>DAS complementar</strong><span>27 mar • 15:48 • Bruno Costa</span></div><span class="stat-chip">XML</span></div>
+                <div class="list-item"><div class="list-icon">AT</div><div><strong>Atestado médico</strong><span>17 mar • 11:03 • Júlia Rocha</span></div><span class="stat-chip">IMG</span></div>
+              </div>
+            </section>
+
+            <section class="surface heat-card">
+              <div class="card-title">
+                <div>
+                  <h4>Categorias frequentes</h4>
+                  <p>Tipos mais recorrentes no período.</p>
+                </div>
+              </div>
+              <div class="chip-group">
+                <span class="stat-chip">Holerite • 12</span>
+                <span class="stat-chip">Recibo • 10</span>
+                <span class="stat-chip">DAS • 8</span>
+                <span class="stat-chip">Contrato • 6</span>
+                <span class="stat-chip">Atestado • 6</span>
+              </div>
+            </section>
+
+            <section class="surface quick-card">
+              <div class="card-title">
+                <div>
+                  <h4>Ações rápidas</h4>
+                  <p>Atalhos para fluxos do RH.</p>
+                </div>
+              </div>
+              <div class="quick-actions">
+                <button class="quick-button">Enviar arquivo <span>↗</span></button>
+                <button class="quick-button">Filtrar documentos <span>⌕</span></button>
+                <button class="quick-button">Exportar relatório <span>↓</span></button>
+              </div>
+            </section>
+          </aside>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const button = document.querySelector('[data-theme-toggle]');
+      let theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      root.setAttribute('data-theme', theme);
+      button?.addEventListener('click', () => {
+        theme = theme === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', theme);
+      });
+    })();
+  </script>
+</body>
+</html>

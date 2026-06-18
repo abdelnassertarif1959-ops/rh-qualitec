@@ -1,0 +1,9 @@
+{
+  "projectName": "rh3",
+  "projectPath": "C:\\Users\\Vendas2\\Desktop\\rh3",
+  "localPort": 3000,
+  "type": "frontend",
+  "testScope": "codebase",
+  "needLogin": true,
+  "additionalInstruction": "Execute baseline security tests focusing on authentication, authorization, input validation, and data exposure vulnerabilities. Test both admin and employee user roles."
+}

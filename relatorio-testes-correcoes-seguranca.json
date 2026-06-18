@@ -1,0 +1,163 @@
+{
+  "timestamp": "2026-02-12T17:04:27.733Z",
+  "summary": {
+    "total": 28,
+    "passed": 28,
+    "failed": 0,
+    "successRate": "100.0%"
+  },
+  "categories": {
+    "csrf": {
+      "total": 7,
+      "passed": 7,
+      "failed": 0
+    },
+    "sanitization": {
+      "total": 7,
+      "passed": 7,
+      "failed": 0
+    }
+  },
+  "details": [
+    {
+      "file": "server/api/auth/login.post.ts",
+      "test": "Import do requireCsrfProtection",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/api/auth/login.post.ts",
+      "test": "Chamada ao requireCsrfProtection no handler",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/api/auth/login.post.ts",
+      "test": "Comentário de segurança presente",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/api/auth/logout.post.ts",
+      "test": "Import do requireCsrfProtection",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/api/auth/logout.post.ts",
+      "test": "Chamada ao requireCsrfProtection no handler",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/api/auth/logout.post.ts",
+      "test": "Comentário de segurança presente",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/api/auth/reset-password.post.ts",
+      "test": "Import do requireCsrfProtection",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/api/auth/reset-password.post.ts",
+      "test": "Chamada ao requireCsrfProtection no handler",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/api/auth/reset-password.post.ts",
+      "test": "Comentário de segurança presente",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/api/funcionarios/[id].get.ts",
+      "test": "Import do sanitizeUserData",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/api/funcionarios/[id].get.ts",
+      "test": "Chamada ao sanitizeUserData antes de retornar",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/api/funcionarios/[id].get.ts",
+      "test": "Comentário de segurança presente",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/api/funcionarios/[id].get.ts",
+      "test": "Retorna dados sanitizados ao invés de dados brutos",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/api/funcionarios/meus-dados.get.ts",
+      "test": "Import do sanitizeUserData",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/api/funcionarios/meus-dados.get.ts",
+      "test": "Chamada ao sanitizeUserData",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/api/funcionarios/meus-dados.get.ts",
+      "test": "Armazena dados sanitizados em variável",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/api/funcionarios/meus-dados.get.ts",
+      "test": "Retorna dados sanitizados na resposta",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/api/admin/info.get.ts",
+      "test": "Import do sanitizeUserData",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/api/admin/info.get.ts",
+      "test": "Chamada ao sanitizeUserData",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/api/admin/info.get.ts",
+      "test": "Comentário de segurança presente",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/api/admin/info.get.ts",
+      "test": "Retorna dados sanitizados na resposta",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/utils/csrfMiddleware.ts",
+      "test": "Função requireCsrfProtection exportada",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/utils/csrfMiddleware.ts",
+      "test": "Rota /api/auth/login nas rotas excluídas",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/utils/csrfMiddleware.ts",
+      "test": "Rota /api/auth/logout nas rotas excluídas",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/utils/csrfMiddleware.ts",
+      "test": "Rota /api/auth/reset-password nas rotas excluídas",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/utils/authMiddleware.ts",
+      "test": "Função sanitizeUserData exportada",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/utils/authMiddleware.ts",
+      "test": "Remove campo senha",
+      "status": "PASSED"
+    },
+    {
+      "file": "server/utils/authMiddleware.ts",
+      "test": "Remove campo senha_hash",
+      "status": "PASSED"
+    }
+  ]
+}
