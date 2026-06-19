@@ -367,7 +367,6 @@ export function gerarHoleriteHTML(holerite: any, funcionario: any, empresa: any)
           <td style="width: 17.5%;" class="text-right">${faltas.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
         </tr>`
   }
-
   const descontoAfastamento = Number(holerite.desconto_afastamento) || 0
   if (descontoAfastamento > 0) {
     linhasTabela += `

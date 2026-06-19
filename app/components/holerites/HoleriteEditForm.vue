@@ -394,7 +394,6 @@
           💡 Use este campo para descontar dias de afastamento (INSS, acidente, licença não remunerada, etc.). Para afastamento total, clique em "Zerar salário" — isso define o desconto igual ao salário proporcional, resultando em R$ 0,00 de provento líquido.
         </UiAlert>
       </div>
-
       <!-- Pensão Alimentícia com Percentual -->
       <div class="border-2 border-purple-200 rounded-lg p-4 bg-purple-50">
         <div class="flex items-center justify-between mb-3">
@@ -1290,7 +1289,8 @@ watch(() => props.holerite, (novoHolerite) => {
       plano_odontologico: novoHolerite.plano_odontologico || 0,
       adiantamento: novoHolerite.adiantamento || 0,
       faltas: novoHolerite.faltas || 0,
-      pensao_alimenticia: novoHolerite.pensao_alimenticia || 0
+      pensao_alimenticia: novoHolerite.pensao_alimenticia || 0,
+      desconto_afastamento: novoHolerite.desconto_afastamento || 0
     }
     
     // Atualizar configurações de INSS e Pensão
