@@ -54,25 +54,24 @@ export default defineEventHandler(async (event) => {
     
     // Aplicar filtros
     
-    // Filtro por mês/ano - CORRIGIDO: usar último dia real do mês
+    // Filtro por mês/ano - usa data_pagamento para que folhas mensais
+    // apareçam no mês em que foram pagas (ex: pago em 05/06 → filtro de junho),
+    // independente do mês de competência (periodo_inicio)
     if (mes) {
       const [ano, mesNum] = mes.toString().split('-')
       const anoInt = parseInt(ano)
       const mesInt = parseInt(mesNum)
       
-      // Calcular primeiro e último dia do mês corretamente
+      // Calcular primeiro e último dia do mês de pagamento
       const inicioMes = `${ano}-${mesNum.padStart(2, '0')}-01`
-      
-      // Usar new Date(ano, mes, 0) para obter o último dia real do mês
-      // mes-1 porque Date usa índice 0-11 para meses, e 0 como dia retorna o último dia do mês anterior
       const ultimoDiaDoMes = new Date(anoInt, mesInt, 0).getDate()
       const fimMes = `${ano}-${mesNum.padStart(2, '0')}-${ultimoDiaDoMes.toString().padStart(2, '0')}`
       
-      console.log('[HOLERITES] Filtro de data:', { inicioMes, fimMes, ultimoDiaDoMes })
+      console.log('[HOLERITES] Filtro de data_pagamento:', { inicioMes, fimMes })
       
       queryBuilder = queryBuilder
-        .gte('periodo_inicio', inicioMes)
-        .lte('periodo_fim', fimMes)
+        .gte('data_pagamento', inicioMes)
+        .lte('data_pagamento', fimMes)
     }
     
     // Filtro por status - CORREÇÃO: Se incluir_todos_status for true, não filtrar por status

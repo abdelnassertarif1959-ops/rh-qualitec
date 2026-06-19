@@ -12,8 +12,8 @@ export default defineEventHandler(async (event) => {
     // Buscar todos os períodos únicos de holerites
     const { data: holerites, error } = await supabase
       .from('holerites')
-      .select('periodo_inicio, periodo_fim')
-      .order('periodo_inicio', { ascending: false })
+      .select('data_pagamento')
+      .order('data_pagamento', { ascending: false })
 
     if (error) {
       console.error('Erro ao buscar holerites:', error)
@@ -23,12 +23,13 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Extrair meses únicos no formato YYYY-MM (usando split para evitar problemas de timezone)
+    // Extrair meses únicos pelo mês de PAGAMENTO (usando split para evitar problemas de timezone)
+    // Assim folhas pagas em junho aparecem no filtro de junho, independente da competência
     const mesesSet = new Set<string>()
     
     holerites?.forEach(holerite => {
-      if (holerite.periodo_inicio) {
-        const parts = holerite.periodo_inicio.split('-')
+      if (holerite.data_pagamento) {
+        const parts = holerite.data_pagamento.split('-')
         if (parts.length >= 2) {
           const mesAno = `${parts[0]}-${parts[1]}`
           mesesSet.add(mesAno)
