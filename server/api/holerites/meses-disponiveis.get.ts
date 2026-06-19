@@ -23,14 +23,16 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Extrair meses únicos no formato YYYY-MM
+    // Extrair meses únicos no formato YYYY-MM (usando split para evitar problemas de timezone)
     const mesesSet = new Set<string>()
     
     holerites?.forEach(holerite => {
       if (holerite.periodo_inicio) {
-        const data = new Date(holerite.periodo_inicio)
-        const mesAno = `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, '0')}`
-        mesesSet.add(mesAno)
+        const parts = holerite.periodo_inicio.split('-')
+        if (parts.length >= 2) {
+          const mesAno = `${parts[0]}-${parts[1]}`
+          mesesSet.add(mesAno)
+        }
       }
     })
 
