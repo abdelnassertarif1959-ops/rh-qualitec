@@ -101,6 +101,30 @@
           </div>
         </div>
         
+        <!-- Plano de Saúde -->
+        <div v-if="holerite.plano_saude && Number(holerite.plano_saude) > 0" class="flex justify-between py-2 border-b border-gray-100">
+          <span class="text-gray-600">Plano de Saúde</span>
+          <span class="font-semibold text-red-600">- {{ formatarMoeda(holerite.plano_saude) }}</span>
+        </div>
+        
+        <!-- Plano Odontológico -->
+        <div v-if="holerite.plano_odontologico && Number(holerite.plano_odontologico) > 0" class="flex justify-between py-2 border-b border-gray-100">
+          <span class="text-gray-600">Plano Odontológico</span>
+          <span class="font-semibold text-red-600">- {{ formatarMoeda(holerite.plano_odontologico) }}</span>
+        </div>
+        
+        <!-- Faltas -->
+        <div v-if="holerite.faltas && Number(holerite.faltas) > 0" class="flex justify-between py-2 border-b border-gray-100">
+          <span class="text-gray-600">Faltas</span>
+          <span class="font-semibold text-red-600">- {{ formatarMoeda(holerite.faltas) }}</span>
+        </div>
+        
+        <!-- Afastamento -->
+        <div v-if="holerite.desconto_afastamento && Number(holerite.desconto_afastamento) > 0" class="flex justify-between py-2 border-b border-gray-100">
+          <span class="text-gray-600">Afastamento</span>
+          <span class="font-semibold text-red-600">- {{ formatarMoeda(holerite.desconto_afastamento) }}</span>
+        </div>
+        
         <div v-if="holerite.vale_transporte" class="flex justify-between py-2 border-b border-gray-100">
           <span class="text-gray-600">Vale Transporte</span>
           <span class="font-semibold text-red-600">- {{ formatarMoeda(holerite.vale_transporte) }}</span>
