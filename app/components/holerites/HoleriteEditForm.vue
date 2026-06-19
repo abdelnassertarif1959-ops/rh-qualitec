@@ -321,25 +321,34 @@
         />
       </div>
 
-      <!-- Adiantamento Salarial (40% do Salário Bruto) -->
+      <!-- Adiantamento Salarial -->
       <div class="bg-orange-50 border-2 border-orange-200 rounded-lg p-4 space-y-3">
         <h4 class="font-semibold text-orange-900 flex items-center gap-2">
-          💰 Adiantamento Salarial (40% do Salário Bruto)
+          💰 Adiantamento Salarial
         </h4>
         
-        <div class="bg-white rounded-lg p-3 text-sm space-y-1">
-          <div class="flex justify-between text-gray-600">
-            <span>Salário Bruto (Proporcional):</span>
-            <span class="font-medium">{{ formatarMoeda(calcularTotalProventos()) }}</span>
-          </div>
-          <div class="flex justify-between font-bold text-orange-600 pt-1 border-t">
-            <span>Adiantamento (40%):</span>
-            <span>{{ formatarMoeda(form.adiantamento) }}</span>
+        <div class="grid grid-cols-2 gap-4">
+          <UiInput 
+            v-model="form.adiantamento" 
+            type="number" 
+            label="Valor do Adiantamento (R$)"
+            placeholder="0.00"
+            step="0.01"
+          />
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Calcular 40% do bruto</label>
+            <button
+              type="button"
+              @click="calcularAdiantamento"
+              class="w-full px-3 py-2 bg-orange-100 hover:bg-orange-200 border border-orange-300 rounded-lg text-sm font-medium text-orange-800 transition-colors"
+            >
+              ⚡ Calcular 40%
+            </button>
           </div>
         </div>
 
         <UiAlert variant="info" class="text-xs">
-          💡 <strong>Informação:</strong> O adiantamento é calculado automaticamente como 40% do salário bruto proporcional aos dias trabalhados.
+          💡 O adiantamento é carregado do valor salvo no banco de dados. Para recalculá-lo como 40% do salário bruto atual, clique em "Calcular 40%".
         </UiAlert>
       </div>
 
@@ -1258,7 +1267,6 @@ onMounted(() => {
   carregarDadosAdicionais()
   // Calcular valores iniciais automaticamente
   calcularINSS() // Calcular INSS (se percentual)
-  calcularAdiantamento() // Calcular adiantamento (40% do salário bruto)
   calcularPensao() // Calcular pensão (se percentual)
 })
 
@@ -1329,10 +1337,6 @@ watch(() => form.value.dias_trabalhados, (novoValor, valorAnterior) => {
     console.log('⚠️ INSS está em modo fixo, não recalculando')
   }
   
-  // Recalcular adiantamento (sempre 40%)
-  console.log('✅ Recalculando adiantamento (40%)')
-  calcularAdiantamento()
-  
   // Recalcular pensão se estiver em modo percentual
   if (pensaoConfig.value.tipo === 'percentual') {
     console.log('✅ Recalculando Pensão (percentual)')
@@ -1350,10 +1354,6 @@ watch(() => form.value.salario_base, (novoValor, valorAnterior) => {
     console.log('✅ Recalculando INSS (percentual)')
     calcularINSS()
   }
-  
-  // Recalcular adiantamento (sempre 40%)
-  console.log('✅ Recalculando adiantamento (40%)')
-  calcularAdiantamento()
   
   // Recalcular pensão se estiver em modo percentual
   if (pensaoConfig.value.tipo === 'percentual') {
