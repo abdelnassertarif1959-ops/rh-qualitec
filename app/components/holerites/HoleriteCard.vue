@@ -3,14 +3,14 @@
     'border rounded-xl p-6 hover:shadow-lg transition-shadow',
     getTipoHoleriteStyle().card
   ]">
-    <div class="flex items-start justify-between">
+    <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
       <!-- Informações Principais -->
-      <div class="flex-1">
+      <div class="flex-1 min-w-0">
         <div class="flex items-center gap-3 mb-3">
           <!-- Indicador de Tipo (Adiantamento vs Folha Mensal) -->
           <div 
             :class="[
-              'w-12 h-12 rounded-full flex items-center justify-center',
+              'w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0',
               getTipoHoleriteStyle().icon
             ]"
           >
@@ -23,7 +23,7 @@
           </div>
           
           <div>
-            <div class="flex items-center gap-2 mb-1">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
               <h3 class="text-lg font-bold text-gray-800">
                 {{ holerite.referencia }}
               </h3>
@@ -38,7 +38,7 @@
               </span>
             </div>
             
-            <div class="flex items-center gap-2 text-sm text-gray-500">
+            <div class="flex items-center gap-2 text-sm text-gray-500 flex-wrap">
               <span>{{ holerite.competencia }}</span>
               <span v-if="holerite.quinzena" class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
                 {{ holerite.quinzena }}ª Quinzena
@@ -101,12 +101,13 @@
       </div>
 
       <!-- Ações -->
-      <div class="flex flex-col gap-2 ml-4">
+      <div class="flex flex-row md:flex-col gap-2 w-full md:w-auto md:ml-4 justify-end mt-2 md:mt-0 flex-wrap sm:flex-nowrap">
         <UiButton 
           variant="primary" 
           size="sm"
           @click="$emit('view', holerite)"
           :disabled="!isDisponivel"
+          class="flex-1 md:flex-none justify-center"
         >
           <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -120,6 +121,7 @@
           size="sm"
           @click="$emit('download', holerite)"
           :disabled="!isDisponivel"
+          class="flex-1 md:flex-none justify-center"
         >
           <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
