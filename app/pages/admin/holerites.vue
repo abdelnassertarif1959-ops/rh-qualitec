@@ -619,9 +619,16 @@ const opcoesGeracao = ref({
 })
 
 // Filtros
+const obterMesAtualFormatado = () => {
+  const agora = new Date()
+  const ano = agora.getFullYear()
+  const mes = String(agora.getMonth() + 1).padStart(2, '0')
+  return `${ano}-${mes}`
+}
+
 const filtros = ref({
   estilo: '', // Mudança: empresa -> estilo (adiantamento/mensal)
-  mes: '',
+  mes: obterMesAtualFormatado(),
   status: ''
 })
 
@@ -1175,6 +1182,13 @@ const getStatusLabel = (status: string) => {
 onMounted(async () => {
   // Carregar meses disponíveis primeiro
   await carregarMesesDisponiveis()
+  
+  // Se o mês atual não tiver holerites e houver outros períodos, selecionar o mais recente
+  const mesAtual = obterMesAtualFormatado()
+  if (mesesDisponiveis.value.length > 0 && !mesesDisponiveis.value.includes(mesAtual)) {
+    filtros.value.mes = mesesDisponiveis.value[0]
+  }
+  
   // Carregar holerites
   await carregarHolerites()
 })
