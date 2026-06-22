@@ -59,6 +59,7 @@
         <LayoutNavLink to="/admin/departamentos" icon="building">Departamentos</LayoutNavLink>
         <LayoutNavLink to="/admin/cargos" icon="briefcase">Cargos</LayoutNavLink>
         <LayoutNavLink to="/admin/holerites" icon="money">Holerites</LayoutNavLink>
+        <LayoutNavLink to="/admin/ferias" icon="calendar">Férias</LayoutNavLink>
         <LayoutNavLink to="/admin/avisos" icon="megaphone">Avisos</LayoutNavLink>
         <LayoutNavLink to="/admin/documentos" icon="document">Documentos</LayoutNavLink>
         <LayoutNavLink to="/admin/codigo-etica" icon="document">Código de Ética</LayoutNavLink>

@@ -1,0 +1,98 @@
+import { serverSupabaseClient } from '#supabase/server'
+import { calcularRemuneracaoFerias } from '../../../utils/calcularFerias'
+
+// PUT /api/ferias/[id] — Editar período de férias
+export default defineEventHandler(async (event) => {
+  try {
+    const supabase = await serverSupabaseClient(event)
+    const id = Number(getRouterParam(event, 'id'))
+    const body = await readBody(event)
+
+    if (!id) throw createError({ statusCode: 400, statusMessage: 'ID inválido' })
+
+    // Verificar se existe
+    const { data: existing, error: errGet } = await supabase
+      .from('funcionario_ferias')
+      .select('*, funcionarios(id, salario_base, numero_dependentes)')
+      .eq('id', id)
+      .single()
+
+    if (errGet || !existing) throw createError({ statusCode: 404, statusMessage: 'Período de férias não encontrado' })
+
+    const {
+      periodo_aquisitivo_inicio,
+      periodo_aquisitivo_fim,
+      data_inicio,
+      data_fim,
+      abono_pecuniario,
+      dias_abono,
+      status,
+      observacoes,
+      data_pagamento,
+    } = body
+
+    // Calcular valores se datas foram alteradas
+    let updates: Record<string, any> = {}
+
+    const dtInicio = new Date((data_inicio || existing.data_inicio) + 'T00:00:00')
+    const dtFim = new Date((data_fim || existing.data_fim) + 'T00:00:00')
+    const diasCorridos = Math.floor((dtFim.getTime() - dtInicio.getTime()) / (1000 * 60 * 60 * 24)) + 1
+    
+    let diasUteis = 0
+    const cursor = new Date(dtInicio)
+    while (cursor <= dtFim) {
+      const dow = cursor.getDay()
+      if (dow !== 0 && dow !== 6) diasUteis++
+      cursor.setDate(cursor.getDate() + 1)
+    }
+
+    const usarAbono = abono_pecuniario !== undefined ? abono_pecuniario : existing.abono_pecuniario
+    const usarDiasAbono = dias_abono !== undefined ? dias_abono : existing.dias_abono
+    const diasFerias = diasCorridos - (usarAbono ? usarDiasAbono : 0)
+
+    const func = existing.funcionarios as any
+    const salarioBase = Number(func?.salario_base) || 0
+    const numeroDependentes = Number(func?.numero_dependentes) || 0
+
+    const calc = calcularRemuneracaoFerias(salarioBase, diasFerias, usarAbono ? usarDiasAbono : 0, numeroDependentes)
+
+    if (data_inicio !== undefined) updates.data_inicio = data_inicio
+    if (data_fim !== undefined) updates.data_fim = data_fim
+    if (periodo_aquisitivo_inicio !== undefined) updates.periodo_aquisitivo_inicio = periodo_aquisitivo_inicio
+    if (periodo_aquisitivo_fim !== undefined) updates.periodo_aquisitivo_fim = periodo_aquisitivo_fim
+    if (status !== undefined) updates.status = status
+    if (observacoes !== undefined) updates.observacoes = observacoes
+    if (data_pagamento !== undefined) updates.data_pagamento = data_pagamento
+    if (abono_pecuniario !== undefined) updates.abono_pecuniario = abono_pecuniario
+    if (dias_abono !== undefined) updates.dias_abono = dias_abono
+
+    // Sempre recalcular valores
+    updates = {
+      ...updates,
+      dias_corridos: diasCorridos,
+      dias_uteis: diasUteis,
+      valor_remuneracao: calc.valorRemuneracao,
+      valor_um_terco: calc.valorUmTerco,
+      valor_abono_pecuniario: calc.valorAbonoPecuniario,
+      valor_bruto: calc.valorBruto,
+      inss: calc.inss,
+      irrf: calc.irrf,
+      valor_liquido: calc.valorLiquido,
+    }
+
+    const { data: updated, error: errUpdate } = await supabase
+      .from('funcionario_ferias')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (errUpdate) throw createError({ statusCode: 500, statusMessage: errUpdate.message })
+
+    return { success: true, data: updated, calculo: calc }
+  } catch (error: any) {
+    console.error('[PUT /api/ferias/[id]] Erro:', error)
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: error.message || 'Erro ao atualizar férias' })
+  }
+})

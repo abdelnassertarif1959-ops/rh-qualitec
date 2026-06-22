@@ -76,9 +76,19 @@ export function gerarHoleriteHTML(holerite: any, funcionario: any, empresa: any)
   let isFolhaMensal = true // Apenas folha mensal completa mostra bases de cálculo
   let corTema = '#18181b' // Zinc-900 (neutral escuro)
   let corFundo = '#f4f4f5' // Zinc-100 (neutral claro)
-  
+
+  // Detectar holerite de FÉRIAS (via beneficios.ferias ou observacoes)
+  const beneficiosRaw = holerite.beneficios
+  const feriasBeneficios = beneficiosRaw?.ferias || null
+  const isFerias = !!feriasBeneficios
+
   // Verificar se é adiantamento baseado no período (dia 15 ao último dia do mês)
-  if (isAdiantamento) {
+  if (isFerias) {
+    tipoFolha = 'Recibo de Férias'
+    isFolhaMensal = false
+    corTema = '#1e4d2b' // Verde escuro — férias
+    corFundo = '#f0fdf4' // Verde muito claro
+  } else if (isAdiantamento) {
     tipoFolha = 'Adiantamento Salarial'
     isFolhaMensal = false
     corTema = '#3f3f46' // Zinc-700 (neutral médio)
@@ -92,8 +102,8 @@ export function gerarHoleriteHTML(holerite: any, funcionario: any, empresa: any)
   const tipoContrato = funcionario.tipo_contrato || 'CLT'
   const isPJ = tipoContrato === 'PJ'
   
-  // PJ e Adiantamento NÃO devem mostrar bases de cálculo
-  const mostrarBasesCalculo = isFolhaMensal && !isPJ && !isAdiantamento
+  // PJ, Adiantamento e Férias NÃO devem mostrar bases de cálculo do holerite mensal
+  const mostrarBasesCalculo = isFolhaMensal && !isPJ && !isAdiantamento && !isFerias
   
   // Log para debug
   console.log(`📄 Tipo de Holerite:`)
@@ -149,13 +159,27 @@ export function gerarHoleriteHTML(holerite: any, funcionario: any, empresa: any)
   })
   
   const descontoAfastamento = Number(holerite.desconto_afastamento) || 0
-  const totalVencimentos = salarioProporcional + bonus + horasExtras + adicionalNoturno + 
-                          adicionalPericulosidade + adicionalInsalubridade + comissoes + 
-                          totalBeneficiosPersonalizados + descontoAfastamento
+
+  // Para holerites de férias: usar valores calculados do benefício
+  const valorRemuneracaoFerias = Number(feriasBeneficios?.valor_remuneracao) || 0
+  const valorUmTercoFerias = Number(feriasBeneficios?.valor_um_terco) || 0
+  const valorAbonoPecuniario = Number(feriasBeneficios?.valor_abono_pecuniario) || 0
+  const diasFeriasGozo = Number(feriasBeneficios?.dias_ferias) || 0
+  const diasAbonoPecuniario = Number(feriasBeneficios?.dias_abono) || 0
+
+  let totalVencimentos: number
+  if (isFerias) {
+    totalVencimentos = valorRemuneracaoFerias + valorUmTercoFerias + valorAbonoPecuniario
+  } else {
+    totalVencimentos = salarioProporcional + bonus + horasExtras + adicionalNoturno +
+                      adicionalPericulosidade + adicionalInsalubridade + comissoes +
+                      totalBeneficiosPersonalizados + descontoAfastamento
+  }
+
   const totalDescontosRaw = inss + irrf + valeTransporte + 
                         planoSaude + planoOdonto + adiantamento + faltas + 
                         pensaoAlimenticia + totalDescontosPersonalizados +
-                        descontoAfastamento
+                        (isFerias ? 0 : descontoAfastamento)
   const totalDescontos = Math.min(totalDescontosRaw, totalVencimentos)
   const valorLiquido = Math.max(0, totalVencimentos - totalDescontos)
   
@@ -172,9 +196,43 @@ export function gerarHoleriteHTML(holerite: any, funcionario: any, empresa: any)
   
   // Gerar linhas da tabela
   let linhasTabela = ''
-  
-  if (salarioProporcional > 0) {
-    linhasTabela += `
+
+  // ─── LINHAS ESPECÍFICAS DE FÉRIAS ──────────────────────────────────
+  if (isFerias) {
+    if (valorRemuneracaoFerias > 0) {
+      linhasTabela += `
+        <tr>
+          <td style="width: 12%;">8800</td>
+          <td style="width: 38%;">REMUNERAÇÃO DE FÉRIAS</td>
+          <td style="width: 15%;" class="text-center">${diasFeriasGozo} dias</td>
+          <td style="width: 17.5%;" class="text-right">${valorRemuneracaoFerias.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <td style="width: 17.5%;" class="text-right"></td>
+        </tr>`
+    }
+    if (valorUmTercoFerias > 0) {
+      linhasTabela += `
+        <tr>
+          <td style="width: 12%;">8801</td>
+          <td style="width: 38%;">1/3 CONSTITUCIONAL</td>
+          <td style="width: 15%;" class="text-center"></td>
+          <td style="width: 17.5%;" class="text-right">${valorUmTercoFerias.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <td style="width: 17.5%;" class="text-right"></td>
+        </tr>`
+    }
+    if (valorAbonoPecuniario > 0) {
+      linhasTabela += `
+        <tr>
+          <td style="width: 12%;">8802</td>
+          <td style="width: 38%;">ABONO PECUNIÁRIO (${diasAbonoPecuniario} DIAS)</td>
+          <td style="width: 15%;" class="text-center"></td>
+          <td style="width: 17.5%;" class="text-right">${valorAbonoPecuniario.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <td style="width: 17.5%;" class="text-right"></td>
+        </tr>`
+    }
+  } else {
+    // ─── LINHAS NORMAIS (mensal / adiantamento) ─────────────────────
+    if (salarioProporcional > 0) {
+      linhasTabela += `
         <tr>
           <td style="width: 12%;">8781</td>
           <td style="width: 38%;">DIAS NORMAIS</td>
@@ -182,11 +240,11 @@ export function gerarHoleriteHTML(holerite: any, funcionario: any, empresa: any)
           <td style="width: 17.5%;" class="text-right">${salarioProporcional.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
           <td style="width: 17.5%;" class="text-right"></td>
         </tr>`
-  }
-  
-  if (descontoAfastamento > 0) {
-    const diasAfastado = Math.max(0, 30 - diasTrabalhados)
-    linhasTabela += `
+    }
+
+    if (descontoAfastamento > 0) {
+      const diasAfastado = Math.max(0, 30 - diasTrabalhados)
+      linhasTabela += `
         <tr>
           <td style="width: 12%;">8785</td>
           <td style="width: 38%;">DIAS AFAST.INSS (P/DOENÇA)</td>
@@ -194,6 +252,7 @@ export function gerarHoleriteHTML(holerite: any, funcionario: any, empresa: any)
           <td style="width: 17.5%;" class="text-right">${descontoAfastamento.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
           <td style="width: 17.5%;" class="text-right"></td>
         </tr>`
+    }
   }
   
   if (bonus > 0) {

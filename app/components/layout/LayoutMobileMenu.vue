@@ -37,6 +37,7 @@
             <LayoutNavLink to="/admin/departamentos" icon="building" @click="$emit('close')">Departamentos</LayoutNavLink>
             <LayoutNavLink to="/admin/cargos" icon="briefcase" @click="$emit('close')">Cargos</LayoutNavLink>
             <LayoutNavLink to="/admin/holerites" icon="money" @click="$emit('close')">Holerites</LayoutNavLink>
+            <LayoutNavLink to="/admin/ferias" icon="calendar" @click="$emit('close')">Férias</LayoutNavLink>
             <LayoutNavLink to="/admin/avisos" icon="megaphone" @click="$emit('close')">Avisos</LayoutNavLink>
             <LayoutNavLink to="/admin/documentos" icon="document" @click="$emit('close')">Documentos</LayoutNavLink>
             <LayoutNavLink to="/admin/codigo-etica" icon="document" @click="$emit('close')">Código de Ética</LayoutNavLink>
