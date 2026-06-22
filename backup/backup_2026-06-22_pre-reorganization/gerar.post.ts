@@ -68,7 +68,7 @@ function calcularDatasHolerite(tipo: 'adiantamento' | 'mensal', mesManual?: numb
     const ano = Number(anoManual)
     
     if (tipo === 'adiantamento') {
-      const periodoInicio = new Date(ano, mes - 1, 1)
+      const periodoInicio = new Date(ano, mes - 1, 15)
       const ultimoDiaMes = new Date(ano, mes, 0).getDate()
       const periodoFim = new Date(ano, mes - 1, ultimoDiaMes)
       const dataPagamento = calcularDiaPagamentoAdiantamento(ano, mes)
@@ -82,10 +82,7 @@ function calcularDatasHolerite(tipo: 'adiantamento' | 'mensal', mesManual?: numb
       const periodoInicio = new Date(ano, mes - 1, 1)
       const ultimoDiaMes = new Date(ano, mes, 0).getDate()
       const periodoFim = new Date(ano, mes - 1, ultimoDiaMes)
-      // REGRA: Pagamento da folha mensal é no 5º dia útil do mês SEGUINTE
-      const mesPagamento = mes === 12 ? 1 : mes + 1
-      const anoPagamento = mes === 12 ? ano + 1 : ano
-      const dataPagamento = calcular5oDiaUtil(anoPagamento, mesPagamento)
+      const dataPagamento = calcular5oDiaUtil(ano, mes)
       return {
         periodo_inicio: periodoInicio.toISOString().split('T')[0],
         periodo_fim: periodoFim.toISOString().split('T')[0],
@@ -99,13 +96,12 @@ function calcularDatasHolerite(tipo: 'adiantamento' | 'mensal', mesManual?: numb
   const anoAtual = hoje.getFullYear()
   
   if (tipo === 'adiantamento') {
-    // REGRA: Adiantamento salarial é do mês vigente
-    // Período: dia 1 ao último dia do mês (mesma referência que a folha mensal)
+    // REGRA: Adiantamento salarial é do dia 15 ao último dia do mês vigente
     // Data de pagamento: dia 20 do mês vigente (ou dia útil anterior se cair em fim de semana)
     
     if (diaAtual >= 15) {
-      // Gerar adiantamento do mês atual
-      const periodoInicio = new Date(anoAtual, mesAtual - 1, 1)
+      // Gerar adiantamento do mês atual (15 ao último dia)
+      const periodoInicio = new Date(anoAtual, mesAtual - 1, 15)
       const ultimoDiaMes = new Date(anoAtual, mesAtual, 0).getDate()
       const periodoFim = new Date(anoAtual, mesAtual - 1, ultimoDiaMes)
       const dataPagamento = calcularDiaPagamentoAdiantamento(anoAtual, mesAtual)
@@ -123,11 +119,11 @@ function calcularDatasHolerite(tipo: 'adiantamento' | 'mensal', mesManual?: numb
         mes_referencia: `${anoAtual}-${String(mesAtual).padStart(2, '0')}`
       }
     } else {
-      // Antes do dia 15, gerar adiantamento do mês anterior
+      // Antes do dia 15, gerar adiantamento do mês anterior (15 ao último dia)
       const mesAnterior = mesAtual === 1 ? 12 : mesAtual - 1
       const anoAnterior = mesAtual === 1 ? anoAtual - 1 : anoAtual
       
-      const periodoInicio = new Date(anoAnterior, mesAnterior - 1, 1)
+      const periodoInicio = new Date(anoAnterior, mesAnterior - 1, 15)
       const ultimoDiaMes = new Date(anoAnterior, mesAnterior, 0).getDate()
       const periodoFim = new Date(anoAnterior, mesAnterior - 1, ultimoDiaMes)
       const dataPagamento = calcularDiaPagamentoAdiantamento(anoAnterior, mesAnterior)
@@ -147,27 +143,25 @@ function calcularDatasHolerite(tipo: 'adiantamento' | 'mensal', mesManual?: numb
     }
   } else {
     // REGRA: Folha mensal sempre do mês vigente (atual)
-    // Data de pagamento: 5º dia útil do mês SEGUINTE
+    // Data de pagamento: 5º dia útil do mês de referência
     
     // Sempre gerar folha mensal do mês atual
     const periodoInicio = new Date(anoAtual, mesAtual - 1, 1)
     const ultimoDiaMes = new Date(anoAtual, mesAtual, 0).getDate()
     const periodoFim = new Date(anoAtual, mesAtual - 1, ultimoDiaMes)
     
-    // REGRA: Pagamento da folha mensal é no 5º dia útil do mês SEGUINTE
-    const mesPagamento = mesAtual === 12 ? 1 : mesAtual + 1
-    const anoPagamento = mesAtual === 12 ? anoAtual + 1 : anoAtual
-    const dataPagamento = calcular5oDiaUtil(anoPagamento, mesPagamento)
+    // CORREÇÃO: Data de pagamento deve ser 5º dia útil do mês de referência (mesmo mês)
+    const dataPagamento = calcular5oDiaUtil(anoAtual, mesAtual)
     
     // Log detalhado para debug
     console.log(`📅 FOLHA MENSAL - Cálculo de Datas:`)
     console.log(`   Data Atual: ${hoje.toISOString().split('T')[0]}`)
     console.log(`   Mês Atual: ${mesAtual}/${anoAtual}`)
     console.log(`   Período: ${periodoInicio.toISOString().split('T')[0]} a ${periodoFim.toISOString().split('T')[0]}`)
-    console.log(`   Data Pagamento: ${dataPagamento.toISOString().split('T')[0]} (5º dia útil do mês SEGUINTE: ${mesPagamento}/${anoPagamento})`)
+    console.log(`   Data Pagamento: ${dataPagamento.toISOString().split('T')[0]} (5º dia útil do mês de referência)`)
     console.log(`   Mês Referência: ${anoAtual}-${String(mesAtual).padStart(2, '0')}`)
     console.log(`   ✅ Competência: ${mesAtual}/${anoAtual} (MÊS VIGENTE)`)
-    console.log(`   ✅ Pagamento no 5º dia útil do mês seguinte`)
+    console.log(`   ✅ CORREÇÃO: Data de pagamento agora usa o mês de referência, não o mês seguinte`)
     
     return {
       periodo_inicio: periodoInicio.toISOString().split('T')[0],
@@ -444,13 +438,6 @@ export default defineEventHandler(async (event) => {
         const salarioBase = (func as any).salario_base || 0
         const isAdiantamento = tipo === 'adiantamento'
         
-        // REGRA ESPECIAL: Umberto (ID 169) não recebe adiantamento
-        // Ele recebe 100% do salário apenas na folha mensal
-        if (isAdiantamento && (func as any).id === 169) {
-          console.log(`⏭️ Pulando adiantamento para ${(func as any).nome_completo} (ID 169) - Recebe apenas folha mensal integral`)
-          continue
-        }
-        
         if (isAdiantamento) {
           // ========================================
           // ADIANTAMENTO: 40% DO SALÁRIO BRUTO (SEM DESCONTOS)
@@ -529,51 +516,56 @@ export default defineEventHandler(async (event) => {
           // FOLHA MENSAL: SALÁRIO BRUTO - TODOS OS DESCONTOS
           // ========================================
           
-          // Buscar adiantamentos do MESMO mês de competência
-          // REGRA: Adiantamento de março (pago dia 20/03) é descontado na folha mensal de março (paga dia 5/04)
-          // Ambos têm periodo_inicio = dia 1 do mês de competência
+          // Buscar adiantamentos do mês ANTERIOR
+          // REGRA: Adiantamento de janeiro (15/01 a 31/01) é descontado na folha mensal de fevereiro
+          // Exemplo: Folha mensal de fevereiro (01/02 a 28/02) desconta adiantamento de janeiro (15/01 a 31/01)
           
           const [anoRef, mesRef] = datasCalculadas.mes_referencia.split('-')
           const mesAtual = parseInt(mesRef)
           const anoAtual = parseInt(anoRef)
           
-          // Buscar adiantamento do MESMO mês de competência (periodo_inicio = dia 1 do mês)
-          const dataInicioAdiantamento = `${anoRef}-${mesRef}-01`
+          // Calcular mês anterior
+          const mesAnterior = mesAtual === 1 ? 12 : mesAtual - 1
+          const anoAnterior = mesAtual === 1 ? anoAtual - 1 : anoAtual
           
-          console.log(`🔍 Buscando adiantamentos do MESMO mês de competência:`)
+          const dataInicioAdiantamento = `${anoAnterior}-${String(mesAnterior).padStart(2, '0')}-15`
+          
+          console.log(`🔍 Buscando adiantamentos do mês ANTERIOR:`)
           console.log(`   Folha mensal: ${mesRef}/${anoRef}`)
-          console.log(`   Buscando adiantamento com periodo_inicio: ${dataInicioAdiantamento}`)
+          console.log(`   Adiantamento: ${String(mesAnterior).padStart(2, '0')}/${anoAnterior} (data início: ${dataInicioAdiantamento})`)
           
-          // REGRA ESPECIAL: Umberto (ID 169) não recebe adiantamento, pular busca
+          const { data: adiantamentos } = await supabase
+            .from('holerites')
+            .select('salario_base, salario_liquido, observacoes, periodo_inicio, periodo_fim')
+            .eq('funcionario_id', (func as any).id)
+            .eq('periodo_inicio', dataInicioAdiantamento) // Adiantamentos começam EXATAMENTE no dia 15
+          
+          console.log(`📊 Adiantamentos encontrados:`, adiantamentos?.length || 0)
+          
           let totalAdiantamentos = 0
-          
-          if ((func as any).id === 169) {
-            console.log(`⏭️ Umberto (ID 169) - Sem adiantamento, recebe salário integral`)
-          } else {
-            const { data: adiantamentos } = await supabase
-              .from('holerites')
-              .select('salario_base, salario_liquido, observacoes, periodo_inicio, periodo_fim')
-              .eq('funcionario_id', (func as any).id)
-              .eq('periodo_inicio', dataInicioAdiantamento)
-              .like('observacoes', 'Adiantamento%')
-            
-            console.log(`📊 Adiantamentos encontrados:`, adiantamentos?.length || 0)
-            
-            if (adiantamentos && adiantamentos.length > 0) {
-              console.log(`💸 Processando ${adiantamentos.length} adiantamento(s):`)
-              adiantamentos.forEach((h: any, index: number) => {
-                const valor = h.salario_liquido || h.salario_base || 0
-                console.log(`   ${index + 1}. Período: ${h.periodo_inicio} a ${h.periodo_fim}`)
-                console.log(`      Valor: R$ ${valor.toFixed(2)}`)
-                console.log(`      Obs: ${h.observacoes || 'N/A'}`)
-                
+          if (adiantamentos && adiantamentos.length > 0) {
+            console.log(`💸 Processando ${adiantamentos.length} adiantamento(s):`)
+            adiantamentos.forEach((h: any, index: number) => {
+              const valor = h.salario_liquido || h.salario_base || 0
+              console.log(`   ${index + 1}. Período: ${h.periodo_inicio} a ${h.periodo_fim}`)
+              console.log(`      Valor: R$ ${valor.toFixed(2)}`)
+              console.log(`      Obs: ${h.observacoes || 'N/A'}`)
+              
+              // Verificar se é realmente um adiantamento pela observação ou pelo período
+              const isAdiantamento = h.observacoes?.includes('Adiantamento') || 
+                                    h.observacoes?.includes('adiantamento') ||
+                                    h.periodo_inicio?.endsWith('-15')
+              
+              if (isAdiantamento) {
                 totalAdiantamentos += valor
                 console.log(`      ✅ Adicionado ao total`)
-              })
-              console.log(`💰 Total de adiantamentos a descontar: R$ ${totalAdiantamentos.toFixed(2)}`)
-            } else {
-              console.log(`ℹ️ Nenhum adiantamento encontrado para este mês`)
-            }
+              } else {
+                console.log(`      ⚠️ Não identificado como adiantamento, ignorado`)
+              }
+            })
+            console.log(`💰 Total de adiantamentos a descontar: R$ ${totalAdiantamentos.toFixed(2)}`)
+          } else {
+            console.log(`ℹ️ Nenhum adiantamento encontrado para este mês`)
           }
           
           // Calcular INSS (apenas para CLT)

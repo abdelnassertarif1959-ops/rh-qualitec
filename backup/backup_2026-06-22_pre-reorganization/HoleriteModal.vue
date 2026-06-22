@@ -299,9 +299,9 @@ const formatarPeriodoReferencia = (inicio: string | undefined, fim: string | und
     const dataInicio = new Date(inicio + 'T00:00:00')
     const dataFim = new Date(fim + 'T00:00:00')
     
-    // Verificar se é adiantamento pela observação (mais confiável)
+    // Verificar se é adiantamento (período do dia 15 ou 20)
     const diaInicio = dataInicio.getDate()
-    const isAdiantamento = props.holerite?.observacoes?.startsWith('Adiantamento') || false
+    const isAdiantamento = diaInicio === 15 || diaInicio === 20
     
     if (isAdiantamento) {
       // Para adiantamentos, mostrar o período completo

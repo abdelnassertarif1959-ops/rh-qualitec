@@ -13,9 +13,9 @@ export function gerarHoleriteHTML(holerite: any, funcionario: any, empresa: any)
   const periodoInicio = new Date(anoInicio, mesInicio - 1, diaInicioData)
   const periodoFim = new Date(anoFim, mesFim - 1, diaFimData)
   
-  // Determinar se é adiantamento pela observação (campo mais confiável)
+  // Determinar se é adiantamento (dia 15 ou 20)
   const diaInicio = periodoInicio.getDate()
-  const isAdiantamento = holerite.observacoes?.startsWith('Adiantamento') || false
+  const isAdiantamento = diaInicio === 15 || diaInicio === 20
   
   // REGRA DO MÊS DE REFERÊNCIA:
   // - Adiantamento (pago dia 20): mostrar o mês do período (ex: "15/04/2026 - 30/04/2026" = "abril de 2026")

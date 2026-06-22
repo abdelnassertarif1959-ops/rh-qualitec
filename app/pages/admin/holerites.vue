@@ -138,7 +138,7 @@
             <div class="flex items-center gap-4">
               <div class="text-right">
                 <p class="font-semibold text-gray-900">{{ formatarMoeda(holerite.salario_liquido) }}</p>
-                <p class="text-sm text-gray-600">{{ formatarPeriodo(holerite.periodo_inicio, holerite.periodo_fim) }}</p>
+                <p class="text-sm text-gray-600">{{ formatarPeriodo(holerite.periodo_inicio, holerite.periodo_fim, holerite.observacoes) }}</p>
                 <span 
                   :class="[
                     'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium',
@@ -1123,14 +1123,14 @@ const formatarMoeda = (valor: number) => {
   }).format(valor)
 }
 
-const formatarPeriodo = (inicio: string, fim: string) => {
+const formatarPeriodo = (inicio: string, fim: string, observacoes?: string) => {
   // Adicionar 'T00:00:00' para evitar problemas de timezone
   const dataInicio = new Date(inicio + 'T00:00:00')
   const dataFim = new Date(fim + 'T00:00:00')
   
-  // Verificar se é adiantamento (período do dia 15 ao último dia do mês)
+  // Verificar se é adiantamento pela observação (mais confiável)
   const diaInicio = dataInicio.getDate()
-  const isAdiantamento = diaInicio === 15 || diaInicio === 20
+  const isAdiantamento = observacoes?.startsWith('Adiantamento') || false
   
   if (isAdiantamento) {
     // Para adiantamentos, mostrar apenas o mês de referência (ex: "abril de 2026")

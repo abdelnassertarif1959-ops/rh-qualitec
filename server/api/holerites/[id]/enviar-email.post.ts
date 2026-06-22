@@ -130,9 +130,9 @@ export default defineEventHandler(async (event) => {
     // Calcular referência usando função pura (sem lógica de mês anterior)
     const isDev = process.env.NODE_ENV === 'development'
     
-    // Determinar se é adiantamento ANTES de calcular referência
+    // Determinar se é adiantamento pela observação (mais confiável)
     const periodoInicioDate = parseDateOnly(holerite.periodo_inicio)
-    const isAdiantamento = periodoInicioDate.getDate() === 15
+    const isAdiantamento = holerite.observacoes?.startsWith('Adiantamento') || false
     
     // Calcular referência (subtrai 1 mês se for folha mensal)
     const referencia = buildReferencia(holerite.periodo_inicio, isAdiantamento)
@@ -148,19 +148,10 @@ export default defineEventHandler(async (event) => {
       console.log('  mesAno final:', referencia.mesAno)
     }
     
-    // Determinar tipo de holerite baseado no dia de início
-    const diaInicio = periodoInicioDate.getDate()
-    
+    // Determinar tipo de holerite pela observação
     let tipoHolerite = 'mensal'
-    if (diaInicio === 15) {
+    if (isAdiantamento) {
       tipoHolerite = 'adiantamento'
-    } else if (diaInicio === 1) {
-      const periodoFimDate = parseDateOnly(holerite.periodo_fim)
-      if (periodoFimDate.getDate() <= 15) {
-        tipoHolerite = '1ª quinzena'
-      }
-    } else if (diaInicio === 16) {
-      tipoHolerite = '2ª quinzena'
     }
     
     const mesAno = referencia.mesAno

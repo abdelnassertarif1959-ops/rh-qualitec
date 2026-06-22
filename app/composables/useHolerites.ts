@@ -2,17 +2,10 @@
 export const useHolerites = () => {
   // Função para determinar se um holerite é adiantamento
   const isAdiantamento = (holerite: any): boolean => {
-    // Verifica se é quinzena 1 ou se o período vai do dia 15 ao último dia do mês
-    if (holerite.quinzena === 1) return true
+    // Verificar pela observação (mais confiável)
+    if (holerite.observacoes?.startsWith('Adiantamento')) return true
     
-    if (holerite.periodo_inicio && holerite.periodo_fim) {
-      const inicio = new Date(holerite.periodo_inicio)
-      const fim = new Date(holerite.periodo_fim)
-      // Adiantamento: período do dia 15 ao último dia do mês
-      return inicio.getDate() === 15 && fim.getDate() >= 28
-    }
-    
-    // Verifica pelo tipo ou referência
+    // Fallback: verificar pelo tipo ou referência
     return holerite.tipo?.toLowerCase().includes('adiantamento') ||
            holerite.referencia?.toLowerCase().includes('adiantamento')
   }
@@ -40,12 +33,12 @@ export const useHolerites = () => {
       const dataInicio = new Date(periodoInicio + 'T00:00:00')
       const dataFim = new Date(periodoFim + 'T00:00:00')
       
-      // Verificar se é adiantamento (período do dia 15 ou 20)
+      // Verificar se é adiantamento pela observação
       const diaInicio = dataInicio.getDate()
-      const isAdiantamentoTemp = diaInicio === 15 || diaInicio === 20
+      const isAdiantamentoTemp = false // Será tratado pelo chamador via observacoes
       
-      if (isAdiantamentoTemp) {
-        // Para adiantamentos, sempre mostrar o período completo
+      if (formato === 'completo') {
+        // Formato completo: "01/04/2026 - 30/04/2026"
         const dataInicioFormatada = dataInicio.toLocaleDateString('pt-BR')
         const dataFimFormatada = dataFim.toLocaleDateString('pt-BR')
         return `${dataInicioFormatada} - ${dataFimFormatada}`

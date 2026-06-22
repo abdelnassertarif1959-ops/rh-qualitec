@@ -102,16 +102,18 @@ export default defineEventHandler(async (event) => {
       }
     })) || []
 
-    // Filtro por estilo aplicado no JS
-    // Adiantamento: observacoes começa com "Adiantamento"
-    // Mensal: observacoes começa com "Folha mensal"
+    // Filtro por estilo aplicado no JS (evita problemas de cast date no Supabase)
+    // Adiantamento: periodo_inicio é dia 15 do mês
+    // Mensal: periodo_inicio é dia 01 do mês
     if (estilo === 'adiantamento') {
       holeritesTratados = holeritesTratados.filter(h => {
-        return h.observacoes?.startsWith('Adiantamento')
+        const dia = new Date(h.periodo_inicio + 'T00:00:00').getDate()
+        return dia >= 14 // dia 15 com margem
       })
     } else if (estilo === 'mensal') {
       holeritesTratados = holeritesTratados.filter(h => {
-        return !h.observacoes?.startsWith('Adiantamento')
+        const dia = new Date(h.periodo_inicio + 'T00:00:00').getDate()
+        return dia < 14 // dia 01 ao 13
       })
     }
     

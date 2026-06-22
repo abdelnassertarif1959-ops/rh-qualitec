@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Buscar adiantamentos do mês atual com status "gerado"
-    // Adiantamentos têm período que vai do dia 15 ao último dia do mês
+    // Adiantamentos agora têm periodo_inicio = dia 1 do mês
     const mesAnoAtual = `${anoAtual}-${String(mesAtual).padStart(2, '0')}`
     
     console.log(`🔍 Buscando adiantamentos do mês ${mesAnoAtual} com status 'gerado'...`)
@@ -57,9 +57,8 @@ export default defineEventHandler(async (event) => {
         funcionarios!inner(nome_completo, email, email_login)
       `)
       .eq('status', 'gerado')
-      .gte('periodo_inicio', `${mesAnoAtual}-15`) // Adiantamentos começam no dia 15
-      .lte('periodo_inicio', `${mesAnoAtual}-15`) // Apenas adiantamentos que começam no dia 15
-      .like('observacoes', '%Adiantamento salarial%') // Garantir que é adiantamento
+      .eq('periodo_inicio', `${mesAnoAtual}-01`) // Adiantamentos começam no dia 01
+      .like('observacoes', 'Adiantamento%') // Garantir que é adiantamento
 
     if (errorBusca) {
       console.error('❌ Erro ao buscar adiantamentos:', errorBusca)

@@ -16,20 +16,14 @@ interface NotificationData {
  * Calcula o mês de referência correto baseado no periodo_inicio
  * O mês de referência é SEMPRE o mês do periodo_inicio (mês trabalhado)
  */
-function calcularMesReferencia(periodo_inicio: string): { mesAno: string; tipoHolerite: string } {
+function calcularMesReferencia(periodo_inicio: string, observacoes?: string): { mesAno: string; tipoHolerite: string } {
   const [anoInicio, mesInicio, diaInicio] = periodo_inicio.split('-').map(Number)
   const periodoInicio = new Date(anoInicio, mesInicio - 1, diaInicio)
   
-  // Determinar tipo de holerite
+  // Determinar tipo de holerite pela observação (mais confiável)
   let tipoHolerite = 'mensal'
-  const isAdiantamento = periodoInicio.getDate() === 15 || periodoInicio.getDate() === 20
-  
-  if (isAdiantamento) {
+  if (observacoes?.startsWith('Adiantamento')) {
     tipoHolerite = 'adiantamento'
-  } else if (periodoInicio.getDate() === 1) {
-    tipoHolerite = 'mensal'
-  } else if (periodoInicio.getDate() === 16) {
-    tipoHolerite = '2ª quinzena'
   }
   
   // O mês de referência é SEMPRE o mês do periodo_inicio (mês trabalhado)

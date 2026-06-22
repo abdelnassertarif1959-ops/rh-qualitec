@@ -43,7 +43,7 @@
           <div class="text-sm text-blue-700 space-y-1">
             <p>• <strong>Geração:</strong> Todo dia 20 do mês (ou último dia útil anterior)</p>
             <p>• <strong>Valor:</strong> 40% do salário base</p>
-            <p>• <strong>Período:</strong> Dia 15 até último dia do mês</p>
+            <p>• <strong>Período:</strong> Mês completo de referência</p>
             <p>• <strong>Disponibilização:</strong> Imediata no seu perfil</p>
             <p>• <strong>Fins de semana/Feriados:</strong> Antecipado para o último dia útil anterior</p>
           </div>
@@ -223,22 +223,13 @@ const carregarHolerites = async () => {
       const periodoInicio = parseDateOnly(h.periodo_inicio)
       const periodoFim = parseDateOnly(h.periodo_fim)
       
-      // Determinar se é adiantamento baseado no dia de início
+      // Determinar se é adiantamento pela observação (mais confiável que dia do período)
       const diaInicio = periodoInicio.getDate()
-      const isAdiantamentoTemp = diaInicio === 15
+      const isAdiantamentoTemp = h.observacoes?.startsWith('Adiantamento') || false
       
-      // REGRA CORRETA:
-      // - ADIANTAMENTO: Referência é do MESMO mês (período 15-31 = mês atual)
-      // - FOLHA MENSAL: Referência é do mês ANTERIOR (pagamento em fev = trabalho em jan)
-      let dataReferencia
-      if (isAdiantamentoTemp) {
-        // Adiantamento: usar periodo_inicio (mesmo mês)
-        dataReferencia = periodoInicio
-      } else {
-        // Folha Mensal: subtrair 1 mês do periodo_fim para obter o mês trabalhado
-        dataReferencia = new Date(periodoFim)
-        dataReferencia.setMonth(dataReferencia.getMonth() - 1)
-      }
+      // REGRA: O mês de referência é o mês do periodo_inicio (mês trabalhado)
+      // Tanto adiantamento quanto mensal agora têm periodo_inicio = dia 1 do mês
+      const dataReferencia = periodoInicio
       const mes = String(dataReferencia.getMonth() + 1).padStart(2, '0')
       const ano = String(dataReferencia.getFullYear())
       
@@ -247,23 +238,18 @@ const carregarHolerites = async () => {
       let quinzena = null
       let referencia = `Holerite ${dataReferencia.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}`
       
-      // Verificar se é quinzenal baseado no período
+      // Verificar tipo baseado na observação
       const diaFim = periodoFim.getDate()
       
-      if (diaInicio === 15) {
-        // Adiantamento salarial: período do dia 15 ao último dia do mês
+      if (isAdiantamentoTemp) {
+        // Adiantamento salarial
         tipo = 'Adiantamento'
         quinzena = 1
-        // Mostrar apenas o mês para adiantamento
         referencia = dataReferencia.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
       } else if (diaInicio === 16) {
         tipo = 'Quinzenal'
         quinzena = 2
         referencia = `Holerite ${dataReferencia.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })} - 2ª Quinzena`
-      } else if (diaInicio === 1 && diaFim <= 15) {
-        tipo = 'Quinzenal'
-        quinzena = 1
-        referencia = `Holerite ${dataReferencia.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })} - 1ª Quinzena`
       }
       
       const holeriteFormatado = {

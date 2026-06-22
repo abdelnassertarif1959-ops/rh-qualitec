@@ -94,12 +94,12 @@ export default defineEventHandler(async (event) => {
 
     console.log(`👥 ${funcionarios.length} funcionário(s) com salário quinzenal encontrado(s)`)
 
-    // 2. Calcular período do adiantamento (dia 15 até último dia do mês)
+    // 2. Calcular período do adiantamento (dia 1 até último dia do mês)
     const mesAtual = hoje.getMonth()
     const anoAtual = hoje.getFullYear()
     const ultimoDiaMes = new Date(anoAtual, mesAtual + 1, 0).getDate()
     
-    const periodoInicio = `${anoAtual}-${String(mesAtual + 1).padStart(2, '0')}-15`
+    const periodoInicio = `${anoAtual}-${String(mesAtual + 1).padStart(2, '0')}-01`
     const periodoFim = `${anoAtual}-${String(mesAtual + 1).padStart(2, '0')}-${ultimoDiaMes}`
     const dataPagamento = `${anoAtual}-${String(mesAtual + 1).padStart(2, '0')}-20`
 
@@ -114,6 +114,12 @@ export default defineEventHandler(async (event) => {
       try {
         console.log(`\n👤 Processando funcionário: ${funcionario.nome_completo} (ID: ${funcionario.id})`)
         
+        // Pular Umberto (ID 169) para adiantamento
+        if (funcionario.id === 169) {
+          console.log(`ℹ️ Pula adiantamento para Umberto (ID 169)`)
+          continue
+        }
+
         // Verificar se já existe adiantamento para este período
         const { data: holeriteExistente } = await supabase
           .from('holerites')
@@ -145,7 +151,7 @@ export default defineEventHandler(async (event) => {
             total_descontos: 0,
             salario_liquido: valorAdiantamento,
             status: 'gerado',
-            dias_trabalhados: 15,
+            dias_trabalhados: 30,
             observacoes: 'Adiantamento salarial gerado automaticamente'
           })
           .select()

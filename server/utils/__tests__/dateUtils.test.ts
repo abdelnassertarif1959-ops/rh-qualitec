@@ -98,11 +98,11 @@ describe('calcularDatasHolerite - Adiantamento', () => {
   it('deve gerar adiantamento do mês vigente quando executado após dia 15', () => {
     const resultado = calcularDatasHolerite('adiantamento')
     
-    // Adiantamento deve começar no dia 15
-    expect(resultado.periodo_inicio).toMatch(/^\d{4}-\d{2}-15$/)
+    // Adiantamento deve começar no dia 1
+    expect(resultado.periodo_inicio).toMatch(/^\d{4}-\d{2}-01$/)
     
-    // Data de pagamento deve ser dia 20
-    expect(resultado.data_pagamento).toMatch(/^\d{4}-\d{2}-20$/)
+    // Data de pagamento deve ser dia 20 ou dia útil anterior
+    expect(resultado.data_pagamento).toMatch(/^\d{4}-\d{2}-(18|19|20)$/)
     
     console.log('✅ Teste passou: Adiantamento calculado corretamente')
     console.log(`   Período: ${resultado.periodo_inicio} a ${resultado.periodo_fim}`)
@@ -125,7 +125,7 @@ describe('Validação de Consistência', () => {
     expect(mesReferencia).toBe(`${anoInicio}-${mesInicio}`)
   })
   
-  it('data_pagamento deve ser no mesmo mês do periodo_fim para folha mensal (5º dia útil)', () => {
+  it('data_pagamento deve ser no mês seguinte ao periodo_fim para folha mensal (5º dia útil)', () => {
     const resultado = calcularDatasHolerite('mensal')
     
     const [anoFim, mesFim] = resultado.periodo_fim.split('-')
@@ -134,11 +134,14 @@ describe('Validação de Consistência', () => {
     const mesFimNum = parseInt(mesFim, 10)
     const mesPagamentoNum = parseInt(mesPagamento, 10)
     
-    // CORREÇÃO: Pagamento deve ser no mesmo mês de referência (5º dia útil)
-    expect(mesPagamentoNum).toBe(mesFimNum)
-    expect(anoPagamento).toBe(anoFim)
+    const proximoMes = mesFimNum === 12 ? 1 : mesFimNum + 1
+    const proximoAno = mesFimNum === 12 ? parseInt(anoFim, 10) + 1 : parseInt(anoFim, 10)
     
-    console.log('✅ Teste passou: Data de pagamento no mês de referência')
+    // Pagamento deve ser no mês seguinte
+    expect(mesPagamentoNum).toBe(proximoMes)
+    expect(parseInt(anoPagamento, 10)).toBe(proximoAno)
+    
+    console.log('✅ Teste passou: Data de pagamento no mês seguinte ao de referência')
     console.log(`   Período: ${resultado.periodo_inicio} a ${resultado.periodo_fim}`)
     console.log(`   Pagamento: ${resultado.data_pagamento}`)
   })

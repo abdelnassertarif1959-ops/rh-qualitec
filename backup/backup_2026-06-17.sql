@@ -170,6 +170,7 @@ INSERT INTO public.codigo_etica (id, empresa_id, titulo, versao, ativo, criado_e
 -- ============================================================
 -- TABELA: funcionario_beneficios (13 registros)
 -- ============================================================
+
 INSERT INTO public.funcionario_beneficios (id, funcionario_id, vt_ativo, vt_valor_diario, vt_tipo_desconto, vt_percentual_desconto, vt_valor_desconto, vr_ativo, vr_valor_diario, vr_tipo_desconto, vr_percentual_desconto, vr_valor_desconto, ps_ativo, ps_plano, ps_valor_empresa, ps_valor_funcionario, ps_dependentes, po_ativo, po_valor_funcionario, po_dependentes, created_at, updated_at) VALUES
 (1, 1, false, 0.00, 'percentual', 0.00, 0.00, false, 0.00, 'percentual', 0.00, 0.00, false, 'individual', 0.00, 0.00, 0, false, 0.00, 0, '2026-01-14 12:58:04.090332+00', '2026-01-14 12:58:04.090332+00'),
 (7, 93, false, 0.00, 'percentual', 0.00, 0.00, false, 0.00, 'percentual', 0.00, 0.00, false, 'individual', 0.00, 0.00, 0, false, 0.00, 0, '2026-01-14 19:58:45.812523+00', '2026-01-14 19:58:45.812523+00'),
@@ -184,6 +185,8 @@ INSERT INTO public.funcionario_beneficios (id, funcionario_id, vt_ativo, vt_valo
 (29, 157, false, 0.00, 'percentual', 0.00, 0.00, false, 0.00, 'percentual', 0.00, 0.00, false, 'individual', 0.00, 0.00, 0, false, 0.00, 0, '2026-01-20 18:51:47.548463+00', '2026-01-20 18:51:47.548463+00'),
 (34, 169, false, 0.00, 'percentual', 0.00, 0.00, false, 0.00, 'percentual', 0.00, 0.00, false, 'individual', 0.00, 0.00, 0, false, 0.00, 0, '2026-02-06 13:12:05.134675+00', '2026-02-06 13:12:05.134675+00'),
 (40, 199, false, 0.00, 'percentual', 0.00, 0.00, false, 0.00, 'percentual', 0.00, 0.00, false, 'individual', 0.00, 0.00, 0, false, 0.00, 0, '2026-06-15 11:59:04.272567+00', '2026-06-15 11:59:04.272567+00');
+
+
 
 -- ============================================================
 -- FIM DO BACKUP

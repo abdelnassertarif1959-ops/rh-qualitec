@@ -80,9 +80,9 @@ export default defineEventHandler(async (event) => {
     console.log(`👥 ${funcionarios.length} funcionário(s) com salário quinzenal encontrado(s)`)
 
     // Calcular período do adiantamento
-    // Adiantamento: dia 15 até último dia do mês
+    // Adiantamento: dia 1 até último dia do mês
     const ultimoDiaMes = new Date(anoAtual, mesAtual, 0).getDate()
-    const periodoInicio = `${anoAtual}-${String(mesAtual).padStart(2, '0')}-15`
+    const periodoInicio = `${anoAtual}-${String(mesAtual).padStart(2, '0')}-01`
     const periodoFim = `${anoAtual}-${String(mesAtual).padStart(2, '0')}-${ultimoDiaMes}`
 
     console.log(`📅 Período do adiantamento: ${periodoInicio} até ${periodoFim}`)
@@ -95,6 +95,12 @@ export default defineEventHandler(async (event) => {
     for (const funcionario of funcionarios) {
       try {
         console.log(`🔄 Gerando adiantamento para: ${funcionario.nome_completo}`)
+
+        // Pular Umberto (ID 169) para adiantamento
+        if (funcionario.id === 169) {
+          console.log(`ℹ️ Pula adiantamento para Umberto (ID 169)`)
+          continue
+        }
 
         // Verificar se já existe adiantamento para este período
         const { data: existente } = await supabase
@@ -135,6 +141,7 @@ export default defineEventHandler(async (event) => {
             vale_transporte: 0,
             status: 'enviado', // Já disponibilizado
             data_pagamento: hoje.toISOString().split('T')[0],
+            dias_trabalhados: 30,
             observacoes: `Adiantamento salarial (40%) - Gerado e disponibilizado automaticamente em ${hoje.toISOString().split('T')[0]}`
           })
           .select()
