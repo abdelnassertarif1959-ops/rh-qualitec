@@ -74,15 +74,15 @@ export function gerarHoleriteHTML(holerite: any, funcionario: any, empresa: any)
   const diaFim = periodoFim.getDate()
   let tipoFolha = 'Folha Mensal'
   let isFolhaMensal = true // Apenas folha mensal completa mostra bases de cálculo
-  let corTema = '#0ea5e9' // Azul Qualitec para folha mensal
-  let corFundo = '#f0f9ff' // Azul claro Qualitec para folha mensal
+  let corTema = '#18181b' // Zinc-900 (neutral escuro)
+  let corFundo = '#f4f4f5' // Zinc-100 (neutral claro)
   
   // Verificar se é adiantamento baseado no período (dia 15 ao último dia do mês)
   if (isAdiantamento) {
     tipoFolha = 'Adiantamento Salarial'
     isFolhaMensal = false
-    corTema = '#ea580c' // Laranja para adiantamento
-    corFundo = '#fff7ed' // Laranja claro para adiantamento
+    corTema = '#3f3f46' // Zinc-700 (neutral médio)
+    corFundo = '#fafafa' // Zinc-50 (neutral muito claro)
   } else if (diaInicio === 16) {
     tipoFolha = 'Folha Quinzenal - 2ª Quinzena'
     isFolhaMensal = false
@@ -148,13 +148,14 @@ export function gerarHoleriteHTML(holerite: any, funcionario: any, empresa: any)
     totalDescontosPersonalizados += Number(d.valor) || 0
   })
   
+  const descontoAfastamento = Number(holerite.desconto_afastamento) || 0
   const totalVencimentos = salarioProporcional + bonus + horasExtras + adicionalNoturno + 
                           adicionalPericulosidade + adicionalInsalubridade + comissoes + 
-                          totalBeneficiosPersonalizados
+                          totalBeneficiosPersonalizados + descontoAfastamento
   const totalDescontosRaw = inss + irrf + valeTransporte + 
                         planoSaude + planoOdonto + adiantamento + faltas + 
                         pensaoAlimenticia + totalDescontosPersonalizados +
-                        (Number(holerite.desconto_afastamento) || 0)
+                        descontoAfastamento
   const totalDescontos = Math.min(totalDescontosRaw, totalVencimentos)
   const valorLiquido = Math.max(0, totalVencimentos - totalDescontos)
   
@@ -179,6 +180,18 @@ export function gerarHoleriteHTML(holerite: any, funcionario: any, empresa: any)
           <td style="width: 38%;">DIAS NORMAIS</td>
           <td style="width: 15%;" class="text-center">${diasTrabalhados.toFixed(2)}</td>
           <td style="width: 17.5%;" class="text-right">${salarioProporcional.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <td style="width: 17.5%;" class="text-right"></td>
+        </tr>`
+  }
+  
+  if (descontoAfastamento > 0) {
+    const diasAfastado = Math.max(0, 30 - diasTrabalhados)
+    linhasTabela += `
+        <tr>
+          <td style="width: 12%;">8785</td>
+          <td style="width: 38%;">DIAS AFAST.INSS (P/DOENÇA)</td>
+          <td style="width: 15%;" class="text-center">${diasAfastado.toFixed(2)}</td>
+          <td style="width: 17.5%;" class="text-right">${descontoAfastamento.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
           <td style="width: 17.5%;" class="text-right"></td>
         </tr>`
   }
@@ -367,7 +380,6 @@ export function gerarHoleriteHTML(holerite: any, funcionario: any, empresa: any)
           <td style="width: 17.5%;" class="text-right">${faltas.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
         </tr>`
   }
-  const descontoAfastamento = Number(holerite.desconto_afastamento) || 0
   if (descontoAfastamento > 0) {
     linhasTabela += `
         <tr>

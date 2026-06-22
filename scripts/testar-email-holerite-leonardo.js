@@ -28,25 +28,22 @@ async function testarEmailLeonardo() {
         funcionario:funcionarios (
           id,
           nome_completo,
-          email,
+          email:email_login,
           cpf,
           data_admissao,
           tipo_contrato,
           numero_dependentes,
           cargo:cargos (nome),
           departamento:departamentos (nome),
-          empresa:empresas (
-            id,
-            nome,
-            nome_fantasia,
-            cnpj,
-            responsavel_nome,
-            responsavel_cpf
-          )
+            empresa:empresas (
+              id,
+              nome,
+              nome_fantasia,
+              cnpj
+            )
         )
       `)
-      .ilike('funcionario.nome_completo', '%leonardo%')
-      .order('created_at', { ascending: false })
+      .eq('id', 1401)
       .limit(1)
     
     if (holeriteError) {

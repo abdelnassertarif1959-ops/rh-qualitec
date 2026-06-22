@@ -35,12 +35,12 @@
     </div>
 
     <!-- Informações sobre Holerites Automáticos -->
-    <div v-if="temSalarioQuinzenal" class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+    <div v-if="temSalarioQuinzenal" class="mb-6 p-4 bg-zinc-50 border border-zinc-200 rounded-xl">
       <div class="flex items-start gap-3">
-        <span class="text-2xl">🤖</span>
+        <span class="text-xl">🤖</span>
         <div>
-          <h3 class="font-semibold text-blue-800 mb-2">Adiantamentos Automáticos</h3>
-          <div class="text-sm text-blue-700 space-y-1">
+          <h3 class="font-semibold text-zinc-800 mb-2">Adiantamentos Automáticos</h3>
+          <div class="text-sm text-zinc-600 space-y-1">
             <p>• <strong>Geração:</strong> Todo dia 20 do mês (ou último dia útil anterior)</p>
             <p>• <strong>Valor:</strong> 40% do salário base</p>
             <p>• <strong>Período:</strong> Mês completo de referência</p>

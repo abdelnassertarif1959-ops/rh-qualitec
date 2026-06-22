@@ -53,10 +53,10 @@ export function gerarHoleritePDF(dados: DadosHolerite): PDFDocument {
   })
 
   // Cores
-  const corPrimaria = '#1e40af' // Azul
-  const corSecundaria = '#64748b' // Cinza
-  const corVerde = '#059669' // Verde para proventos
-  const corVermelha = '#dc2626' // Vermelho para descontos
+  const corPrimaria = '#18181b' // Zinc-900 (neutral escuro)
+  const corSecundaria = '#71717a' // Zinc-500 (neutral médio)
+  const corVerde = '#27272a' // Zinc-800 (neutral escuro)
+  const corVermelha = '#27272a' // Zinc-800 (neutral escuro)
 
   let y = 50
 
@@ -263,7 +263,7 @@ export function gerarHoleritePDF(dados: DadosHolerite): PDFDocument {
   const salarioLiquido = totalProventos - totalDescontos
   
   doc.rect(50, y, 495, 40)
-     .fillAndStroke('#eff6ff', '#1e40af')
+     .fillAndStroke('#f4f4f5', '#18181b')
   
   y += 12
   

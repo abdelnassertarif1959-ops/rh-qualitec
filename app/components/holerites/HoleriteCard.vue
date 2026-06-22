@@ -73,7 +73,7 @@
           
           <div>
             <div class="text-xs text-gray-500 mb-1">Líquido</div>
-            <div class="text-lg font-bold text-blue-600">
+            <div class="text-lg font-extrabold text-zinc-900">
               R$ {{ formatarMoeda(holerite.liquido) }}
             </div>
           </div>
@@ -87,14 +87,14 @@
         </div>
 
         <!-- Período de Referência -->
-        <div v-if="holerite.periodo_inicio && holerite.periodo_fim" class="mt-3 p-3 bg-blue-50 rounded-lg">
-          <div class="flex items-center gap-1.5 text-xs text-blue-700 font-medium mb-1">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div v-if="holerite.periodo_inicio && holerite.periodo_fim" class="mt-3 p-3 bg-zinc-50 border border-zinc-100 rounded-lg">
+          <div class="flex items-center gap-1.5 text-xs text-zinc-500 font-medium mb-1">
+            <svg class="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
             Período de Referência
           </div>
-          <div class="text-sm text-blue-800">
+          <div class="text-sm font-medium text-zinc-800">
             {{ formatarPeriodoReferencia() }}
           </div>
         </div>
@@ -235,15 +235,15 @@ const isAdiantamento = computed(() => {
 const getTipoHoleriteStyle = () => {
   if (isAdiantamento.value) {
     return {
-      card: 'bg-gradient-to-br from-orange-50 to-yellow-50 border-orange-200',
-      icon: 'bg-gradient-to-br from-orange-400 to-yellow-500 text-white shadow-lg',
-      badge: 'bg-gradient-to-r from-orange-500 to-yellow-600 text-white shadow-sm'
+      card: 'bg-white border-zinc-200 hover:border-zinc-300 shadow-sm hover:shadow transition-all',
+      icon: 'bg-zinc-100 text-zinc-500 border border-zinc-200/60',
+      badge: 'bg-amber-50 text-amber-800 border border-amber-200/60 font-medium'
     }
   } else {
     return {
-      card: 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200',
-      icon: 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg',
-      badge: 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-sm'
+      card: 'bg-white border-zinc-200 hover:border-zinc-300 shadow-sm hover:shadow transition-all',
+      icon: 'bg-zinc-100 text-zinc-500 border border-zinc-200/60',
+      badge: 'bg-zinc-100 text-zinc-800 border border-zinc-200/80 font-medium'
     }
   }
 }
