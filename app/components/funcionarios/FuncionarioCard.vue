@@ -294,10 +294,20 @@ const enviarArquivos = async (files: File[]) => {
     : (tipoSelecionado?.nome || '')
 
   for (const file of files) {
-    if (file.size > 10 * 1024 * 1024) { falha++; continue }
     try {
+      // Comprimir imagem se necessário para respeitar o limite de payload de 4.5MB da Vercel
+      const fileToUpload = await compressImageIfNeeded(file)
+      
+      // Limite de payload da Vercel é 4.5MB
+      const MAX_SIZE_VERCEL = 4.5 * 1024 * 1024
+      if (fileToUpload.size > MAX_SIZE_VERCEL) {
+        console.error(`Arquivo ${file.name} excede o limite de 4.5MB do Vercel mesmo após tentativa de compressão.`)
+        falha++
+        continue
+      }
+
       const form = new FormData()
-      form.append('file', file)
+      form.append('file', fileToUpload)
       form.append('funcionario_id', String(props.funcionario.id))
       if (titulo) form.append('titulo', titulo)
       if (anexoForm.value.descricao) form.append('descricao', anexoForm.value.descricao)
@@ -317,7 +327,9 @@ const enviarArquivos = async (files: File[]) => {
     modalAnexo.value = false
     emit('email-enviado', `${sucesso} arquivo(s) anexado(s) com sucesso!`)
   }
-  if (falha > 0) emit('email-erro', `${falha} arquivo(s) não puderam ser enviados.`)
+  if (falha > 0) {
+    emit('email-erro', `${falha} arquivo(s) não puderam ser enviados. Verifique se os arquivos excedem o limite de 4.5MB.`)
+  }
 }
 
 const verHolerites = () => {

@@ -227,17 +227,25 @@ const carregarDocumentos = async () => {
 }
 
 const uploadArquivo = async (file: File) => {
-  if (file.size > 10 * 1024 * 1024) {
-    erroUpload.value = `${file.name}: arquivo muito grande (máx 10MB)`
-    return
-  }
   enviando.value = true
   nomeEnviando.value = file.name
   erroUpload.value = null
 
   try {
+    // Comprimir imagem se necessário para respeitar o limite de payload de 4.5MB da Vercel
+    const fileToUpload = await compressImageIfNeeded(file)
+    
+    // Limite de payload da Vercel é 4.5MB
+    const MAX_SIZE_VERCEL = 4.5 * 1024 * 1024
+    if (fileToUpload.size > MAX_SIZE_VERCEL) {
+      erroUpload.value = `${file.name}: arquivo muito grande (${(fileToUpload.size / 1024 / 1024).toFixed(1)}MB). Limite de upload em produção é de 4.5MB.`
+      enviando.value = false
+      nomeEnviando.value = ''
+      return
+    }
+
     const form = new FormData()
-    form.append('file', file)
+    form.append('file', fileToUpload)
     form.append('funcionario_id', String(props.funcionarioId))
 
     const tipoSelecionado = tipos.value.find(t => t.id === uploadForm.value.tipo_id)

@@ -285,16 +285,22 @@ const confirmarUpload = async () => {
   if (!arquivoSelecionado.value) return
   const file = arquivoSelecionado.value
 
-  if (file.size > 10 * 1024 * 1024) {
-    erro.value = 'Arquivo muito grande (máx 10MB)'
-    return
-  }
-
   enviando.value = true
   erro.value = null
   try {
+    // Comprimir imagem se necessário para respeitar o limite de payload de 4.5MB da Vercel
+    const fileToUpload = await compressImageIfNeeded(file)
+    
+    // Limite de payload da Vercel é 4.5MB
+    const MAX_SIZE_VERCEL = 4.5 * 1024 * 1024
+    if (fileToUpload.size > MAX_SIZE_VERCEL) {
+      erro.value = `Arquivo muito grande (${(fileToUpload.size / 1024 / 1024).toFixed(1)}MB). Limite de upload em produção é de 4.5MB.`
+      enviando.value = false
+      return
+    }
+
     const form = new FormData()
-    form.append('file', file)
+    form.append('file', fileToUpload)
     if (novoTitulo.value.trim()) form.append('titulo', novoTitulo.value.trim())
     if (novaDescricao.value.trim()) form.append('descricao', novaDescricao.value.trim())
     if (novaDataReferencia.value) form.append('data_referencia', novaDataReferencia.value)
