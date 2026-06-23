@@ -86,13 +86,9 @@ export function gerarHoleriteHTML(holerite: any, funcionario: any, empresa: any)
   if (isFerias) {
     tipoFolha = 'Recibo de Férias'
     isFolhaMensal = false
-    corTema = '#1e4d2b' // Verde escuro — férias
-    corFundo = '#f0fdf4' // Verde muito claro
   } else if (isAdiantamento) {
     tipoFolha = 'Adiantamento Salarial'
     isFolhaMensal = false
-    corTema = '#3f3f46' // Zinc-700 (neutral médio)
-    corFundo = '#fafafa' // Zinc-50 (neutral muito claro)
   } else if (diaInicio === 16) {
     tipoFolha = 'Folha Quinzenal - 2ª Quinzena'
     isFolhaMensal = false
