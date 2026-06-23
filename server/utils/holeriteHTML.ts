@@ -142,8 +142,8 @@ export function gerarHoleriteHTML(holerite: any, funcionario: any, empresa: any)
   const pensaoAlimenticia = Number(holerite.pensao_alimenticia) || 0
   
   // Itens personalizados (benefícios e descontos)
-  const beneficiosPersonalizados = holerite.beneficios || []
-  const descontosPersonalizados = holerite.descontos_personalizados || []
+  const beneficiosPersonalizados = Array.isArray(holerite.beneficios) ? holerite.beneficios : []
+  const descontosPersonalizados = Array.isArray(holerite.descontos_personalizados) ? holerite.descontos_personalizados : []
   
   // Calcular totais de itens personalizados
   let totalBeneficiosPersonalizados = 0
