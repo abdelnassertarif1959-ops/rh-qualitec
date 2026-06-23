@@ -836,45 +836,50 @@ const carregarDadosAdicionais = async () => {
         console.log('✅ Configurações permanentes carregadas:', configResponse.data)
         
         // Se o holerite não tem configurações próprias, usar as permanentes
-        if (!props.holerite.inss_tipo) {
-          inssConfig.value = {
-            tipo: configResponse.data.inss.tipo,
-            percentual: configResponse.data.inss.percentual
-          }
-          
-          if (configResponse.data.inss.tipo === 'fixo') {
-            form.value.inss = configResponse.data.inss.valor_fixo
-            form.value.inss_referencia = configResponse.data.inss.referencia
-          }
-          
-          console.log('📊 INSS configurado com valores permanentes:', inssConfig.value)
-        }
-        
-        if (!props.holerite.pensao_tipo) {
-          if (configResponse.data.pensao.ativa) {
-            pensaoConfig.value = {
-              tipo: configResponse.data.pensao.tipo || 'percentual',
-              percentual: configResponse.data.pensao.percentual || 0,
-              recorrente: configResponse.data.pensao.recorrente || false
+        // IMPORTANTE: Não aplicar descontos permanentes se for adiantamento
+        if (!isAdiantamento.value) {
+          if (!props.holerite.inss_tipo) {
+            inssConfig.value = {
+              tipo: configResponse.data.inss.tipo,
+              percentual: configResponse.data.inss.percentual
             }
             
-            if (configResponse.data.pensao.tipo === 'fixo') {
-              form.value.pensao_alimenticia = configResponse.data.pensao.valor_fixo || 0
+            if (configResponse.data.inss.tipo === 'fixo') {
+              form.value.inss = configResponse.data.inss.valor_fixo
+              form.value.inss_referencia = configResponse.data.inss.referencia
+            }
+            
+            console.log('📊 INSS configurado com valores permanentes:', inssConfig.value)
+          }
+          
+          if (!props.holerite.pensao_tipo) {
+            if (configResponse.data.pensao.ativa) {
+              pensaoConfig.value = {
+                tipo: configResponse.data.pensao.tipo || 'percentual',
+                percentual: configResponse.data.pensao.percentual || 0,
+                recorrente: configResponse.data.pensao.recorrente || false
+              }
+              
+              if (configResponse.data.pensao.tipo === 'fixo') {
+                form.value.pensao_alimenticia = configResponse.data.pensao.valor_fixo || 0
+              } else {
+                calcularPensao() // Recalcular com o percentual correto carregado
+              }
+              
+              console.log('💜 Pensão configurada com valores permanentes:', pensaoConfig.value)
             } else {
-              calcularPensao() // Recalcular com o percentual correto carregado
+              // Se a pensão não for ativa para este funcionário
+              pensaoConfig.value = {
+                tipo: 'fixo',
+                percentual: 0,
+                recorrente: false
+              }
+              form.value.pensao_alimenticia = 0
+              console.log('💜 Funcionário sem pensão alimentícia ativa.')
             }
-            
-            console.log('💜 Pensão configurada com valores permanentes:', pensaoConfig.value)
-          } else {
-            // Se a pensão não for ativa para este funcionário
-            pensaoConfig.value = {
-              tipo: 'fixo',
-              percentual: 0,
-              recorrente: false
-            }
-            form.value.pensao_alimenticia = 0
-            console.log('💜 Funcionário sem pensão alimentícia ativa.')
           }
+        } else {
+          console.log('⏭️ Ignorando configurações permanentes de descontos (holerite de adiantamento)')
         }
       }
     } catch (error) {
@@ -1137,18 +1142,23 @@ const calcularDescontoAfastamento = () => {
 }
 
 const calcularTotalDescontos = () => {
-  const totalBruto = (
-    Number(form.value.inss || 0) +
-    Number(form.value.irrf || 0) +
-    Number(form.value.vale_transporte || 0) +
-    Number(form.value.vale_refeicao_desconto || 0) +
-    Number(form.value.plano_saude || 0) +
-    Number(form.value.plano_odontologico || 0) +
-    Number(form.value.adiantamento || 0) +
-    Number(form.value.faltas || 0) +
-    Number(form.value.pensao_alimenticia || 0) +
-    Number(form.value.desconto_afastamento || 0)
-  )
+  let totalBruto = 0
+  if (isAdiantamento.value) {
+    totalBruto = Number(form.value.desconto_afastamento || 0)
+  } else {
+    totalBruto = (
+      Number(form.value.inss || 0) +
+      Number(form.value.irrf || 0) +
+      Number(form.value.vale_transporte || 0) +
+      Number(form.value.vale_refeicao_desconto || 0) +
+      Number(form.value.plano_saude || 0) +
+      Number(form.value.plano_odontologico || 0) +
+      Number(form.value.adiantamento || 0) +
+      Number(form.value.faltas || 0) +
+      Number(form.value.pensao_alimenticia || 0) +
+      Number(form.value.desconto_afastamento || 0)
+    )
+  }
   const totalProventos = calcularTotalProventos()
   if (isNaN(totalBruto) || isNaN(totalProventos)) return 0
   return Math.min(totalBruto, totalProventos)
@@ -1192,10 +1202,10 @@ const salvar = async () => {
   // Isso evita duplicação de pensão no holerite
   
   try {
-    // 1. SALVAR CONFIGURAÇÕES PERMANENTES NO FUNCIONÁRIO
+    // 1. SALVAR CONFIGURAÇÕES PERMANENTES NO FUNCIONÁRIO (apenas folha mensal)
     const funcId = props.holerite.funcionario_id || props.holerite.funcionario?.id
     
-    if (funcId) {
+    if (funcId && !isAdiantamento.value) {
       console.log('💾 Salvando configurações permanentes no funcionário...')
       
       const configBody: any = {
@@ -1236,17 +1246,17 @@ const salvar = async () => {
       adicional_periculosidade: sanitizarValorNumerico(form.value.adicional_periculosidade),
       adicional_insalubridade: sanitizarValorNumerico(form.value.adicional_insalubridade),
       comissoes: sanitizarValorNumerico(form.value.comissoes),
-      inss: sanitizarValorNumerico(form.value.inss),
-      inss_referencia: form.value.inss_referencia || null,
-      irrf: sanitizarValorNumerico(form.value.irrf),
-      fgts: sanitizarValorNumerico(form.value.fgts),
-      vale_transporte: sanitizarValorNumerico(form.value.vale_transporte),
-      vale_refeicao_desconto: sanitizarValorNumerico(form.value.vale_refeicao_desconto),
-      plano_saude: sanitizarValorNumerico(form.value.plano_saude),
-      plano_odontologico: sanitizarValorNumerico(form.value.plano_odontologico),
-      adiantamento: sanitizarValorNumerico(form.value.adiantamento),
-      faltas: sanitizarValorNumerico(form.value.faltas),
-      pensao_alimenticia: sanitizarValorNumerico(form.value.pensao_alimenticia),
+      inss: isAdiantamento.value ? 0 : sanitizarValorNumerico(form.value.inss),
+      inss_referencia: isAdiantamento.value ? null : (form.value.inss_referencia || null),
+      irrf: isAdiantamento.value ? 0 : sanitizarValorNumerico(form.value.irrf),
+      fgts: isAdiantamento.value ? 0 : sanitizarValorNumerico(form.value.fgts),
+      vale_transporte: isAdiantamento.value ? 0 : sanitizarValorNumerico(form.value.vale_transporte),
+      vale_refeicao_desconto: isAdiantamento.value ? 0 : sanitizarValorNumerico(form.value.vale_refeicao_desconto),
+      plano_saude: isAdiantamento.value ? 0 : sanitizarValorNumerico(form.value.plano_saude),
+      plano_odontologico: isAdiantamento.value ? 0 : sanitizarValorNumerico(form.value.plano_odontologico),
+      adiantamento: isAdiantamento.value ? 0 : sanitizarValorNumerico(form.value.adiantamento),
+      faltas: isAdiantamento.value ? 0 : sanitizarValorNumerico(form.value.faltas),
+      pensao_alimenticia: isAdiantamento.value ? 0 : sanitizarValorNumerico(form.value.pensao_alimenticia),
       desconto_afastamento: sanitizarValorNumerico(form.value.desconto_afastamento),
       // Salvar configurações de INSS e Pensão no holerite também (para histórico)
       inss_tipo: inssConfig.value.tipo,
