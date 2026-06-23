@@ -170,6 +170,12 @@
 
     <!-- Aba: Descontos -->
     <div v-if="abaAtiva === 'descontos'" class="space-y-4">
+      <!-- Alerta para holerite de adiantamento -->
+      <UiAlert v-if="isAdiantamento" variant="warning" class="text-sm">
+        ⚠️ <strong>Atenção:</strong> Holerites de adiantamento salarial não possuem descontos, exceto para casos de afastamento via INSS ou semelhante. Os demais descontos bloqueados aqui devem ser aplicados apenas na folha mensal.
+      </UiAlert>
+
+      <template v-if="!isAdiantamento">
       <!-- INSS com Percentual -->
       <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 space-y-4">
         <div class="flex items-center justify-between">
@@ -362,6 +368,8 @@
         />
       </div>
 
+      </template>
+
       <!-- Desconto por Afastamento -->
       <div class="bg-amber-50 border-2 border-amber-200 rounded-lg p-4 space-y-3">
         <h4 class="font-semibold text-amber-900 flex items-center gap-2">
@@ -403,6 +411,7 @@
           💡 Use este campo para descontar dias de afastamento (INSS, acidente, licença não remunerada, etc.). Para afastamento total, clique em "Zerar salário" — isso define o desconto igual ao salário proporcional, resultando em R$ 0,00 de provento líquido.
         </UiAlert>
       </div>
+      <template v-if="!isAdiantamento">
       <!-- Pensão Alimentícia com Percentual -->
       <div class="border-2 border-purple-200 rounded-lg p-4 bg-purple-50">
         <div class="flex items-center justify-between mb-3">
@@ -516,6 +525,7 @@
       <UiAlert variant="info" class="text-sm">
         💡 <strong>Informação:</strong> O FGTS não é descontado do salário do funcionário. É um depósito feito pela empresa (8% do salário bruto) em conta vinculada do trabalhador.
       </UiAlert>
+      </template>
 
       <!-- Total de Descontos -->
       <div class="bg-red-50 p-4 rounded-lg">
@@ -729,6 +739,11 @@ const tabs = [
   { id: 'descontos', label: 'Descontos', icon: '📉' },
   { id: 'personalizados', label: 'Itens Personalizados', icon: '⚙️' }
 ]
+
+// Computed para identificar holerite de adiantamento
+const isAdiantamento = computed(() => {
+  return form.value.observacoes && form.value.observacoes.toLowerCase().includes('adiantamento')
+})
 
 // Formulário
 const form = ref({
