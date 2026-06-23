@@ -742,7 +742,7 @@ const tabs = [
 
 // Computed para identificar holerite de adiantamento
 const isAdiantamento = computed(() => {
-  return form.value.observacoes && form.value.observacoes.toLowerCase().includes('adiantamento')
+  return form.value.observacoes && form.value.observacoes.trim().toLowerCase().startsWith('adiantamento salarial')
 })
 
 // Formulário

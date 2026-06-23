@@ -149,6 +149,14 @@
                 </p>
                 <span 
                   :class="[
+                    'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold mr-2 border',
+                    getHoleriteTypeInfo(holerite.observacoes).class
+                  ]"
+                >
+                  {{ getHoleriteTypeInfo(holerite.observacoes).label }}
+                </span>
+                <span 
+                  :class="[
                     'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium',
                     holerite.status === 'enviado' ? 'bg-green-100 text-green-800' :
                     holerite.status === 'gerado' ? 'bg-yellow-100 text-yellow-800' :
@@ -689,6 +697,17 @@ watch(() => filtros.value.status, () => {
 })
 
 // Funções
+const getHoleriteTypeInfo = (observacoes?: string) => {
+  const obs = (observacoes || '').trim().toLowerCase()
+  if (obs.startsWith('adiantamento salarial')) {
+    return { label: 'Adiantamento', class: 'bg-orange-100 text-orange-800 border-orange-200' }
+  } else if (obs.startsWith('recibo de férias')) {
+    return { label: 'Férias', class: 'bg-purple-100 text-purple-800 border-purple-200' }
+  } else {
+    return { label: 'Mensal', class: 'bg-indigo-100 text-indigo-800 border-indigo-200' }
+  }
+}
+
 const carregarMesesDisponiveis = async () => {
   try {
     // Buscar meses únicos que têm holerites
