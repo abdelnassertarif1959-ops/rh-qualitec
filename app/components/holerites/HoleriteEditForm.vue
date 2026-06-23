@@ -758,8 +758,8 @@ const form = ref({
 
 // Configuração da pensão alimentícia (carregada do banco)
 const pensaoConfig = ref({
-  tipo: props.holerite.pensao_tipo || 'percentual',
-  percentual: props.holerite.pensao_percentual || 30,
+  tipo: props.holerite.pensao_tipo || 'fixo',
+  percentual: props.holerite.pensao_percentual || 0,
   recorrente: props.holerite.pensao_recorrente || false
 })
 
@@ -835,18 +835,31 @@ const carregarDadosAdicionais = async () => {
           console.log('📊 INSS configurado com valores permanentes:', inssConfig.value)
         }
         
-        if (!props.holerite.pensao_tipo && configResponse.data.pensao.ativa) {
-          pensaoConfig.value = {
-            tipo: configResponse.data.pensao.tipo,
-            percentual: configResponse.data.pensao.percentual,
-            recorrente: configResponse.data.pensao.recorrente
+        if (!props.holerite.pensao_tipo) {
+          if (configResponse.data.pensao.ativa) {
+            pensaoConfig.value = {
+              tipo: configResponse.data.pensao.tipo || 'percentual',
+              percentual: configResponse.data.pensao.percentual || 0,
+              recorrente: configResponse.data.pensao.recorrente || false
+            }
+            
+            if (configResponse.data.pensao.tipo === 'fixo') {
+              form.value.pensao_alimenticia = configResponse.data.pensao.valor_fixo || 0
+            } else {
+              calcularPensao() // Recalcular com o percentual correto carregado
+            }
+            
+            console.log('💜 Pensão configurada com valores permanentes:', pensaoConfig.value)
+          } else {
+            // Se a pensão não for ativa para este funcionário
+            pensaoConfig.value = {
+              tipo: 'fixo',
+              percentual: 0,
+              recorrente: false
+            }
+            form.value.pensao_alimenticia = 0
+            console.log('💜 Funcionário sem pensão alimentícia ativa.')
           }
-          
-          if (configResponse.data.pensao.tipo === 'fixo') {
-            form.value.pensao_alimenticia = configResponse.data.pensao.valor_fixo
-          }
-          
-          console.log('💜 Pensão configurada com valores permanentes:', pensaoConfig.value)
         }
       }
     } catch (error) {
@@ -1170,22 +1183,26 @@ const salvar = async () => {
     if (funcId) {
       console.log('💾 Salvando configurações permanentes no funcionário...')
       
+      const configBody: any = {
+        // Configurações de INSS
+        inss_config_tipo: inssConfig.value.tipo,
+        inss_config_percentual: sanitizarValorNumerico(inssConfig.value.percentual),
+        inss_config_valor_fixo: inssConfig.value.tipo === 'fixo' ? sanitizarValorNumerico(form.value.inss) : 0,
+        inss_config_referencia: form.value.inss_referencia || null
+      }
+      
+      // Salvar as configurações de pensão apenas se estiver marcada como recorrente
+      if (pensaoConfig.value.recorrente) {
+        configBody.pensao_config_tipo = pensaoConfig.value.tipo
+        configBody.pensao_config_percentual = sanitizarValorNumerico(pensaoConfig.value.percentual)
+        configBody.pensao_config_valor_fixo = pensaoConfig.value.tipo === 'fixo' ? sanitizarValorNumerico(form.value.pensao_alimenticia) : 0
+        configBody.pensao_config_recorrente = true
+        configBody.pensao_config_ativa = sanitizarValorNumerico(form.value.pensao_alimenticia) > 0
+      }
+
       await $fetch(`/api/funcionarios/${funcId}/config-inss-pensao`, {
         method: 'PATCH',
-        body: {
-          // Configurações de INSS
-          inss_config_tipo: inssConfig.value.tipo,
-          inss_config_percentual: sanitizarValorNumerico(inssConfig.value.percentual),
-          inss_config_valor_fixo: inssConfig.value.tipo === 'fixo' ? sanitizarValorNumerico(form.value.inss) : 0,
-          inss_config_referencia: form.value.inss_referencia || null,
-          
-          // Configurações de Pensão
-          pensao_config_tipo: pensaoConfig.value.tipo,
-          pensao_config_percentual: sanitizarValorNumerico(pensaoConfig.value.percentual),
-          pensao_config_valor_fixo: pensaoConfig.value.tipo === 'fixo' ? sanitizarValorNumerico(form.value.pensao_alimenticia) : 0,
-          pensao_config_recorrente: pensaoConfig.value.recorrente,
-          pensao_config_ativa: sanitizarValorNumerico(form.value.pensao_alimenticia) > 0
-        }
+        body: configBody
       })
       
       console.log('✅ Configurações permanentes salvas!')
@@ -1308,8 +1325,8 @@ watch(() => props.holerite, (novoHolerite) => {
     }
     
     pensaoConfig.value = {
-      tipo: novoHolerite.pensao_tipo || 'percentual',
-      percentual: novoHolerite.pensao_percentual || 30,
+      tipo: novoHolerite.pensao_tipo || 'fixo',
+      percentual: novoHolerite.pensao_percentual || 0,
       recorrente: novoHolerite.pensao_recorrente || false
     }
     
