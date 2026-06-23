@@ -119,7 +119,7 @@ export default defineEventHandler(async (event) => {
             valor_abono_pecuniario: calc.valorAbonoPecuniario,
           }
         },
-        status: 'disponivel',
+        status: 'gerado',
         observacoes: `Recibo de Férias — ${diasFerias} dias (${new Date(ferias.data_inicio + 'T00:00:00').toLocaleDateString('pt-BR')} a ${new Date(ferias.data_fim + 'T00:00:00').toLocaleDateString('pt-BR')})${ferias.abono_pecuniario ? ` + ${ferias.dias_abono} dias de abono pecuniário` : ''}`,
       })
       .select()
