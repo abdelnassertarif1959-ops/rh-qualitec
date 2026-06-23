@@ -1,9 +1,11 @@
-import { serverSupabaseClient } from '#supabase/server'
+import { serverSupabaseServiceRole } from '#supabase/server'
+import { requireAdmin } from '../../../utils/authMiddleware'
 
 // DELETE /api/ferias/[id] — Remove período de férias
 export default defineEventHandler(async (event) => {
   try {
-    const supabase = await serverSupabaseClient(event)
+    const requestingUser = await requireAdmin(event)
+    const supabase = serverSupabaseServiceRole(event)
     const id = Number(getRouterParam(event, 'id'))
 
     if (!id) throw createError({ statusCode: 400, statusMessage: 'ID inválido' })

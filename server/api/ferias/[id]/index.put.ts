@@ -1,10 +1,12 @@
-import { serverSupabaseClient } from '#supabase/server'
-import { calcularRemuneracaoFerias } from '../../../utils/calcularFerias'
+import { serverSupabaseServiceRole } from '#supabase/server'
+import { requireAdmin } from '../../../utils/authMiddleware'
+import { calcularRemuneracaoFerias, carregarTaxConfigDoBanco } from '../../../utils/calcularFerias'
 
 // PUT /api/ferias/[id] — Editar período de férias
 export default defineEventHandler(async (event) => {
   try {
-    const supabase = await serverSupabaseClient(event)
+    const requestingUser = await requireAdmin(event)
+    const supabase = serverSupabaseServiceRole(event)
     const id = Number(getRouterParam(event, 'id'))
     const body = await readBody(event)
 
@@ -13,7 +15,7 @@ export default defineEventHandler(async (event) => {
     // Verificar se existe
     const { data: existing, error: errGet } = await supabase
       .from('funcionario_ferias')
-      .select('*, funcionarios(id, salario_base, numero_dependentes)')
+      .select('*, funcionarios(id, salario_base, numero_dependentes, pensao_config_ativa, pensao_config_tipo, pensao_config_percentual, pensao_config_valor_fixo)')
       .eq('id', id)
       .single()
 
@@ -48,13 +50,29 @@ export default defineEventHandler(async (event) => {
 
     const usarAbono = abono_pecuniario !== undefined ? abono_pecuniario : existing.abono_pecuniario
     const usarDiasAbono = dias_abono !== undefined ? dias_abono : existing.dias_abono
-    const diasFerias = diasCorridos - (usarAbono ? usarDiasAbono : 0)
+    // Dias efetivos de férias = corridos
+    const diasFerias = diasCorridos
 
     const func = existing.funcionarios as any
     const salarioBase = Number(func?.salario_base) || 0
     const numeroDependentes = Number(func?.numero_dependentes) || 0
 
-    const calc = calcularRemuneracaoFerias(salarioBase, diasFerias, usarAbono ? usarDiasAbono : 0, numeroDependentes)
+    // Carregar configurações de impostos do banco
+    const taxConfig = await carregarTaxConfigDoBanco(supabase)
+
+    const calc = calcularRemuneracaoFerias(
+      salarioBase,
+      diasFerias,
+      usarAbono ? usarDiasAbono : 0,
+      numeroDependentes,
+      {
+        ativa: func?.pensao_config_ativa || false,
+        tipo: (func?.pensao_config_tipo as 'percentual' | 'fixo') || 'percentual',
+        percentual: Number(func?.pensao_config_percentual) || 0,
+        valorFixo: Number(func?.pensao_config_valor_fixo) || 0,
+      },
+      taxConfig
+    )
 
     if (data_inicio !== undefined) updates.data_inicio = data_inicio
     if (data_fim !== undefined) updates.data_fim = data_fim
@@ -77,6 +95,7 @@ export default defineEventHandler(async (event) => {
       valor_bruto: calc.valorBruto,
       inss: calc.inss,
       irrf: calc.irrf,
+      pensao_alimenticia: calc.pensaoAlimenticia,
       valor_liquido: calc.valorLiquido,
     }
 

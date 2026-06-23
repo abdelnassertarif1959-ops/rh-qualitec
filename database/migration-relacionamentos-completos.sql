@@ -212,7 +212,7 @@ CREATE TABLE IF NOT EXISTS funcionario_ferias (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   
   CONSTRAINT funcionario_ferias_status_check 
-    CHECK (status IN ('programado', 'em_andamento', 'concluido', 'cancelado'))
+    CHECK (status IN ('pendente', 'programado', 'em_gozo', 'em_andamento', 'concluido', 'cancelado'))
 );
 
 -- 10. Tabela de PONTO ELETRÔNICO (vinculada ao funcionário)

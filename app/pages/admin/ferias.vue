@@ -30,7 +30,12 @@
     </div>
 
     <!-- Stats cards -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div class="bg-white rounded-xl border border-amber-200 p-4 bg-amber-50/50">
+        <p class="text-xs text-amber-700 font-medium uppercase tracking-wider">⏳ Pendentes</p>
+        <p class="text-2xl font-bold text-amber-600 mt-1">{{ stats.pendente }}</p>
+        <p class="text-xs text-amber-500 mt-0.5">solicitações</p>
+      </div>
       <div class="bg-white rounded-xl border border-gray-200 p-4">
         <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Em Gozo</p>
         <p class="text-2xl font-bold text-emerald-600 mt-1">{{ stats.em_gozo }}</p>
@@ -46,7 +51,7 @@
         <p class="text-2xl font-bold text-gray-600 mt-1">{{ stats.concluido }}</p>
         <p class="text-xs text-gray-400 mt-0.5">no histórico</p>
       </div>
-      <div class="bg-white rounded-xl border border-yellow-200 p-4 bg-yellow-50">
+      <div class="bg-white rounded-xl border border-yellow-200 p-4 bg-yellow-50 col-span-2 md:col-span-1">
         <p class="text-xs text-yellow-700 font-medium uppercase tracking-wider">⚠ Atenção</p>
         <p class="text-2xl font-bold text-yellow-600 mt-1">{{ stats.vencendo }}</p>
         <p class="text-xs text-yellow-600 mt-0.5">prazo a vencer</p>
@@ -67,10 +72,11 @@
           <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
           <select v-model="filtros.status" class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
             <option value="">Todos os status</option>
-            <option value="programado">Programadas</option>
-            <option value="em_gozo">Em Gozo</option>
-            <option value="concluido">Concluídas</option>
-            <option value="cancelado">Canceladas</option>
+            <option value="pendente">⏳ Solicitadas (Pendentes)</option>
+            <option value="programado">📅 Programadas</option>
+            <option value="em_gozo">🌴 Em Gozo</option>
+            <option value="concluido">✅ Concluídas</option>
+            <option value="cancelado">❌ Canceladas</option>
           </select>
         </div>
         <div>
@@ -117,8 +123,22 @@
                 {{ statusLabel(ferias.status) }}
               </span>
 
+              <!-- Aprovar (Apenas se status for pendente) -->
               <button
-                v-if="!ferias.holerite_id"
+                v-if="ferias.status === 'pendente'"
+                @click="aprovarSolicitacao(ferias)"
+                :disabled="loadingAprovar === ferias.id"
+                class="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded-lg transition-colors disabled:opacity-50 animate-pulse"
+              >
+                <svg v-if="loadingAprovar !== ferias.id" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <div v-else class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                Aprovar
+              </button>
+
+              <button
+                v-if="ferias.status !== 'pendente' && !ferias.holerite_id"
                 @click="gerarHolerite(ferias)"
                 :disabled="loadingHolerite === ferias.id"
                 class="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
@@ -176,8 +196,8 @@
               <p class="text-sm font-semibold text-gray-800">{{ formatarValor(ferias.valor_um_terco) }}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-400">Descontos (INSS+IRRF)</p>
-              <p class="text-sm font-semibold text-red-600">- {{ formatarValor((ferias.inss || 0) + (ferias.irrf || 0)) }}</p>
+              <p class="text-xs text-gray-400">Descontos (INSS+IRRF+Pensão)</p>
+              <p class="text-sm font-semibold text-red-600">- {{ formatarValor((ferias.inss || 0) + (ferias.irrf || 0) + (ferias.pensao_alimenticia || 0)) }}</p>
             </div>
             <div class="bg-emerald-50 rounded-lg py-1 px-2">
               <p class="text-xs text-emerald-600 font-medium">Valor Líquido</p>
@@ -192,6 +212,9 @@
             </span>
             <span v-if="ferias.abono_pecuniario" class="text-amber-600">
               💰 Abono pecuniário: {{ ferias.dias_abono }} dias ({{ formatarValor(ferias.valor_abono_pecuniario) }})
+            </span>
+            <span v-if="ferias.pensao_alimenticia > 0" class="text-red-500 font-medium">
+              💸 Pensão: {{ formatarValor(ferias.pensao_alimenticia) }}
             </span>
             <span v-if="ferias.data_pagamento">
               💳 Pagamento: {{ formatarData(ferias.data_pagamento) }}
@@ -263,6 +286,21 @@
                   <option v-for="f in funcionarios" :key="f.id" :value="f.id">
                     {{ f.nome_completo }} — R$ {{ formatarValor(f.salario_base) }}
                   </option>
+                </select>
+              </div>
+
+              <!-- Status (apenas quando editando) -->
+              <div v-if="editando">
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Status *</label>
+                <select
+                  v-model="form.status"
+                  class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                >
+                  <option value="pendente">⏳ Pendente (Aguardando Aprovação)</option>
+                  <option value="programado">📅 Programada</option>
+                  <option value="em_gozo">🌴 Em Gozo</option>
+                  <option value="concluido">✅ Concluída</option>
+                  <option value="cancelado">❌ Cancelada</option>
                 </select>
               </div>
 
@@ -402,6 +440,10 @@
                     <span>IRRF</span>
                     <span class="font-semibold">Isento</span>
                   </div>
+                  <div v-if="preview.pensaoAlimenticia > 0" class="flex justify-between items-center py-1.5 text-red-600">
+                    <span>Pensão Alimentícia</span>
+                    <span class="font-semibold">- {{ formatarValor(preview.pensaoAlimenticia) }}</span>
+                  </div>
                   <div class="flex justify-between items-center pt-3 mt-2 border-t-2 border-emerald-300">
                     <span class="font-bold text-emerald-800 text-base">💰 Valor Líquido</span>
                     <span class="font-bold text-emerald-700 text-xl">{{ formatarValor(preview.valorLiquido) }}</span>
@@ -441,6 +483,7 @@ definePageMeta({ layout: 'default', middleware: ['auth'] })
 const loading = ref(true)
 const salvando = ref(false)
 const loadingHolerite = ref<number | null>(null)
+const loadingAprovar = ref<number | null>(null)
 const showModal = ref(false)
 const editando = ref<any | null>(null)
 
@@ -463,6 +506,7 @@ const form = reactive({
   dias_abono: 10,
   data_pagamento: '',
   observacoes: '',
+  status: 'programado',
 })
 
 const preview = ref<any>(null)
@@ -494,7 +538,7 @@ const feriasFiltradas = computed(() => {
 
 const stats = computed(() => {
   const hoje = new Date()
-  const s = { em_gozo: 0, programado: 0, concluido: 0, cancelado: 0, vencendo: 0 }
+  const s = { pendente: 0, em_gozo: 0, programado: 0, concluido: 0, cancelado: 0, vencendo: 0 }
   todasFerias.value.forEach(f => {
     const status = calcStatusAuto(f)
     if (status in s) s[status as keyof typeof s]++
@@ -537,6 +581,7 @@ const iniciais = (nome: string) => {
 
 const calcStatusAuto = (ferias: any) => {
   if (ferias.status === 'cancelado') return 'cancelado'
+  if (ferias.status === 'pendente') return 'pendente'
   const hoje = new Date()
   const inicio = new Date(ferias.data_inicio + 'T00:00:00')
   const fim = new Date(ferias.data_fim + 'T00:00:00')
@@ -547,6 +592,7 @@ const calcStatusAuto = (ferias: any) => {
 
 const statusLabel = (status: string) => {
   const map: Record<string, string> = {
+    pendente: '⏳ Pendente',
     programado: '📅 Programadas',
     em_gozo: '🌴 Em Gozo',
     concluido: '✅ Concluído',
@@ -557,6 +603,7 @@ const statusLabel = (status: string) => {
 
 const statusBadgeClass = (status: string) => {
   const map: Record<string, string> = {
+    pendente: 'bg-amber-100 text-amber-700',
     programado: 'bg-blue-100 text-blue-700',
     em_gozo: 'bg-emerald-100 text-emerald-700',
     concluido: 'bg-gray-100 text-gray-600',
@@ -578,7 +625,7 @@ const recalcularPreview = () => {
   if (diasCorridos <= 0) return
 
   const diasAbono = form.abono_pecuniario ? (form.dias_abono || 0) : 0
-  const diasFerias = diasCorridos - diasAbono
+  const diasFerias = diasCorridos
 
   const salarioBase = Number(func.salario_base) || 0
   const numeroDependentes = Number(func.numero_dependentes) || 0
@@ -586,48 +633,83 @@ const recalcularPreview = () => {
 
   const valorRemuneracao = salarioDia * diasFerias
   const valorUmTerco = valorRemuneracao / 3
-  const valorAbonoPecuniario = diasAbono > 0 ? salarioDia * diasAbono * (1 + 1 / 3) : 0
+  const valorAbonoPecuniario = diasAbono > 0 ? salarioDia * diasAbono : 0
 
   const baseInss = valorRemuneracao + valorUmTerco
-
+  
   // INSS progressivo 2026
   const faixasInss = [
-    { ate: 1518.00, aliquota: 0.075 },
-    { ate: 2793.88, aliquota: 0.09 },
-    { ate: 4190.83, aliquota: 0.12 },
-    { ate: 8157.41, aliquota: 0.14 },
+    { ate: 1621.00, aliquota: 0.075 },
+    { ate: 2902.84, aliquota: 0.09 },
+    { ate: 4354.27, aliquota: 0.12 },
+    { ate: 8475.55, aliquota: 0.14 },
   ]
+  
+  const baseInssLimitada = Math.min(baseInss, 8475.55)
   let inss = 0, anterior = 0
   for (const faixa of faixasInss) {
-    if (baseInss <= anterior) break
-    inss += (Math.min(baseInss, faixa.ate) - anterior) * faixa.aliquota
+    if (baseInssLimitada <= anterior) break
+    inss += (Math.min(baseInssLimitada, faixa.ate) - anterior) * faixa.aliquota
     anterior = faixa.ate
-    if (baseInss <= faixa.ate) break
+    if (baseInssLimitada <= faixa.ate) break
   }
   inss = Math.round(inss * 100) / 100
 
-  // IRRF 2026
-  const faixasIRRF = [
-    { ate: 2259.20, aliquota: 0, deducao: 0 },
-    { ate: 2826.65, aliquota: 0.075, deducao: 169.44 },
-    { ate: 3751.05, aliquota: 0.15, deducao: 381.44 },
-    { ate: 4664.68, aliquota: 0.225, deducao: 662.77 },
-    { ate: Infinity, aliquota: 0.275, deducao: 896.00 },
-  ]
-  const deducaoDep = numeroDependentes * 189.59
-  const baseIRRF = Math.max(0, baseInss - inss - deducaoDep)
-  let irrf = 0, faixaIRRF = 'Isento'
-  for (const faixa of faixasIRRF) {
-    if (baseIRRF <= faixa.ate) {
-      irrf = Math.max(0, baseIRRF * faixa.aliquota - faixa.deducao)
-      faixaIRRF = faixa.aliquota === 0 ? 'Isento' : `${(faixa.aliquota * 100).toFixed(1)}%`
-      break
+  // Calcular Pensão Alimentícia
+  let pensaoAlimenticia = 0
+  if (func.pensao_config_ativa) {
+    if (func.pensao_config_tipo === 'fixo') {
+      pensaoAlimenticia = Number(func.pensao_config_valor_fixo) || 0
+    } else {
+      const salarioLiquidoBase = baseInss - inss
+      pensaoAlimenticia = (salarioLiquidoBase * (Number(func.pensao_config_percentual) || 0)) / 100
     }
   }
+  pensaoAlimenticia = Math.round(pensaoAlimenticia * 100) / 100
+
+  // IRRF 2026
+  const deducaoDep = numeroDependentes * 189.59
+  const baseIRRF = Math.max(0, baseInss - inss - pensaoAlimenticia)
+  const baseIRRFAposDep = Math.max(0, baseIRRF - deducaoDep)
+  
+  // 1. Calcular imposto base pela tabela progressiva oficial de 2026
+  let impostoTabela = 0
+  let faixaIRRF = 'Isento'
+
+  if (baseIRRFAposDep <= 2428.80) {
+    impostoTabela = 0
+    faixaIRRF = 'Isento'
+  } else if (baseIRRFAposDep <= 3051.00) {
+    impostoTabela = (baseIRRFAposDep * 0.075) - 182.16
+    faixaIRRF = '7.5%'
+  } else if (baseIRRFAposDep <= 4052.00) {
+    impostoTabela = (baseIRRFAposDep * 0.15) - 394.16
+    faixaIRRF = '15.0%'
+  } else if (baseIRRFAposDep <= 5050.00) {
+    impostoTabela = (baseIRRFAposDep * 0.225) - 675.49
+    faixaIRRF = '22.5%'
+  } else {
+    impostoTabela = (baseIRRFAposDep * 0.275) - 896.00
+    faixaIRRF = '27.5%'
+  }
+
+  // 2. Calcular redutor progressivo da Lei 15.270/2025
+  let redutor = 0
+  if (baseIRRFAposDep <= 5000.00) {
+    redutor = impostoTabela // Zera o imposto
+  } else if (baseIRRFAposDep <= 7350.00) {
+    redutor = 978.62 - (0.133145 * baseIRRFAposDep)
+  }
+
+  let irrf = Math.max(0, impostoTabela - redutor)
   irrf = Math.round(irrf * 100) / 100
 
+  if (irrf === 0) {
+    faixaIRRF = 'Isento'
+  }
+
   const valorBruto = baseInss + valorAbonoPecuniario
-  const valorLiquido = valorBruto - inss - irrf
+  const valorLiquido = valorBruto - inss - irrf - pensaoAlimenticia
 
   preview.value = {
     diasFerias,
@@ -640,6 +722,7 @@ const recalcularPreview = () => {
     inss,
     irrf,
     faixaIRRF,
+    pensaoAlimenticia,
     valorLiquido: Math.round(valorLiquido * 100) / 100,
   }
 }
@@ -650,6 +733,24 @@ onMounted(async () => {
 })
 
 watch(filtros, () => {}, { deep: true })
+
+watch(
+  [() => form.data_inicio, () => form.abono_pecuniario, () => form.dias_abono],
+  ([dataInicio, abono, diasAbono]) => {
+    if (!dataInicio) return
+    try {
+      const data = new Date(dataInicio + 'T00:00:00')
+      if (isNaN(data.getTime())) return
+      const diasVenda = abono ? (Number(diasAbono) || 0) : 0
+      const diasGozo = 30 - diasVenda
+      data.setDate(data.getDate() + diasGozo - 1)
+      form.data_fim = data.toISOString().split('T')[0]
+      recalcularPreview()
+    } catch (e) {
+      console.error('Erro ao calcular data de fim das férias:', e)
+    }
+  }
+)
 
 // ─── API ─────────────────────────────────────────────────────────────────────
 const carregarFerias = async () => {
@@ -667,7 +768,7 @@ const carregarFerias = async () => {
 const carregarFuncionarios = async () => {
   try {
     const res: any = await $fetch('/api/funcionarios')
-    funcionarios.value = (res.data || []).filter((f: any) => f.status === 'ativo')
+    funcionarios.value = Array.isArray(res) ? res : (res?.data || [])
   } catch (err) {
     console.error('Erro ao carregar funcionários:', err)
   }
@@ -742,6 +843,56 @@ const confirmarExcluir = async (ferias: any) => {
   }
 }
 
+const aprovarSolicitacao = async (ferias: any) => {
+  const dtInicioStr = ferias.data_inicio
+  if (!dtInicioStr) return
+  
+  // Sugerir data de pagamento sendo 2 dias antes do início das férias
+  const dtInicio = new Date(dtInicioStr + 'T00:00:00')
+  dtInicio.setDate(dtInicio.getDate() - 2)
+  const dataPagamentoSugestao = dtInicio.toISOString().split('T')[0]
+  
+  const confirmacao = confirm(
+    `Deseja aprovar a solicitação de férias de ${ferias.funcionarios?.nome_completo || 'funcionário'}?\n\n` +
+    `Período: ${formatarData(ferias.data_inicio)} a ${formatarData(ferias.data_fim)}\n` +
+    `Data de pagamento sugerida: ${formatarData(dataPagamentoSugestao)}`
+  )
+  
+  if (!confirmacao) return
+  
+  loadingAprovar.value = ferias.id
+  try {
+    const payload = {
+      funcionario_id: ferias.funcionario_id,
+      periodo_aquisitivo_inicio: ferias.periodo_aquisitivo_inicio,
+      periodo_aquisitivo_fim: ferias.periodo_aquisitivo_fim,
+      data_inicio: ferias.data_inicio,
+      data_fim: ferias.data_fim,
+      abono_pecuniario: ferias.abono_pecuniario,
+      dias_abono: ferias.dias_abono,
+      observacoes: ferias.observacoes,
+      status: 'programado',
+      data_pagamento: ferias.data_pagamento || dataPagamentoSugestao
+    }
+    
+    // Atualizar no banco
+    const response: any = await $fetch(`/api/ferias/${ferias.id}`, {
+      method: 'PUT',
+      body: payload
+    })
+    
+    if (response.success) {
+      alert('✅ Solicitação de férias aprovada com sucesso!')
+      await carregarFerias()
+    }
+  } catch (err: any) {
+    console.error('Erro ao aprovar solicitação:', err)
+    alert(err?.data?.message || 'Erro ao aprovar solicitação de férias')
+  } finally {
+    loadingAprovar.value = null
+  }
+}
+
 // ─── Modal ────────────────────────────────────────────────────────────────────
 const abrirModalCadastro = (ferias?: any) => {
   if (ferias) {
@@ -755,6 +906,7 @@ const abrirModalCadastro = (ferias?: any) => {
     form.dias_abono = ferias.dias_abono || 10
     form.data_pagamento = ferias.data_pagamento || ''
     form.observacoes = ferias.observacoes || ''
+    form.status = ferias.status || 'programado'
     recalcularPreview()
   } else {
     editando.value = null
@@ -768,6 +920,7 @@ const abrirModalCadastro = (ferias?: any) => {
       dias_abono: 10,
       data_pagamento: '',
       observacoes: '',
+      status: 'programado',
     })
     preview.value = null
   }

@@ -1,11 +1,19 @@
-import { serverSupabaseClient } from '#supabase/server'
-import { calcularRemuneracaoFerias } from '../../utils/calcularFerias'
+import { serverSupabaseServiceRole } from '#supabase/server'
+import { requireAuth } from '../../utils/authMiddleware'
+import { calcularRemuneracaoFerias, carregarTaxConfigDoBanco } from '../../utils/calcularFerias'
 
 // POST /api/ferias — Criar novo período de férias
 export default defineEventHandler(async (event) => {
   try {
-    const supabase = await serverSupabaseClient(event)
+    const requestingUser = await requireAuth(event)
+    const supabase = serverSupabaseServiceRole(event)
     const body = await readBody(event)
+
+    // Se não for admin, força o funcionario_id a ser o do próprio usuário e o status a ser 'pendente'
+    if (requestingUser.tipo_acesso !== 'admin') {
+      body.funcionario_id = requestingUser.id
+      body.status = 'pendente'
+    }
 
     const {
       funcionario_id,
@@ -27,7 +35,7 @@ export default defineEventHandler(async (event) => {
     // Buscar dados do funcionário
     const { data: funcionario, error: errFunc } = await supabase
       .from('funcionarios')
-      .select('id, nome_completo, salario_base, numero_dependentes')
+      .select('id, nome_completo, salario_base, numero_dependentes, pensao_config_ativa, pensao_config_tipo, pensao_config_percentual, pensao_config_valor_fixo')
       .eq('id', funcionario_id)
       .single()
 
@@ -47,8 +55,11 @@ export default defineEventHandler(async (event) => {
       cursor.setDate(cursor.getDate() + 1)
     }
 
-    // Dias efetivos de férias = corridos − abono
-    const diasFerias = diasCorridos - (abono_pecuniario ? dias_abono : 0)
+    // Dias efetivos de férias = corridos (o abono é pago como indenização sobre dias adicionais)
+    const diasFerias = diasCorridos
+
+    // Carregar configurações de impostos do banco
+    const taxConfig = await carregarTaxConfigDoBanco(supabase)
 
     // Calcular remuneração CLT 2026
     const salarioBase = Number(funcionario.salario_base) || 0
@@ -57,14 +68,23 @@ export default defineEventHandler(async (event) => {
       salarioBase,
       diasFerias,
       abono_pecuniario ? dias_abono : 0,
-      numeroDependentes
+      numeroDependentes,
+      {
+        ativa: funcionario.pensao_config_ativa || false,
+        tipo: (funcionario.pensao_config_tipo as 'percentual' | 'fixo') || 'percentual',
+        percentual: Number(funcionario.pensao_config_percentual) || 0,
+        valorFixo: Number(funcionario.pensao_config_valor_fixo) || 0,
+      },
+      taxConfig
     )
 
-    // Determinar status automático baseado nas datas
+    // Determinar status automático ou usar o fornecido (ex: 'pendente' pelo funcionário)
     const hoje = new Date()
-    let status = 'programado'
-    if (dtInicio <= hoje && dtFim >= hoje) status = 'em_gozo'
-    else if (dtFim < hoje) status = 'concluido'
+    let status = body.status || 'programado'
+    if (status !== 'pendente') {
+      if (dtInicio <= hoje && dtFim >= hoje) status = 'em_gozo'
+      else if (dtFim < hoje) status = 'concluido'
+    }
 
     // Inserir no banco
     const { data: novaFerias, error: errInsert } = await supabase
@@ -86,6 +106,7 @@ export default defineEventHandler(async (event) => {
         valor_bruto: calc.valorBruto,
         inss: calc.inss,
         irrf: calc.irrf,
+        pensao_alimenticia: calc.pensaoAlimenticia,
         valor_liquido: calc.valorLiquido,
         observacoes: observacoes || null,
         data_pagamento: data_pagamento || null,

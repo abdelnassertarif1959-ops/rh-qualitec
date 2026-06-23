@@ -1,12 +1,19 @@
-import { serverSupabaseClient } from '#supabase/server'
+import { serverSupabaseServiceRole } from '#supabase/server'
+import { requireAuth } from '../../utils/authMiddleware'
 
 // GET /api/ferias — Lista todos os períodos de férias
 export default defineEventHandler(async (event) => {
   try {
-    const supabase = await serverSupabaseClient(event)
+    const requestingUser = await requireAuth(event)
+    const supabase = serverSupabaseServiceRole(event)
     const query = getQuery(event)
 
-    const funcionarioId = query.funcionario_id ? Number(query.funcionario_id) : null
+    let funcionarioId = query.funcionario_id ? Number(query.funcionario_id) : null
+    
+    // Se não for admin, só pode listar as próprias férias
+    if (requestingUser.tipo_acesso !== 'admin') {
+      funcionarioId = requestingUser.id
+    }
     const status = query.status as string | null
     const ano = query.ano ? Number(query.ano) : null
 

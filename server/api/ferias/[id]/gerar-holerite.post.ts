@@ -1,11 +1,13 @@
-import { serverSupabaseClient } from '#supabase/server'
-import { calcularRemuneracaoFerias } from '../../../utils/calcularFerias'
+import { serverSupabaseServiceRole } from '#supabase/server'
+import { requireAdmin } from '../../../utils/authMiddleware'
+import { calcularRemuneracaoFerias, carregarTaxConfigDoBanco } from '../../../utils/calcularFerias'
 import { gerarHoleriteHTML } from '../../../utils/holeriteHTML'
 
 // POST /api/ferias/[id]/gerar-holerite — Gera holerite de férias
 export default defineEventHandler(async (event) => {
   try {
-    const supabase = await serverSupabaseClient(event)
+    const requestingUser = await requireAdmin(event)
+    const supabase = serverSupabaseServiceRole(event)
     const config = useRuntimeConfig()
     const supabaseUrl = config.public.supabaseUrl
     const serviceRoleKey = config.supabaseServiceRoleKey || config.public.supabaseKey
@@ -65,12 +67,22 @@ export default defineEventHandler(async (event) => {
 
     // Recalcular os valores se necessário
     const salarioBase = Number(funcionario.salario_base) || 0
-    const diasFerias = ferias.dias_corridos - (ferias.abono_pecuniario ? ferias.dias_abono : 0)
+    const diasFerias = ferias.dias_corridos
+
+    const taxConfig = await carregarTaxConfigDoBanco(supabase)
+
     const calc = calcularRemuneracaoFerias(
       salarioBase,
       diasFerias,
       ferias.abono_pecuniario ? ferias.dias_abono : 0,
-      funcionario.numero_dependentes
+      funcionario.numero_dependentes,
+      {
+        ativa: funcionario.pensao_config_ativa || false,
+        tipo: (funcionario.pensao_config_tipo as 'percentual' | 'fixo') || 'percentual',
+        percentual: Number(funcionario.pensao_config_percentual) || 0,
+        valorFixo: Number(funcionario.pensao_config_valor_fixo) || 0,
+      },
+      taxConfig
     )
 
     // Criar registro de holerite do tipo 'ferias'
@@ -89,7 +101,8 @@ export default defineEventHandler(async (event) => {
         // Descontos
         inss: calc.inss,
         irrf: calc.irrf,
-        total_descontos: calc.inss + calc.irrf,
+        pensao_alimenticia: calc.pensaoAlimenticia,
+        total_descontos: calc.inss + calc.irrf + calc.pensaoAlimenticia,
         salario_liquido: calc.valorLiquido,
         // INSS config
         inss_tipo: 'progressivo',
@@ -128,6 +141,7 @@ export default defineEventHandler(async (event) => {
         valor_bruto: calc.valorBruto,
         inss: calc.inss,
         irrf: calc.irrf,
+        pensao_alimenticia: calc.pensaoAlimenticia,
         valor_liquido: calc.valorLiquido,
       })
       .eq('id', feriasId)

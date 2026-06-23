@@ -24,16 +24,11 @@ ALTER TABLE funcionario_ferias
   ALTER COLUMN status           SET DEFAULT 'programado';
 
 -- 3. Adicionar constraint de check para status válido
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint WHERE conname = 'chk_ferias_status'
-  ) THEN
-    ALTER TABLE funcionario_ferias
-      ADD CONSTRAINT chk_ferias_status
-      CHECK (status IN ('programado', 'em_gozo', 'concluido', 'cancelado'));
-  END IF;
-END $$;
+ALTER TABLE funcionario_ferias DROP CONSTRAINT IF EXISTS funcionario_ferias_status_check;
+ALTER TABLE funcionario_ferias DROP CONSTRAINT IF EXISTS chk_ferias_status;
+ALTER TABLE funcionario_ferias
+  ADD CONSTRAINT chk_ferias_status
+  CHECK (status IN ('pendente', 'programado', 'em_gozo', 'concluido', 'cancelado'));
 
 -- 4. Índices de performance
 CREATE INDEX IF NOT EXISTS idx_ferias_funcionario_id  ON funcionario_ferias(funcionario_id);
