@@ -400,6 +400,12 @@ export default defineEventHandler(async (event) => {
       try {
         console.log(`\n🔄 Processando funcionário: ${(func as any).nome_completo}`)
         
+        // REGRA ESPECIAL: Silvana Barduchi (Administradora) não tem holerite nem benefícios
+        if ((func as any).nome_completo?.toLowerCase().includes('silvana barduchi')) {
+          console.log(`⏭️ Ignorando Silvana Barduchi - Administradora não tem holerite`)
+          continue
+        }
+        
         // Buscar itens personalizados do funcionário (descontos e benefícios)
         const { data: itensPersonalizados } = await supabase
           .from('holerite_itens_personalizados')
