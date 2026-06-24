@@ -30,6 +30,7 @@ export default defineEventHandler(async (event) => {
       dias_abono,
       status,
       observacoes,
+      data_pagamento,
     } = body
 
     // REGRA: Data de pagamento obrigatória para status ativo (programado, em_gozo, concluido)
