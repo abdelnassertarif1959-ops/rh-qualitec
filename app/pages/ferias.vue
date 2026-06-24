@@ -5,7 +5,7 @@
     <!-- Loading -->
     <div v-if="carregando" class="flex items-center justify-center py-12">
       <div class="text-center">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
         <p class="text-gray-600">Carregando seus dados de férias...</p>
       </div>
     </div>
@@ -16,8 +16,20 @@
         <template #header>
           <div class="flex items-center justify-between w-full">
             <div class="flex items-center gap-2">
-              <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              <svg class="w-6 h-6 rounded shadow-sm flex-shrink-0" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="32" height="32" rx="6" fill="url(#uf-logo-grad)"/>
+                <path d="M10 10 Q16 10 16 16 Q16 22 10 22 Q4 22 4 16 Q4 10 10 10 Z" fill="white" stroke="none"/>
+                <circle cx="10" cy="16" r="3" fill="#1e40af"/>
+                <rect x="18" y="12" width="8" height="1.5" rx="0.75" fill="white"/>
+                <rect x="18" y="15" width="6" height="1.5" rx="0.75" fill="white"/>
+                <rect x="18" y="18" width="8" height="1.5" rx="0.75" fill="white"/>
+                <defs>
+                  <linearGradient id="uf-logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:1" />
+                  </linearGradient>
+                </defs>
               </svg>
               <span class="font-semibold text-gray-900">Minhas Férias</span>
             </div>
@@ -25,7 +37,7 @@
               size="sm" 
               variant="primary" 
               @click="abrirFeriasModal"
-              class="flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white border-none"
+              class="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white border-none"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -37,7 +49,7 @@
 
         <!-- Loading Férias -->
         <div v-if="carregandoFerias" class="flex items-center justify-center py-8">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
 
         <!-- Lista de Férias -->
@@ -85,9 +97,9 @@
                   <p class="text-gray-400 font-medium">Descontos</p>
                   <p class="font-semibold text-red-600">- {{ formatarMoeda((ferias.inss || 0) + (ferias.irrf || 0) + (ferias.pensao_alimenticia || 0)) }}</p>
                 </div>
-                <div class="bg-emerald-50 rounded-lg py-1 px-2 col-span-2 sm:col-span-1">
-                  <p class="text-emerald-600 font-medium">Líquido a Receber</p>
-                  <p class="font-bold text-emerald-700">{{ formatarMoeda(ferias.valor_liquido) }}</p>
+                <div class="bg-blue-50 rounded-lg py-1 px-2 col-span-2 sm:col-span-1">
+                  <p class="text-blue-600 font-medium">Líquido a Receber</p>
+                  <p class="font-bold text-blue-700">{{ formatarMoeda(ferias.valor_liquido) }}</p>
                 </div>
               </div>
 
@@ -105,7 +117,7 @@
                 <a 
                   :href="`/api/holerites/${ferias.holerite_id}/pdf`" 
                   target="_blank"
-                  class="flex items-center justify-center gap-1.5 px-4 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl text-xs font-semibold transition-colors w-full sm:w-auto"
+                  class="flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-xl text-xs font-semibold transition-colors w-full sm:w-auto"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -173,11 +185,21 @@
             <!-- Header -->
             <div class="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-2xl">
               <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
-                  <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                  </svg>
-                </div>
+                <svg class="w-8 h-8 rounded-lg shadow-sm flex-shrink-0" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="32" height="32" rx="6" fill="url(#uf-modal-grad)"/>
+                  <path d="M10 10 Q16 10 16 16 Q16 22 10 22 Q4 22 4 16 Q4 10 10 10 Z" fill="white" stroke="none"/>
+                  <circle cx="10" cy="16" r="3" fill="#1e40af"/>
+                  <rect x="18" y="12" width="8" height="1.5" rx="0.75" fill="white"/>
+                  <rect x="18" y="15" width="6" height="1.5" rx="0.75" fill="white"/>
+                  <rect x="18" y="18" width="8" height="1.5" rx="0.75" fill="white"/>
+                  <defs>
+                    <linearGradient id="uf-modal-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+                      <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:1" />
+                      <stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:1" />
+                    </linearGradient>
+                  </defs>
+                </svg>
                 <h3 class="text-lg font-bold text-gray-900">Solicitar Férias</h3>
               </div>
               <button @click="fecharFeriasModal" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">

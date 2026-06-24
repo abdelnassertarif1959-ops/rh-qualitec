@@ -2,11 +2,24 @@
   <aside class="hidden lg:flex lg:flex-col lg:w-72 lg:fixed lg:inset-y-0 bg-white border-r border-gray-200 shadow-sm">
     <!-- Logo -->
     <div class="flex items-center gap-3 px-6 py-5 border-b border-gray-100">
-      <div class="w-12 h-12 bg-primary-600 rounded-xl flex items-center justify-center">
-        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-        </svg>
-      </div>
+      <svg class="w-12 h-12 rounded-xl shadow-sm flex-shrink-0" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" rx="6" fill="url(#sidebar-logo-grad)"/>
+        <rect x="2" y="2" width="28" height="28" rx="4" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+        <circle cx="16" cy="16" r="8" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+        <path d="M10 10 Q16 10 16 16 Q16 22 10 22 Q4 22 4 16 Q4 10 10 10 Z" fill="white" stroke="none"/>
+        <circle cx="10" cy="16" r="3" fill="#1e40af"/>
+        <rect x="18" y="12" width="8" height="1.5" rx="0.75" fill="white"/>
+        <rect x="18" y="15" width="6" height="1.5" rx="0.75" fill="white"/>
+        <rect x="18" y="18" width="8" height="1.5" rx="0.75" fill="white"/>
+        <circle cx="28" cy="8" r="2" fill="#10b981"/>
+        <defs>
+          <linearGradient id="sidebar-logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+            <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:1" />
+          </linearGradient>
+        </defs>
+      </svg>
       <div class="flex-1">
         <h1 class="text-xl font-bold text-gray-800">Sistema RH</h1>
         <p class="text-sm text-gray-500">Gestão de Pessoas</p>

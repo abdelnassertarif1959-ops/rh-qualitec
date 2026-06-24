@@ -11,9 +11,24 @@
       <UiCard v-for="cargo in cargos" :key="cargo.id" padding="p-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div class="flex items-center gap-4">
-            <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
-              <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-14 h-14 rounded-xl shadow-sm" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="32" height="32" rx="6" fill="url(#cargo-logo-grad)"/>
+                <rect x="2" y="2" width="28" height="28" rx="4" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+                <circle cx="16" cy="16" r="8" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+                <path d="M10 10 Q16 10 16 16 Q16 22 10 22 Q4 22 4 16 Q4 10 10 10 Z" fill="white" stroke="none"/>
+                <circle cx="10" cy="16" r="3" fill="#1e40af"/>
+                <rect x="18" y="12" width="8" height="1.5" rx="0.75" fill="white"/>
+                <rect x="18" y="15" width="6" height="1.5" rx="0.75" fill="white"/>
+                <rect x="18" y="18" width="8" height="1.5" rx="0.75" fill="white"/>
+                <circle cx="28" cy="8" r="2" fill="#10b981"/>
+                <defs>
+                  <linearGradient id="cargo-logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:1" />
+                  </linearGradient>
+                </defs>
               </svg>
             </div>
             <div>

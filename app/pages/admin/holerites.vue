@@ -4,8 +4,23 @@
     <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
       <div>
         <div class="flex items-center gap-2">
-          <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          <svg class="w-8 h-8 rounded-lg shadow-sm flex-shrink-0" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="32" height="32" rx="6" fill="url(#hol-logo-grad)"/>
+            <rect x="2" y="2" width="28" height="28" rx="4" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+            <circle cx="16" cy="16" r="8" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+            <path d="M10 10 Q16 10 16 16 Q16 22 10 22 Q4 22 4 16 Q4 10 10 10 Z" fill="white" stroke="none"/>
+            <circle cx="10" cy="16" r="3" fill="#1e40af"/>
+            <rect x="18" y="12" width="8" height="1.5" rx="0.75" fill="white"/>
+            <rect x="18" y="15" width="6" height="1.5" rx="0.75" fill="white"/>
+            <rect x="18" y="18" width="8" height="1.5" rx="0.75" fill="white"/>
+            <circle cx="28" cy="8" r="2" fill="#10b981"/>
+            <defs>
+              <linearGradient id="hol-logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+                <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:1" />
+              </linearGradient>
+            </defs>
           </svg>
           <h1 class="text-2xl font-bold text-gray-900">Gestão de Holerites</h1>
         </div>
