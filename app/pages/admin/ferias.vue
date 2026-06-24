@@ -4,11 +4,25 @@
     <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
       <div>
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
-            <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-          </div>
+          <!-- Logo Favicon SVG -->
+          <svg class="w-10 h-10 rounded-xl shadow-sm flex-shrink-0" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="32" height="32" rx="6" fill="url(#header-logo-gradient)"/>
+            <rect x="2" y="2" width="28" height="28" rx="4" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+            <circle cx="16" cy="16" r="8" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+            <path d="M10 10 Q16 10 16 16 Q16 22 10 22 Q4 22 4 16 Q4 10 10 10 Z" fill="white" stroke="none"/>
+            <circle cx="10" cy="16" r="3" fill="#1e40af"/>
+            <rect x="18" y="12" width="8" height="1.5" rx="0.75" fill="white"/>
+            <rect x="18" y="15" width="6" height="1.5" rx="0.75" fill="white"/>
+            <rect x="18" y="18" width="8" height="1.5" rx="0.75" fill="white"/>
+            <circle cx="28" cy="8" r="2" fill="#10b981"/>
+            <defs>
+              <linearGradient id="header-logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+                <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+          </svg>
           <div>
             <h1 class="text-2xl font-bold text-gray-900">Gestão de Férias</h1>
             <p class="text-sm text-gray-500">Controle de períodos conforme CLT 2026</p>
@@ -19,7 +33,7 @@
       <div class="flex flex-wrap gap-2 sm:gap-3 w-full xl:w-auto">
         <button
           @click="abrirModalCadastro()"
-          class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl transition-colors text-sm"
+          class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors text-sm"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -31,30 +45,74 @@
 
     <!-- Stats cards -->
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-      <div class="bg-white rounded-xl border border-amber-200 p-4 bg-amber-50/50">
-        <p class="text-xs text-amber-700 font-medium uppercase tracking-wider">⏳ Pendentes</p>
-        <p class="text-2xl font-bold text-amber-600 mt-1">{{ stats.pendente }}</p>
-        <p class="text-xs text-amber-500 mt-0.5">solicitações</p>
+      <!-- Pendentes -->
+      <div class="bg-white rounded-xl border border-gray-200/80 p-4 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider">Pendentes</p>
+          <p class="text-2xl font-bold text-amber-600 mt-1">{{ stats.pendente }}</p>
+          <p class="text-xs text-gray-400 mt-0.5">solicitações</p>
+        </div>
+        <div class="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 flex-shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
       </div>
-      <div class="bg-white rounded-xl border border-gray-200 p-4">
-        <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Em Gozo</p>
-        <p class="text-2xl font-bold text-emerald-600 mt-1">{{ stats.em_gozo }}</p>
-        <p class="text-xs text-gray-400 mt-0.5">funcionário(s) agora</p>
+
+      <!-- Em Gozo -->
+      <div class="bg-white rounded-xl border border-gray-200/80 p-4 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider">Em Gozo</p>
+          <p class="text-2xl font-bold text-emerald-600 mt-1">{{ stats.em_gozo }}</p>
+          <p class="text-xs text-gray-400 mt-0.5">funcionário(s) agora</p>
+        </div>
+        <div class="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 flex-shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+          </svg>
+        </div>
       </div>
-      <div class="bg-white rounded-xl border border-gray-200 p-4">
-        <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Programadas</p>
-        <p class="text-2xl font-bold text-blue-600 mt-1">{{ stats.programado }}</p>
-        <p class="text-xs text-gray-400 mt-0.5">próximas</p>
+
+      <!-- Programadas -->
+      <div class="bg-white rounded-xl border border-gray-200/80 p-4 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider">Programadas</p>
+          <p class="text-2xl font-bold text-blue-600 mt-1">{{ stats.programado }}</p>
+          <p class="text-xs text-gray-400 mt-0.5">próximas</p>
+        </div>
+        <div class="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 flex-shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+          </svg>
+        </div>
       </div>
-      <div class="bg-white rounded-xl border border-gray-200 p-4">
-        <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Concluídas</p>
-        <p class="text-2xl font-bold text-gray-600 mt-1">{{ stats.concluido }}</p>
-        <p class="text-xs text-gray-400 mt-0.5">no histórico</p>
+
+      <!-- Concluídas -->
+      <div class="bg-white rounded-xl border border-gray-200/80 p-4 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider">Concluídas</p>
+          <p class="text-2xl font-bold text-gray-600 mt-1">{{ stats.concluido }}</p>
+          <p class="text-xs text-gray-400 mt-0.5">no histórico</p>
+        </div>
+        <div class="w-9 h-9 rounded-lg bg-gray-50 flex items-center justify-center text-gray-500 flex-shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
       </div>
-      <div class="bg-white rounded-xl border border-yellow-200 p-4 bg-yellow-50 col-span-2 md:col-span-1">
-        <p class="text-xs text-yellow-700 font-medium uppercase tracking-wider">⚠ Atenção</p>
-        <p class="text-2xl font-bold text-yellow-600 mt-1">{{ stats.vencendo }}</p>
-        <p class="text-xs text-yellow-600 mt-0.5">prazo a vencer</p>
+
+      <!-- Atenção -->
+      <div class="bg-white rounded-xl border border-gray-200/80 p-4 shadow-sm flex items-center justify-between col-span-2 md:col-span-1">
+        <div>
+          <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider">Atenção</p>
+          <p class="text-2xl font-bold text-red-600 mt-1">{{ stats.vencendo }}</p>
+          <p class="text-xs text-gray-400 mt-0.5">prazo a vencer</p>
+        </div>
+        <div class="w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center text-red-600 flex-shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          </svg>
+        </div>
       </div>
     </div>
 
@@ -63,14 +121,14 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Funcionário</label>
-          <select v-model="filtros.funcionario_id" class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          <select v-model="filtros.funcionario_id" class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             <option value="">Todos os funcionários</option>
             <option v-for="f in funcionarios" :key="f.id" :value="f.id">{{ f.nome_completo }}</option>
           </select>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-          <select v-model="filtros.status" class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          <select v-model="filtros.status" class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             <option value="">Todos os status</option>
             <option value="pendente">⏳ Solicitadas (Pendentes)</option>
             <option value="programado">📅 Programadas</option>
@@ -81,7 +139,7 @@
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Ano</label>
-          <select v-model="filtros.ano" class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          <select v-model="filtros.ano" class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             <option value="">Todos os anos</option>
             <option v-for="ano in anosDisponiveis" :key="ano" :value="ano">{{ ano }}</option>
           </select>
@@ -91,7 +149,7 @@
 
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center py-16">
-      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-600"></div>
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
     </div>
 
     <!-- Lista de Férias -->
@@ -105,8 +163,8 @@
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <!-- Funcionário -->
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                <span class="text-emerald-700 font-bold text-sm">{{ iniciais(ferias.funcionarios?.nome_completo) }}</span>
+              <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+                <span class="text-blue-700 font-bold text-sm">{{ iniciais(ferias.funcionarios?.nome_completo) }}</span>
               </div>
               <div>
                 <p class="font-semibold text-gray-900 text-sm">{{ ferias.funcionarios?.nome_completo }}</p>
@@ -128,7 +186,7 @@
                 v-if="ferias.status === 'pendente'"
                 @click="aprovarSolicitacao(ferias)"
                 :disabled="loadingAprovar === ferias.id"
-                class="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded-lg transition-colors disabled:opacity-50 animate-pulse"
+                class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
               >
                 <svg v-if="loadingAprovar !== ferias.id" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -141,12 +199,12 @@
                 v-if="ferias.status !== 'pendente' && !ferias.holerite_id"
                 @click="gerarHolerite(ferias)"
                 :disabled="loadingHolerite === ferias.id"
-                class="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
+                class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
               >
                 <svg v-if="loadingHolerite !== ferias.id" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
-                <div v-else class="animate-spin rounded-full h-4 w-4 border-b-2 border-emerald-600"></div>
+                <div v-else class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
                 {{ loadingHolerite === ferias.id ? 'Gerando...' : 'Gerar Recibo' }}
               </button>
 
@@ -199,9 +257,9 @@
               <p class="text-xs text-gray-400">Descontos (INSS+IRRF+Pensão)</p>
               <p class="text-sm font-semibold text-red-600">- {{ formatarValor((ferias.inss || 0) + (ferias.irrf || 0) + (ferias.pensao_alimenticia || 0)) }}</p>
             </div>
-            <div class="bg-emerald-50 rounded-lg py-1 px-2">
-              <p class="text-xs text-emerald-600 font-medium">Valor Líquido</p>
-              <p class="text-sm font-bold text-emerald-700">{{ formatarValor(ferias.valor_liquido) }}</p>
+            <div class="bg-blue-50/50 rounded-lg py-1 px-2">
+              <p class="text-xs text-blue-600 font-medium">Valor Líquido</p>
+              <p class="text-sm font-bold text-blue-700">{{ formatarValor(ferias.valor_liquido) }}</p>
             </div>
           </div>
 
@@ -229,16 +287,32 @@
 
     <!-- Estado vazio -->
     <div v-else class="bg-white rounded-xl border border-gray-200 p-12 text-center">
-      <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <svg class="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      <div class="w-16 h-16 bg-blue-50/50 rounded-full flex items-center justify-center mx-auto mb-4">
+        <!-- Logo Favicon SVG -->
+        <svg class="w-10 h-10 rounded-xl" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" rx="6" fill="url(#empty-logo-gradient)"/>
+          <rect x="2" y="2" width="28" height="28" rx="4" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+          <circle cx="16" cy="16" r="8" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+          <path d="M10 10 Q16 10 16 16 Q16 22 10 22 Q4 22 4 16 Q4 10 10 10 Z" fill="white" stroke="none"/>
+          <circle cx="10" cy="16" r="3" fill="#1e40af"/>
+          <rect x="18" y="12" width="8" height="1.5" rx="0.75" fill="white"/>
+          <rect x="18" y="15" width="6" height="1.5" rx="0.75" fill="white"/>
+          <rect x="18" y="18" width="8" height="1.5" rx="0.75" fill="white"/>
+          <circle cx="28" cy="8" r="2" fill="#10b981"/>
+          <defs>
+            <linearGradient id="empty-logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:1" />
+            </linearGradient>
+          </defs>
         </svg>
       </div>
       <h3 class="text-lg font-semibold text-gray-700 mb-2">Nenhum período de férias encontrado</h3>
       <p class="text-gray-500 text-sm mb-6">Clique em "Nova Programação de Férias" para cadastrar.</p>
       <button
         @click="abrirModalCadastro()"
-        class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white font-medium rounded-xl hover:bg-emerald-700 transition-colors text-sm"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors text-sm"
       >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -256,9 +330,25 @@
             <!-- Modal Header -->
             <div class="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-2xl">
               <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
-                  <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center">
+                  <!-- Small Favicon Logo SVG -->
+                  <svg class="w-8 h-8 rounded-lg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="6" fill="url(#modal-logo-gradient)"/>
+                    <rect x="2" y="2" width="28" height="28" rx="4" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+                    <circle cx="16" cy="16" r="8" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+                    <path d="M10 10 Q16 10 16 16 Q16 22 10 22 Q4 22 4 16 Q4 10 10 10 Z" fill="white" stroke="none"/>
+                    <circle cx="10" cy="16" r="3" fill="#1e40af"/>
+                    <rect x="18" y="12" width="8" height="1.5" rx="0.75" fill="white"/>
+                    <rect x="18" y="15" width="6" height="1.5" rx="0.75" fill="white"/>
+                    <rect x="18" y="18" width="8" height="1.5" rx="0.75" fill="white"/>
+                    <circle cx="28" cy="8" r="2" fill="#10b981"/>
+                    <defs>
+                      <linearGradient id="modal-logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:1" />
+                      </linearGradient>
+                    </defs>
                   </svg>
                 </div>
                 <h2 class="text-lg font-bold text-gray-900">
@@ -279,7 +369,7 @@
                 <select
                   v-model="form.funcionario_id"
                   @change="onFuncionarioChange"
-                  class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                  class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                   :disabled="!!editando"
                 >
                   <option value="">Selecione o funcionário</option>
@@ -294,7 +384,7 @@
                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Status *</label>
                 <select
                   v-model="form.status"
-                  class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                  class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 >
                   <option value="pendente">⏳ Pendente (Aguardando Aprovação)</option>
                   <option value="programado">📅 Programada</option>
@@ -313,7 +403,7 @@
                     <input
                       type="date"
                       v-model="form.periodo_aquisitivo_inicio"
-                      class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                   <div>
@@ -321,7 +411,7 @@
                     <input
                       type="date"
                       v-model="form.periodo_aquisitivo_fim"
-                      class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                 </div>
@@ -337,7 +427,7 @@
                       type="date"
                       v-model="form.data_inicio"
                       @change="recalcularPreview"
-                      class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                   <div>
@@ -346,7 +436,7 @@
                       type="date"
                       v-model="form.data_fim"
                       @change="recalcularPreview"
-                      class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                 </div>
@@ -359,7 +449,7 @@
                   v-model="form.abono_pecuniario"
                   @change="recalcularPreview"
                   id="abono_pecuniario"
-                  class="mt-0.5 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                  class="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <div class="flex-1">
                   <label for="abono_pecuniario" class="text-sm font-semibold text-amber-800 cursor-pointer">
@@ -394,7 +484,7 @@
                   :class="[
                     form.status !== 'pendente' && form.status !== 'cancelado' && !form.data_pagamento
                       ? 'border-red-300 focus:border-red-500 focus:ring-red-200 text-red-900 bg-red-50/20'
-                      : 'border-gray-300 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900'
+                      : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500 text-gray-900'
                   ]"
                 />
                 <p v-if="form.status !== 'pendente' && form.status !== 'cancelado' && !form.data_pagamento" class="text-xs text-red-500 mt-1">
@@ -410,33 +500,33 @@
                   v-model="form.observacoes"
                   rows="2"
                   placeholder="Informações adicionais sobre este período de férias..."
-                  class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+                  class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                 ></textarea>
               </div>
 
               <!-- Preview de Cálculo -->
-              <div v-if="preview" class="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-5">
+              <div v-if="preview" class="bg-gradient-to-br from-blue-50/50 to-indigo-50/30 border border-blue-100 rounded-xl p-5">
                 <div class="flex items-center gap-2 mb-4">
-                  <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                   </svg>
-                  <h4 class="font-bold text-emerald-800 text-sm">Cálculo Previsto — CLT 2026</h4>
+                  <h4 class="font-bold text-blue-800 text-sm">Cálculo Previsto — CLT 2026</h4>
                 </div>
 
                 <div class="space-y-2 text-sm">
-                  <div class="flex justify-between items-center py-1.5 border-b border-emerald-100">
+                  <div class="flex justify-between items-center py-1.5 border-b border-blue-100/50">
                     <span class="text-gray-600">{{ preview.diasFerias }} dias × R$ {{ formatarValor(preview.salarioDia) }}/dia</span>
                     <span class="font-semibold text-gray-800">{{ formatarValor(preview.valorRemuneracao) }}</span>
                   </div>
-                  <div class="flex justify-between items-center py-1.5 border-b border-emerald-100">
+                  <div class="flex justify-between items-center py-1.5 border-b border-blue-100/50">
                     <span class="text-gray-600">1/3 Constitucional</span>
                     <span class="font-semibold text-gray-800">{{ formatarValor(preview.valorUmTerco) }}</span>
                   </div>
-                  <div v-if="preview.valorAbonoPecuniario > 0" class="flex justify-between items-center py-1.5 border-b border-emerald-100">
+                  <div v-if="preview.valorAbonoPecuniario > 0" class="flex justify-between items-center py-1.5 border-b border-blue-100/50">
                     <span class="text-amber-600">Abono Pecuniário ({{ preview.diasAbono }} dias)</span>
                     <span class="font-semibold text-amber-700">{{ formatarValor(preview.valorAbonoPecuniario) }}</span>
                   </div>
-                  <div class="flex justify-between items-center py-1.5 border-b border-emerald-100">
+                  <div class="flex justify-between items-center py-1.5 border-b border-blue-100/50">
                     <span class="font-medium text-gray-700">Total Bruto</span>
                     <span class="font-bold text-gray-900">{{ formatarValor(preview.valorBruto) }}</span>
                   </div>
@@ -448,7 +538,7 @@
                     <span>IRRF ({{ preview.faixaIRRF }})</span>
                     <span class="font-semibold">- {{ formatarValor(preview.irrf) }}</span>
                   </div>
-                  <div v-else class="flex justify-between items-center py-1.5 text-emerald-600">
+                  <div class="flex justify-between items-center py-1.5 text-blue-600">
                     <span>IRRF</span>
                     <span class="font-semibold">Isento</span>
                   </div>
@@ -456,9 +546,9 @@
                     <span>Pensão Alimentícia</span>
                     <span class="font-semibold">- {{ formatarValor(preview.pensaoAlimenticia) }}</span>
                   </div>
-                  <div class="flex justify-between items-center pt-3 mt-2 border-t-2 border-emerald-300">
-                    <span class="font-bold text-emerald-800 text-base">💰 Valor Líquido</span>
-                    <span class="font-bold text-emerald-700 text-xl">{{ formatarValor(preview.valorLiquido) }}</span>
+                  <div class="flex justify-between items-center pt-3 mt-2 border-t-2 border-blue-200">
+                    <span class="font-bold text-blue-800 text-base">💰 Valor Líquido</span>
+                    <span class="font-bold text-blue-700 text-xl">{{ formatarValor(preview.valorLiquido) }}</span>
                   </div>
                 </div>
               </div>
@@ -475,7 +565,7 @@
               <button
                 @click="salvar"
                 :disabled="salvando || !formValido"
-                class="px-6 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 transition-colors flex items-center gap-2"
+                class="px-6 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center gap-2"
               >
                 <div v-if="salvando" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                 {{ salvando ? 'Salvando...' : (editando ? 'Salvar Alterações' : 'Cadastrar Férias') }}
@@ -517,7 +607,7 @@
                 <input
                   type="date"
                   v-model="dataPagamentoAprovar"
-                  class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   required
                 />
                 <p class="text-xs text-amber-600 mt-1">
@@ -536,7 +626,7 @@
               <button 
                 @click="confirmarAprovar"
                 :disabled="!dataPagamentoAprovar || loadingAprovar"
-                class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition-all disabled:opacity-50 flex items-center gap-1.5"
+                class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold transition-all disabled:opacity-50 flex items-center gap-1.5"
               >
                 <div v-if="loadingAprovar" class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></div>
                 Confirmar Aprovação
