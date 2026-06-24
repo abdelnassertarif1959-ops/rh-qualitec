@@ -86,6 +86,16 @@ export default defineEventHandler(async (event) => {
       else if (dtFim < hoje) status = 'concluido'
     }
 
+    // REGRA: Data de pagamento obrigatória para status ativo (programado, em_gozo, concluido)
+    if (status !== 'pendente' && status !== 'cancelado') {
+      if (!data_pagamento) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: 'A data de pagamento é obrigatória para aprovar ou programar as férias.'
+        })
+      }
+    }
+
     // Inserir no banco
     const { data: novaFerias, error: errInsert } = await supabase
       .from('funcionario_ferias')

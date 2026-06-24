@@ -30,8 +30,20 @@ export default defineEventHandler(async (event) => {
       dias_abono,
       status,
       observacoes,
-      data_pagamento,
     } = body
+
+    // REGRA: Data de pagamento obrigatória para status ativo (programado, em_gozo, concluido)
+    const novoStatus = status !== undefined ? status : existing.status
+    const novaDataPagamento = data_pagamento !== undefined ? data_pagamento : existing.data_pagamento
+
+    if (novoStatus !== 'pendente' && novoStatus !== 'cancelado') {
+      if (!novaDataPagamento) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: 'A data de pagamento é obrigatória para aprovar ou programar as férias.'
+        })
+      }
+    }
 
     // Calcular valores se datas foram alteradas
     let updates: Record<string, any> = {}

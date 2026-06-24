@@ -382,13 +382,25 @@
 
               <!-- Data de Pagamento -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Data de Pagamento</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                  Data de Pagamento
+                  <span v-if="form.status !== 'pendente' && form.status !== 'cancelado'" class="text-red-500">*</span>
+                </label>
                 <input
                   type="date"
                   v-model="form.data_pagamento"
-                  class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  :required="form.status !== 'pendente' && form.status !== 'cancelado'"
+                  class="w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 transition-all"
+                  :class="[
+                    form.status !== 'pendente' && form.status !== 'cancelado' && !form.data_pagamento
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-200 text-red-900 bg-red-50/20'
+                      : 'border-gray-300 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900'
+                  ]"
                 />
-                <p class="text-xs text-gray-400 mt-1">Deve ser pago até 2 dias antes do início das férias (CLT Art. 145)</p>
+                <p v-if="form.status !== 'pendente' && form.status !== 'cancelado' && !form.data_pagamento" class="text-xs text-red-500 mt-1">
+                  ⚠ A data de pagamento é obrigatória para programar ou aprovar as férias.
+                </p>
+                <p v-else class="text-xs text-gray-400 mt-1">Deve ser pago até 2 dias antes do início das férias (CLT Art. 145)</p>
               </div>
 
               <!-- Observações -->
@@ -473,6 +485,67 @@
         </div>
       </Transition>
     </Teleport>
+
+    <!-- Modal de Confirmação de Aprovação (Definir data de pagamento obrigatoriamente) -->
+    <Teleport to="body">
+      <Transition name="modal-fade">
+        <div v-if="showAprovarModal" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="fecharAprovarModal">
+          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+          <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+              <h3 class="text-sm font-bold text-gray-900">Aprovar Solicitação de Férias</h3>
+              <button @click="fecharAprovarModal" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+            <!-- Modal Body -->
+            <div class="p-6 space-y-4">
+              <p class="text-sm text-gray-600">
+                Para aprovar as férias de <strong>{{ feriasParaAprovar?.funcionarios?.nome_completo }}</strong>, você deve obrigatoriamente definir a data de pagamento.
+              </p>
+              
+              <div class="bg-gray-50 p-3 rounded-lg text-xs space-y-1.5 text-gray-600">
+                <p><strong>Período:</strong> {{ formatarData(feriasParaAprovar?.data_inicio) }} a {{ formatarData(feriasParaAprovar?.data_fim) }} ({{ feriasParaAprovar?.dias_corridos }} dias)</p>
+                <p><strong>Abono pecuniário:</strong> {{ feriasParaAprovar?.abono_pecuniario ? 'Sim (' + feriasParaAprovar?.dias_abono + ' dias)' : 'Não' }}</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Data de Pagamento *</label>
+                <input
+                  type="date"
+                  v-model="dataPagamentoAprovar"
+                  class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  required
+                />
+                <p class="text-xs text-amber-600 mt-1">
+                  💡 Pela CLT, o pagamento deve ocorrer até 2 dias antes do início das férias.
+                </p>
+              </div>
+            </div>
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-2">
+              <button 
+                @click="fecharAprovarModal"
+                class="px-4 py-2 border border-gray-300 rounded-xl text-xs font-medium text-gray-700 hover:bg-gray-100 transition-all"
+              >
+                Cancelar
+              </button>
+              <button 
+                @click="confirmarAprovar"
+                :disabled="!dataPagamentoAprovar || loadingAprovar"
+                class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition-all disabled:opacity-50 flex items-center gap-1.5"
+              >
+                <div v-if="loadingAprovar" class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></div>
+                Confirmar Aprovação
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -485,6 +558,9 @@ const salvando = ref(false)
 const loadingHolerite = ref<number | null>(null)
 const loadingAprovar = ref<number | null>(null)
 const showModal = ref(false)
+const showAprovarModal = ref(false)
+const feriasParaAprovar = ref<any | null>(null)
+const dataPagamentoAprovar = ref('')
 const editando = ref<any | null>(null)
 
 const todasFerias = ref<any[]>([])
@@ -554,8 +630,16 @@ const stats = computed(() => {
 })
 
 const formValido = computed(() => {
-  return form.funcionario_id && form.data_inicio && form.data_fim &&
+  const camposBasicos = form.funcionario_id && form.data_inicio && form.data_fim &&
     form.periodo_aquisitivo_inicio && form.periodo_aquisitivo_fim
+  
+  if (!camposBasicos) return false
+
+  if (form.status !== 'pendente' && form.status !== 'cancelado') {
+    return !!form.data_pagamento
+  }
+
+  return true
 })
 
 const funcionarioSelecionado = computed(() =>
@@ -843,7 +927,7 @@ const confirmarExcluir = async (ferias: any) => {
   }
 }
 
-const aprovarSolicitacao = async (ferias: any) => {
+const aprovarSolicitacao = (ferias: any) => {
   const dtInicioStr = ferias.data_inicio
   if (!dtInicioStr) return
   
@@ -852,13 +936,20 @@ const aprovarSolicitacao = async (ferias: any) => {
   dtInicio.setDate(dtInicio.getDate() - 2)
   const dataPagamentoSugestao = dtInicio.toISOString().split('T')[0]
   
-  const confirmacao = confirm(
-    `Deseja aprovar a solicitação de férias de ${ferias.funcionarios?.nome_completo || 'funcionário'}?\n\n` +
-    `Período: ${formatarData(ferias.data_inicio)} a ${formatarData(ferias.data_fim)}\n` +
-    `Data de pagamento sugerida: ${formatarData(dataPagamentoSugestao)}`
-  )
-  
-  if (!confirmacao) return
+  feriasParaAprovar.value = ferias
+  dataPagamentoAprovar.value = ferias.data_pagamento || dataPagamentoSugestao
+  showAprovarModal.value = true
+}
+
+const fecharAprovarModal = () => {
+  showAprovarModal.value = false
+  feriasParaAprovar.value = null
+  dataPagamentoAprovar.value = ''
+}
+
+const confirmarAprovar = async () => {
+  const ferias = feriasParaAprovar.value
+  if (!ferias || !dataPagamentoAprovar.value) return
   
   loadingAprovar.value = ferias.id
   try {
@@ -872,10 +963,9 @@ const aprovarSolicitacao = async (ferias: any) => {
       dias_abono: ferias.dias_abono,
       observacoes: ferias.observacoes,
       status: 'programado',
-      data_pagamento: ferias.data_pagamento || dataPagamentoSugestao
+      data_pagamento: dataPagamentoAprovar.value
     }
     
-    // Atualizar no banco
     const response: any = await $fetch(`/api/ferias/${ferias.id}`, {
       method: 'PUT',
       body: payload
@@ -883,6 +973,7 @@ const aprovarSolicitacao = async (ferias: any) => {
     
     if (response.success) {
       alert('✅ Solicitação de férias aprovada com sucesso!')
+      fecharAprovarModal()
       await carregarFerias()
     }
   } catch (err: any) {
