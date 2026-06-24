@@ -74,6 +74,21 @@ const res3_pct = calcularRemuneracaoFerias(4000.00, 30, 0, 0, {
   valorFixo: 0
 })
 assertEqual(res3_pct.pensaoAlimenticia, 957.03, 'Pensão alimentícia percentual de 20% (R$ 957,03)')
+
+// Teste Pensão Alimentícia Percentual com Abono Pecuniário (30% do líquido base incluindo abono)
+// Salário base = 4000.00, 20 dias gozo, 10 dias abono.
+// baseInss = 2666.67 + 888.89 = 3555.56
+// valorAbonoPecuniario = 1333.33
+// INSS = 315.27
+// Líquido base = 3555.56 + 1333.33 - 315.27 = 4573.62
+// 30% = 1372.09
+const res3_abono_pct = calcularRemuneracaoFerias(4000.00, 20, 10, 0, {
+  ativa: true,
+  tipo: 'percentual',
+  percentual: 30,
+  valorFixo: 0
+})
+assertEqual(res3_abono_pct.pensaoAlimenticia, 1372.09, 'Pensão alimentícia percentual de 30% com abono pecuniário (R$ 1.372,09)')
 console.log('')
 
 // ─────────────────────────────────────────────────────────────────────────────

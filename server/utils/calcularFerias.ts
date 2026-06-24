@@ -203,8 +203,8 @@ export function calcularRemuneracaoFerias(
     if (pensaoConfig.tipo === 'fixo') {
       pensaoAlimenticia = pensaoConfig.valorFixo
     } else {
-      // Pensão calculada sobre rendimento líquido (baseInss - INSS)
-      const salarioLiquidoBase = baseInss - inss
+      // Pensão calculada sobre rendimento líquido (baseInss + valorAbonoPecuniario - INSS)
+      const salarioLiquidoBase = baseInss + valorAbonoPecuniario - inss
       pensaoAlimenticia = (salarioLiquidoBase * (pensaoConfig.percentual || 0)) / 100
     }
   }

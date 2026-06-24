@@ -81,6 +81,13 @@ export default defineEventHandler(async (event) => {
     if (body.beneficios !== undefined) dadosParaAtualizar.beneficios = body.beneficios || null
     if (body.descontos_personalizados !== undefined) dadosParaAtualizar.descontos_personalizados = body.descontos_personalizados || null
     if (body.pis_pasep !== undefined) dadosParaAtualizar.pis_pasep = cleanValue(body.pis_pasep)
+    
+    // Configurações de Pensão Alimentícia
+    if (body.pensao_config_ativa !== undefined) dadosParaAtualizar.pensao_config_ativa = body.pensao_config_ativa
+    if (body.pensao_config_tipo !== undefined) dadosParaAtualizar.pensao_config_tipo = body.pensao_config_tipo
+    if (body.pensao_config_percentual !== undefined) dadosParaAtualizar.pensao_config_percentual = cleanValue(body.pensao_config_percentual) || 0
+    if (body.pensao_config_valor_fixo !== undefined) dadosParaAtualizar.pensao_config_valor_fixo = cleanValue(body.pensao_config_valor_fixo) || 0
+    if (body.pensao_config_recorrente !== undefined) dadosParaAtualizar.pensao_config_recorrente = body.pensao_config_recorrente
 
     console.log('📝 Campos a atualizar:', Object.keys(dadosParaAtualizar))
 

@@ -153,6 +153,13 @@ const form = ref({
   forma_pagamento: 'deposito',
   chave_pix: '',
   
+  // Pensão Alimentícia
+  pensao_config_ativa: false,
+  pensao_config_tipo: 'percentual',
+  pensao_config_percentual: 0,
+  pensao_config_valor_fixo: 0,
+  pensao_config_recorrente: true,
+  
   // Benefícios
   beneficios: {
     vale_transporte: {
@@ -421,6 +428,13 @@ const abrirModal = async (func?: any) => {
       tipo_conta: '',
       forma_pagamento: 'deposito',
       chave_pix: '',
+      
+      // Pensão Alimentícia
+      pensao_config_ativa: false,
+      pensao_config_tipo: 'percentual',
+      pensao_config_percentual: 0,
+      pensao_config_valor_fixo: 0,
+      pensao_config_recorrente: true,
       
       // Benefícios
       beneficios: {

@@ -105,7 +105,14 @@ export default defineEventHandler(async (event) => {
       tipo_conta: cleanValue(body.tipo_conta),
       forma_pagamento: cleanValue(body.forma_pagamento),
       beneficios: body.beneficios || {},
-      descontos_personalizados: body.descontos_personalizados || []
+      descontos_personalizados: body.descontos_personalizados || [],
+      
+      // Configurações de Pensão Alimentícia
+      pensao_config_ativa: body.pensao_config_ativa || false,
+      pensao_config_tipo: body.pensao_config_tipo || 'percentual',
+      pensao_config_percentual: cleanValue(body.pensao_config_percentual) || 0,
+      pensao_config_valor_fixo: cleanValue(body.pensao_config_valor_fixo) || 0,
+      pensao_config_recorrente: body.pensao_config_recorrente !== undefined ? body.pensao_config_recorrente : true
     }
 
     console.log('📦 Dados a inserir:', JSON.stringify(dadosParaInserir, null, 2))

@@ -661,7 +661,7 @@ const recalcularPreview = () => {
     if (func.pensao_config_tipo === 'fixo') {
       pensaoAlimenticia = Number(func.pensao_config_valor_fixo) || 0
     } else {
-      const salarioLiquidoBase = baseInss - inss
+      const salarioLiquidoBase = baseInss + valorAbonoPecuniario - inss
       pensaoAlimenticia = (salarioLiquidoBase * (Number(func.pensao_config_percentual) || 0)) / 100
     }
   }

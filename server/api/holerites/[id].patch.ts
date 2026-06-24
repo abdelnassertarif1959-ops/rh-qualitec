@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   // SEGURANÇA: Verificar se o usuário é admin
   const requestingUser = await requireAdmin(event)
   console.log('[API] Admin autenticado editando holerite:', requestingUser.nome_completo)
-  
+
   try {
     const supabase = serverSupabaseServiceRole(event)
     const id = getRouterParam(event, 'id')
@@ -55,16 +55,16 @@ export default defineEventHandler(async (event) => {
     if (body.pensao_alimenticia !== undefined) dadosParaAtualizar.pensao_alimenticia = parseNumericValue(body.pensao_alimenticia)
     if (body.desconto_afastamento !== undefined) dadosParaAtualizar.desconto_afastamento = parseNumericValue(body.desconto_afastamento)
     if (body.dias_trabalhados !== undefined) dadosParaAtualizar.dias_trabalhados = parseNumericValue(body.dias_trabalhados)
-    
+
     // Configurações de INSS
     if (body.inss_tipo !== undefined) dadosParaAtualizar.inss_tipo = body.inss_tipo
     if (body.inss_percentual !== undefined) dadosParaAtualizar.inss_percentual = parseNumericValue(body.inss_percentual)
-    
+
     // Configurações de Pensão Alimentícia
     if (body.pensao_tipo !== undefined) dadosParaAtualizar.pensao_tipo = body.pensao_tipo
     if (body.pensao_percentual !== undefined) dadosParaAtualizar.pensao_percentual = parseNumericValue(body.pensao_percentual)
     if (body.pensao_recorrente !== undefined) dadosParaAtualizar.pensao_recorrente = body.pensao_recorrente
-    
+
     // Campos de texto
     if (body.observacoes !== undefined) dadosParaAtualizar.observacoes = parseStringValue(body.observacoes)
     if (body.data_pagamento !== undefined) dadosParaAtualizar.data_pagamento = parseStringValue(body.data_pagamento)
@@ -79,9 +79,9 @@ export default defineEventHandler(async (event) => {
 
     // CORREÇÃO: Recalcular totais se algum valor foi alterado
     const camposQueAfetamCalculo = [
-      'salario_base', 'dias_trabalhados', 'bonus', 'horas_extras', 'adicional_noturno', 
+      'salario_base', 'dias_trabalhados', 'bonus', 'horas_extras', 'adicional_noturno',
       'adicional_periculosidade', 'adicional_insalubridade', 'comissoes',
-      'inss', 'irrf', 'vale_transporte', 'cesta_basica_desconto', 
+      'inss', 'irrf', 'vale_transporte', 'cesta_basica_desconto',
       'plano_saude', 'plano_odontologico', 'adiantamento', 'faltas', 'pensao_alimenticia',
       'desconto_afastamento'
     ]
@@ -102,8 +102,8 @@ export default defineEventHandler(async (event) => {
 
         // Buscar itens personalizados ativos pela DATA DE GERAÇÃO do holerite
         // Usa created_at (quando foi gerado/pago), não o período de competência (março, fev, etc.)
-        const dataGeracao = holeriteAtual.created_at 
-          ? holeriteAtual.created_at.split('T')[0] 
+        const dataGeracao = holeriteAtual.created_at
+          ? holeriteAtual.created_at.split('T')[0]
           : new Date().toISOString().split('T')[0]
 
         const { data: itensPersonalizados } = await (supabase as any)
@@ -129,7 +129,7 @@ export default defineEventHandler(async (event) => {
         const salarioProporcional = valorDia * diasTrabalhados
 
         // Calcular totais incluindo itens personalizados
-        const totalProventos = 
+        const totalProventos =
           salarioProporcional +
           Number(dadosAtualizados.bonus || 0) +
           Number(dadosAtualizados.horas_extras || 0) +
@@ -139,7 +139,7 @@ export default defineEventHandler(async (event) => {
           Number(dadosAtualizados.comissoes || 0) +
           totalBeneficiosPersonalizados
 
-        const totalDescontosRaw = 
+        const totalDescontosRaw =
           Number(dadosAtualizados.inss || 0) +
           Number(dadosAtualizados.irrf || 0) +
           Number(dadosAtualizados.vale_transporte || 0) +

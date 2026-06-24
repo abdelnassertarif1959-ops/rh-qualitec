@@ -17,6 +17,7 @@
     <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
       <LayoutNavLink to="/dashboard" icon="home">Início</LayoutNavLink>
       <LayoutNavLink v-if="!isAdmin" to="/holerites" icon="document">Meus Holerites</LayoutNavLink>
+      <LayoutNavLink v-if="!isAdmin" to="/ferias" icon="calendar">Férias</LayoutNavLink>
       <LayoutNavLink to="/meus-dados" icon="user">Meus Dados</LayoutNavLink>
       <LayoutNavLink v-if="!isAdmin" to="/arquivos" icon="document">Arquivos</LayoutNavLink>
       <LayoutNavLink v-if="!isAdmin" to="/codigo-etica" icon="document">Código de Ética</LayoutNavLink>

@@ -25,6 +25,7 @@
           <LayoutNavLink to="/dashboard" icon="home" @click="$emit('close')">Início</LayoutNavLink>
           <LayoutNavLink to="/meus-dados" icon="user" @click="$emit('close')">Meus Dados</LayoutNavLink>
           <LayoutNavLink v-if="!isAdmin" to="/holerites" icon="document" @click="$emit('close')">Meus Holerites</LayoutNavLink>
+          <LayoutNavLink v-if="!isAdmin" to="/ferias" icon="calendar" @click="$emit('close')">Férias</LayoutNavLink>
 
           <template v-if="isAdmin">
             <div class="pt-4 mt-4 border-t border-gray-200">
