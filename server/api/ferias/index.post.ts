@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
     // Buscar dados do funcionário
     const { data: funcionario, error: errFunc } = await supabase
       .from('funcionarios')
-      .select('id, nome_completo, salario_base, numero_dependentes, pensao_config_ativa, pensao_config_tipo, pensao_config_percentual, pensao_config_valor_fixo')
+      .select('id, nome_completo, salario_base, numero_dependentes, pensao_config_ativa, pensao_config_tipo, pensao_config_percentual, pensao_config_valor_fixo, data_admissao')
       .eq('id', funcionario_id)
       .single()
 
@@ -44,6 +44,21 @@ export default defineEventHandler(async (event) => {
     // Calcular dias corridos e úteis
     const dtInicio = new Date(data_inicio + 'T00:00:00')
     const dtFim = new Date(data_fim + 'T00:00:00')
+
+    // Regra: Não permitir agendamento antes de 1 ano de admissão (carência aquisitiva CLT) para funcionários
+    if (requestingUser.tipo_acesso !== 'admin' && funcionario.data_admissao) {
+      const dtAdmissao = new Date(funcionario.data_admissao + 'T00:00:00')
+      const umAnoAposAdmissao = new Date(dtAdmissao)
+      umAnoAposAdmissao.setFullYear(umAnoAposAdmissao.getFullYear() + 1)
+      
+      if (dtInicio < umAnoAposAdmissao) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: `Você não possui 1 ano de serviço completo para usufruir de férias nesta data. Disponível apenas a partir de ${umAnoAposAdmissao.toLocaleDateString('pt-BR')}.`
+        })
+      }
+    }
+
     const diasCorridos = Math.floor((dtFim.getTime() - dtInicio.getTime()) / (1000 * 60 * 60 * 24)) + 1
     
     // Calcular dias úteis (excluindo domingos e sábados para fins de registro)

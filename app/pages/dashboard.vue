@@ -68,6 +68,75 @@
         icon-path="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
       />
 
+      <!-- Card Férias (Mobile-First & Customizado) -->
+      <NuxtLink
+        v-if="!isAdmin"
+        to="/ferias"
+        class="block bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:border-emerald-300 transition-all duration-200 group"
+      >
+        <div class="flex items-start gap-4">
+          <!-- Ícone Premium de Férias com gradiente quente (sol/praia/ferias) -->
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110 bg-gradient-to-br from-amber-400 to-emerald-500 shadow-sm text-white">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"/>
+            </svg>
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <h3 class="text-lg font-semibold text-gray-900 mb-1 group-hover:text-emerald-600 transition-colors">
+              Minhas Férias
+            </h3>
+            <p class="text-sm text-gray-600 leading-relaxed">
+              Consulte e agende seus períodos de férias
+            </p>
+
+            <!-- Loading de Férias -->
+            <div v-if="carregandoFeriasCard" class="h-10 flex items-center">
+              <div class="animate-pulse flex space-x-2 items-center">
+                <div class="h-2 w-2 bg-emerald-400 rounded-full animate-bounce"></div>
+                <div class="h-2 w-2 bg-emerald-400 rounded-full animate-bounce delay-75"></div>
+                <div class="h-2 w-2 bg-emerald-400 rounded-full animate-bounce delay-150"></div>
+              </div>
+            </div>
+
+            <!-- Dados Reais quando carregado -->
+            <div v-else class="space-y-2 mt-2">
+              <!-- Caso 1: Próximas férias agendadas -->
+              <div v-if="proximaFerias" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-semibold">
+                <span>📅 Próxima: {{ formatarDataSimples(proximaFerias.data_inicio) }}</span>
+              </div>
+
+              <!-- Caso 2: Progresso de Carência se menos de 1 ano -->
+              <div v-if="!temUmAnoDeServico && dadosCompletos?.data_admissao" class="pt-1">
+                <div class="flex justify-between text-[11px] text-gray-500 mb-1">
+                  <span>Carência de 1 ano</span>
+                  <span class="font-bold text-amber-600">{{ tempoServicoProgresso }}%</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                  <div class="bg-gradient-to-r from-amber-400 to-amber-500 h-full rounded-full" :style="{ width: `${tempoServicoProgresso}%` }"></div>
+                </div>
+                <p class="text-[10px] text-gray-400 mt-1 font-medium">
+                  Liberado em: {{ dataLiberacaoFeriasFormatada }}
+                </p>
+              </div>
+
+              <!-- Caso 3: Liberado para agendar -->
+              <div v-else-if="temUmAnoDeServico" class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg text-xs font-semibold">
+                <span class="inline-flex w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Férias liberadas para agendar!</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ícone de seta -->
+          <div class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </div>
+      </NuxtLink>
+
       <DashboardCard
         v-if="!isAdmin"
         to="/arquivos"
@@ -338,6 +407,56 @@ const dadosCompletos = ref<any>(null)
 const empresaUsuario = ref<any>(null)
 const totalDocumentosRecentes = ref(0)
 
+// Gestão de férias no dashboard (mobile-first)
+const totalFeriasAgendadas = ref(0)
+const proximaFerias = ref<any>(null)
+const carregandoFeriasCard = ref(false)
+
+const tempoServicoProgresso = computed(() => {
+  if (!dadosCompletos.value?.data_admissao) return 0
+  try {
+    const admissao = new Date(dadosCompletos.value.data_admissao + 'T00:00:00')
+    const hoje = new Date()
+    const umAnoAposAdmissao = new Date(admissao)
+    umAnoAposAdmissao.setFullYear(umAnoAposAdmissao.getFullYear() + 1)
+    
+    if (hoje >= umAnoAposAdmissao) return 100
+    
+    const totalMs = umAnoAposAdmissao.getTime() - admissao.getTime()
+    const decorridoMs = hoje.getTime() - admissao.getTime()
+    if (decorridoMs <= 0) return 0
+    
+    const pct = Math.floor((decorridoMs / totalMs) * 100)
+    return Math.min(100, Math.max(0, pct))
+  } catch (e) {
+    console.error('Erro ao calcular progresso de tempo de serviço:', e)
+    return 0
+  }
+})
+
+const dataLiberacaoFeriasFormatada = computed(() => {
+  if (!dadosCompletos.value?.data_admissao) return ''
+  try {
+    const admissao = new Date(dadosCompletos.value.data_admissao + 'T00:00:00')
+    const umAnoAposAdmissao = new Date(admissao)
+    umAnoAposAdmissao.setFullYear(umAnoAposAdmissao.getFullYear() + 1)
+    return umAnoAposAdmissao.toLocaleDateString('pt-BR')
+  } catch (e) {
+    console.error('Erro ao formatar data de liberação de férias:', e)
+    return ''
+  }
+})
+
+const temUmAnoDeServico = computed(() => {
+  return tempoServicoProgresso.value >= 100
+})
+
+const formatarDataSimples = (data: string) => {
+  if (!data) return ''
+  const date = new Date(data + 'T00:00:00')
+  return date.toLocaleDateString('pt-BR')
+}
+
 // Estados dos popups
 const mostrarPopupAdmin = ref(false)
 const mostrarPopupFuncionario = ref(false)
@@ -420,6 +539,30 @@ const carregarDados = async () => {
         }
       } catch (error) {
         console.error('Erro ao carregar dados do usuário:', error)
+      }
+
+      // Buscar dados de férias do funcionário se não for admin
+      if (!isAdmin.value) {
+        try {
+          carregandoFeriasCard.value = true
+          const feriasRes: any = await $fetch(`/api/ferias?funcionario_id=${user.value.id}`)
+          if (feriasRes.data) {
+            const ativas = feriasRes.data.filter((f: any) => f.status !== 'cancelado')
+            totalFeriasAgendadas.value = ativas.length
+            
+            const hojeStr = new Date().toISOString().split('T')[0]
+            const futuras = ativas
+              .filter((f: any) => f.data_inicio >= hojeStr)
+              .sort((a: any, b: any) => a.data_inicio.localeCompare(b.data_inicio))
+            if (futuras.length > 0) {
+              proximaFerias.value = futuras[0]
+            }
+          }
+        } catch (err) {
+          console.error('Erro ao buscar férias no dashboard:', err)
+        } finally {
+          carregandoFeriasCard.value = false
+        }
       }
     }
     

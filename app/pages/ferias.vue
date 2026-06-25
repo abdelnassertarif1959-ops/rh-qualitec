@@ -245,6 +245,7 @@
                   <input 
                     type="date" 
                     v-model="feriasForm.data_inicio" 
+                    :min="dataMinimaInicio"
                     class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     required
                   />
@@ -257,6 +258,17 @@
                     class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     required
                   />
+                </div>
+              </div>
+
+              <!-- Aviso Carência 1 ano de Serviço -->
+              <div v-if="erroDataAdmissao" class="bg-red-50 border border-red-100 rounded-xl p-3 text-xs text-red-700 flex items-start gap-2">
+                <svg class="w-4.5 h-4.5 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <div>
+                  <p class="font-semibold text-red-800">Carência de 1 ano</p>
+                  <p class="mt-0.5 text-red-600 leading-relaxed">{{ erroDataAdmissao }}</p>
                 </div>
               </div>
 
@@ -387,9 +399,39 @@ watch(
   }
 )
 
+const dataMinimaInicio = computed(() => {
+  if (!dadosOriginais.value?.data_admissao) return ''
+  try {
+    const admissao = new Date(dadosOriginais.value.data_admissao + 'T00:00:00')
+    const umAnoAposAdmissao = new Date(admissao)
+    umAnoAposAdmissao.setFullYear(umAnoAposAdmissao.getFullYear() + 1)
+    return umAnoAposAdmissao.toISOString().split('T')[0]
+  } catch (e) {
+    console.error('Erro ao calcular data mínima de início:', e)
+    return ''
+  }
+})
+
+const erroDataAdmissao = computed(() => {
+  if (!dadosOriginais.value?.data_admissao || !feriasForm.data_inicio) return ''
+  try {
+    const admissao = new Date(dadosOriginais.value.data_admissao + 'T00:00:00')
+    const inicio = new Date(feriasForm.data_inicio + 'T00:00:00')
+    const umAnoAposAdmissao = new Date(admissao)
+    umAnoAposAdmissao.setFullYear(umAnoAposAdmissao.getFullYear() + 1)
+    if (inicio < umAnoAposAdmissao) {
+      return `Você só pode agendar férias a partir de ${umAnoAposAdmissao.toLocaleDateString('pt-BR')}, quando completa 1 ano de serviço.`
+    }
+  } catch (e) {
+    console.error('Erro ao verificar data de admissão:', e)
+  }
+  return ''
+})
+
 const feriasFormValido = computed(() => {
   return feriasForm.data_inicio && feriasForm.data_fim &&
-         feriasForm.periodo_aquisitivo_inicio && feriasForm.periodo_aquisitivo_fim
+         feriasForm.periodo_aquisitivo_inicio && feriasForm.periodo_aquisitivo_fim &&
+         !erroDataAdmissao.value
 })
 
 const statusLabel = (status: string) => {

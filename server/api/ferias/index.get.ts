@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event)
 
     let funcionarioId = query.funcionario_id ? Number(query.funcionario_id) : null
-    
+
     // Se não for admin, só pode listar as próprias férias
     if (requestingUser.tipo_acesso !== 'admin') {
       funcionarioId = requestingUser.id
