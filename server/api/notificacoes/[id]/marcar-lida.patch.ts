@@ -32,11 +32,20 @@ export default defineEventHandler(async (event) => {
       })
       .eq('id', id)
       .select()
-      .single()
+      .maybeSingle()
 
     if (error) {
       console.error('❌ Erro ao marcar notificação como lida:', error)
       throw error
+    }
+
+    if (!data) {
+      console.log(`⚠️ [MARCAR-LIDA] Notificação ${id} não encontrada ou já excluída.`)
+      return {
+        success: true,
+        message: 'Notificação não encontrada ou já excluída',
+        notificacao: null
+      }
     }
 
     console.log('✅ Notificação marcada como lida:', id)

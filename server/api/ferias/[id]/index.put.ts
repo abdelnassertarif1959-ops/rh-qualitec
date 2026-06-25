@@ -112,6 +112,22 @@ export default defineEventHandler(async (event) => {
       valor_liquido: calc.valorLiquido,
     }
 
+    // Se o status foi alterado para 'cancelado' e existe um holerite associado, excluí-lo
+    if (novoStatus === 'cancelado' && existing.holerite_id) {
+      console.log(`🗑️ [PUT /api/ferias/[id]] Férias canceladas. Removendo holerite associado ID: ${existing.holerite_id}`)
+      const { error: errHolerite } = await supabase
+        .from('holerites')
+        .delete()
+        .eq('id', existing.holerite_id)
+      
+      if (errHolerite) {
+        console.error(`❌ [PUT /api/ferias/[id]] Erro ao deletar holerite ${existing.holerite_id}:`, errHolerite)
+      } else {
+        console.log(`✅ [PUT /api/ferias/[id]] Holerite ${existing.holerite_id} removido devido ao cancelamento`)
+        updates.holerite_id = null
+      }
+    }
+
     const { data: updated, error: errUpdate } = await supabase
       .from('funcionario_ferias')
       .update(updates)

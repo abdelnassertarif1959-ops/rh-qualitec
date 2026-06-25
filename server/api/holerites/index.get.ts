@@ -104,14 +104,19 @@ export default defineEventHandler(async (event) => {
 
     // Filtro por estilo aplicado no JS
     // Adiantamento: observacoes começa com "Adiantamento"
-    // Mensal: observacoes começa com "Folha mensal"
+    // Férias: observacoes começa com "Recibo de Férias"
+    // Mensal: todo o restante (não começa com "Adiantamento" e nem com "Recibo de Férias")
     if (estilo === 'adiantamento') {
       holeritesTratados = holeritesTratados.filter(h => {
         return h.observacoes?.startsWith('Adiantamento')
       })
+    } else if (estilo === 'ferias') {
+      holeritesTratados = holeritesTratados.filter(h => {
+        return h.observacoes?.startsWith('Recibo de Férias')
+      })
     } else if (estilo === 'mensal') {
       holeritesTratados = holeritesTratados.filter(h => {
-        return !h.observacoes?.startsWith('Adiantamento')
+        return !h.observacoes?.startsWith('Adiantamento') && !h.observacoes?.startsWith('Recibo de Férias')
       })
     }
     

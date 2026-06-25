@@ -659,7 +659,8 @@ const filtros = ref({
 const estiloHoleriteOptions = computed(() => [
   { value: '', label: 'Todos os estilos' },
   { value: 'adiantamento', label: 'Adiantamentos (40%)' },
-  { value: 'mensal', label: 'Folhas Mensais' }
+  { value: 'mensal', label: 'Folhas Mensais' },
+  { value: 'ferias', label: 'Recibos de Férias' }
 ])
 
 // Meses disponíveis (carregados dinamicamente do banco)

@@ -28,13 +28,24 @@ export default defineEventHandler(async (event) => {
       .from('notificacoes')
       .select('id, titulo, tipo')
       .eq('id', notificacaoId)
-      .single()
+      .maybeSingle()
 
-    if (erroVerificacao || !notificacaoExistente) {
-      throw createError({
-        statusCode: 404,
-        message: 'Notificação não encontrada'
-      })
+    if (erroVerificacao) {
+      console.error('❌ Erro ao verificar existência da notificação:', erroVerificacao)
+      throw erroVerificacao
+    }
+
+    if (!notificacaoExistente) {
+      console.log(`⚠️ [NOTIFICACOES] Notificação ${notificacaoId} já não existe. Retornando sucesso para idempotência.`)
+      return {
+        success: true,
+        message: 'Notificação já excluída ou não encontrada',
+        notificacao_excluida: {
+          id: notificacaoId,
+          titulo: '',
+          tipo: ''
+        }
+      }
     }
 
     // Excluir a notificação
