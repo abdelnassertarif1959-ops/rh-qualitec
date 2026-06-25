@@ -11,6 +11,7 @@ export default defineNuxtPlugin(() => {
 
   // Inicializar o composable globalmente
   const { startPolling, stopPolling } = useNotificationCount()
+  const { isAuthenticated } = useAuth()
 
   // Gerenciar polling baseado na visibilidade da página
   const handleVisibilityChange = () => {
@@ -19,7 +20,9 @@ export default defineNuxtPlugin(() => {
       stopPolling()
     } else {
       console.log('👁️ [PLUGIN] Página visível, retomando polling')
-      startPolling()
+      if (isAuthenticated.value) {
+        startPolling()
+      }
     }
   }
 
@@ -32,8 +35,10 @@ export default defineNuxtPlugin(() => {
     stopPolling()
   })
 
-  // Iniciar polling imediatamente
-  startPolling()
+  // Iniciar polling imediatamente apenas se estiver autenticado
+  if (isAuthenticated.value) {
+    startPolling()
+  }
 
   console.log('✅ [PLUGIN] Sistema de notificações inicializado')
 })

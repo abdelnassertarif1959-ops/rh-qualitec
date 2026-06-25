@@ -41,8 +41,9 @@ export default defineNuxtPlugin(() => {
         } catch (error) {
           console.error('❌ [AUTH-INTERCEPTOR] Erro ao renovar token:', error)
           
-          // Redirecionar para login
-          if (window.location.pathname !== '/login') {
+          // Redirecionar para login apenas se não for uma rota pública
+          const publicPaths = ['/login', '/reset-password']
+          if (!publicPaths.includes(window.location.pathname)) {
             window.location.href = '/login'
           }
         }
