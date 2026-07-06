@@ -83,19 +83,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Buscar itens personalizados do holerite (da tabela holerite_itens_personalizados)
-    const { data: itensPersonalizados } = await supabase
-      .from('holerite_itens_personalizados')
-      .select('*')
-      .eq('funcionario_id', funcionario.id)
-      .gte('data_inicio', holerite.periodo_inicio)
-      .or(`data_fim.is.null,data_fim.gte.${holerite.periodo_inicio}`)
+    // Usar os itens personalizados salvos no banco de dados para este holerite específico
+    // (a tabela holerite_itens_personalizados é para regras de recorrência/geração)
+    const beneficiosPersonalizados = holerite.beneficios || []
+    const descontosPersonalizados = holerite.descontos_personalizados || []
     
-    // Separar benefícios e descontos
-    const beneficiosPersonalizados = (itensPersonalizados || []).filter((item: any) => item.tipo === 'beneficio')
-    const descontosPersonalizados = (itensPersonalizados || []).filter((item: any) => item.tipo === 'desconto')
-    
-    console.log(`📋 Itens personalizados encontrados:`)
+    console.log(`📋 Itens personalizados no JSONB:`)
     console.log(`   Benefícios: ${beneficiosPersonalizados.length}`)
     console.log(`   Descontos: ${descontosPersonalizados.length}`)
 
@@ -131,13 +124,13 @@ export default defineEventHandler(async (event) => {
     const holeriteComItens = {
       ...holerite,
       beneficios: beneficiosPersonalizados.map((item: any) => ({
-        tipo: item.descricao,
-        descricao: item.observacoes || item.descricao,
+        tipo: item.tipo || item.descricao || 'Benefício',
+        descricao: item.descricao || item.tipo || 'Benefício',
         valor: item.valor
       })),
       descontos_personalizados: descontosPersonalizados.map((item: any) => ({
-        descricao: item.descricao,
-        referencia: item.id.toString(), // Usar ID como referência
+        descricao: item.descricao || 'Desconto',
+        referencia: item.referencia || '',
         valor: item.valor
       }))
     }

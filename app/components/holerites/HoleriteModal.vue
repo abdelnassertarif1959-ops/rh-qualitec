@@ -92,8 +92,8 @@
         <!-- Itens Personalizados (apenas para detalhamento) -->
         <div v-if="descontosPersonalizados.length > 0">
           <div 
-            v-for="desconto in descontosPersonalizados" 
-            :key="desconto.id"
+            v-for="(desconto, index) in descontosPersonalizados" 
+            :key="desconto.descricao || index"
             class="flex justify-between py-2 border-b border-gray-100"
           >
             <span class="text-gray-600">{{ desconto.descricao }}</span>
@@ -186,61 +186,13 @@ const emit = defineEmits<{
   download: [holerite: any]
 }>()
 
-// Estado para itens personalizados
-const itensPersonalizados = ref<any[]>([])
-const carregandoItens = ref(false)
-
-// Buscar itens personalizados ao montar o componente
-onMounted(async () => {
-  if (props.holerite?.funcionario_id) {
-    await carregarItensPersonalizados()
-  }
-})
-
-// Função para carregar itens personalizados
-const carregarItensPersonalizados = async () => {
-  carregandoItens.value = true
-  try {
-    const response = await fetch(`/api/holerites/itens-personalizados/${props.holerite.funcionario_id}`)
-    const result = await response.json()
-    
-    if (result.success && result.data) {
-      // Filtrar apenas itens vigentes no período do holerite
-      const periodoInicio = new Date(props.holerite.periodo_inicio)
-      const periodoFim = new Date(props.holerite.periodo_fim)
-      
-      itensPersonalizados.value = result.data.filter((item: any) => {
-        const dataInicio = new Date(item.data_inicio)
-        const dataFim = item.data_fim ? new Date(item.data_fim) : null
-        
-        // Item está vigente se:
-        // - data_inicio <= periodo_fim
-        // - data_fim é null OU data_fim >= periodo_inicio
-        return dataInicio <= periodoFim && (!dataFim || dataFim >= periodoInicio)
-      })
-      
-      console.log(`📋 Itens personalizados vigentes: ${itensPersonalizados.value.length}`)
-      console.log(`   ⚠️  Estes itens JÁ ESTÃO incluídos no total_descontos do banco`)
-      console.log(`   📊 Exibindo apenas para detalhamento, sem somar novamente`)
-    }
-  } catch (error) {
-    console.error('Erro ao carregar itens personalizados:', error)
-  } finally {
-    carregandoItens.value = false
-  }
-}
-
-// Computed para separar benefícios e descontos
+// Computed para obter benefícios e descontos personalizados salvos no JSONB do holerite
 const beneficiosPersonalizados = computed(() => {
-  const beneficios = itensPersonalizados.value.filter((item: any) => item.tipo === 'beneficio')
-  console.log(`📋 Benefícios personalizados: ${beneficios.length}`, beneficios)
-  return beneficios
+  return props.holerite?.beneficios || []
 })
 
 const descontosPersonalizados = computed(() => {
-  const descontos = itensPersonalizados.value.filter((item: any) => item.tipo === 'desconto')
-  console.log(`📋 Descontos personalizados: ${descontos.length}`, descontos)
-  return descontos
+  return props.holerite?.descontos_personalizados || []
 })
 
 // Computed para calcular total de descontos

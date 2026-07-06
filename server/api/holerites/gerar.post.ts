@@ -421,14 +421,26 @@ export default defineEventHandler(async (event) => {
         console.log(`   Benefícios: ${beneficiosPersonalizados.length}`)
         console.log(`   Descontos: ${descontosPersonalizados.length}`)
         
+        const salarioBase = (func as any).salario_base || 0
+        const isAdiantamento = tipo === 'adiantamento'
+        
         // Verificar se já existe holerite
-        const { data: existente } = await supabase
+        let queryExistente = supabase
           .from('holerites')
           .select('id')
           .eq('funcionario_id', (func as any).id)
           .eq('periodo_inicio', periodo_inicio)
           .eq('periodo_fim', periodo_fim)
-          .maybeSingle()
+
+        if (isAdiantamento) {
+          queryExistente = queryExistente.like('observacoes', 'Adiantamento%')
+        } else {
+          queryExistente = queryExistente
+            .not('observacoes', 'like', 'Adiantamento%')
+            .not('observacoes', 'like', 'Recibo de Férias%')
+        }
+
+        const { data: existente } = await queryExistente.maybeSingle()
 
         if (existente && !recriar) {
           console.log(`⚠️ Holerite já existe para ${(func as any).nome_completo}`)
@@ -446,9 +458,6 @@ export default defineEventHandler(async (event) => {
             .delete()
             .eq('id', (existente as any).id)
         }
-
-        const salarioBase = (func as any).salario_base || 0
-        const isAdiantamento = tipo === 'adiantamento'
         
         // REGRA ESPECIAL: Umberto (ID 169) não recebe adiantamento
         // Ele recebe 100% do salário apenas na folha mensal
