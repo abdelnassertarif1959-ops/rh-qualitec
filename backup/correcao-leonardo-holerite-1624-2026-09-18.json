@@ -1,0 +1,21 @@
+{
+  "motivo": "Inclusao dos itens personalizados de agosto expressamente solicitada pelo usuario",
+  "holerite_id": 1624,
+  "funcionario_id": 156,
+  "competencia": "2026-08",
+  "antes": {
+    "descontos_personalizados": [],
+    "total_descontos": 3011.65,
+    "salario_liquido": 988.35,
+    "updated_at": "2026-09-08T19:36:33.44811"
+  },
+  "itens_origem": [39, 40],
+  "depois_esperado": {
+    "descontos_personalizados": [
+      {"descricao": "DIAS DE FALTA - 3 DIAS", "valor": 400},
+      {"descricao": "ATRASOS / SAIDAS ANTECIPADAS", "valor": 109.09}
+    ],
+    "total_descontos": 3520.74,
+    "salario_liquido": 479.26
+  }
+}
