@@ -206,6 +206,10 @@ const getStatusColor = (status?: string) => {
       bg: 'bg-green-100',
       badge: 'bg-green-100 text-green-800'
     },
+    'visualizado': {
+      bg: 'bg-green-100',
+      badge: 'bg-green-100 text-green-800'
+    },
     'gerado': {
       bg: 'bg-blue-100',
       badge: 'bg-blue-100 text-blue-800'

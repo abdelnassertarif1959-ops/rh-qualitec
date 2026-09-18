@@ -748,15 +748,14 @@ const abrirModalEnvio = () => {
 
 const atualizarHoleritesSelecionaveis = () => {
   if (tipoEnvio.value === 'adiantamento') {
-    holeritesSelecionaveis.value = holerites.value.filter(h => {
-      const dia = new Date(h.periodo_inicio + 'T00:00:00').getDate()
-      return dia >= 14
-    })
+    holeritesSelecionaveis.value = holerites.value.filter(h =>
+      (h.observacoes || '').trim().toLowerCase().startsWith('adiantamento')
+    )
   } else if (tipoEnvio.value === 'mensal') {
-    holeritesSelecionaveis.value = holerites.value.filter(h => {
-      const dia = new Date(h.periodo_inicio + 'T00:00:00').getDate()
-      return dia < 14
-    })
+    holeritesSelecionaveis.value = holerites.value.filter(h =>
+      !(h.observacoes || '').trim().toLowerCase().startsWith('adiantamento') &&
+      !(h.observacoes || '').trim().toLowerCase().startsWith('recibo de férias')
+    )
   } else {
     holeritesSelecionaveis.value = [...holerites.value]
   }
@@ -783,17 +782,15 @@ const contarHoleritesPorTipo = () => {
   if (tipoEnvio.value === 'todos') {
     return holerites.value.filter(h => h.status !== 'enviado').length
   } else if (tipoEnvio.value === 'adiantamento') {
-    // Adiantamentos têm periodo_fim até dia 15
-    return holerites.value.filter(h => {
-      const diaFim = new Date(h.periodo_fim).getDate()
-      return diaFim <= 15 && h.status !== 'enviado'
-    }).length
+    return holerites.value.filter(h =>
+      (h.observacoes || '').trim().toLowerCase().startsWith('adiantamento') && h.status !== 'enviado'
+    ).length
   } else {
-    // Mensais têm periodo_fim após dia 15
-    return holerites.value.filter(h => {
-      const diaFim = new Date(h.periodo_fim).getDate()
-      return diaFim > 15 && h.status !== 'enviado'
-    }).length
+    return holerites.value.filter(h =>
+      !(h.observacoes || '').trim().toLowerCase().startsWith('adiantamento') &&
+      !(h.observacoes || '').trim().toLowerCase().startsWith('recibo de férias') &&
+      h.status !== 'enviado'
+    ).length
   }
 }
 
@@ -801,15 +798,14 @@ const contarHoleritesPorTipoDisp = () => {
   if (tipoDisponibilizar.value === 'todos') {
     return holerites.value.length
   } else if (tipoDisponibilizar.value === 'adiantamento') {
-    return holerites.value.filter(h => {
-      const diaFim = new Date(h.periodo_fim).getDate()
-      return diaFim <= 15
-    }).length
+    return holerites.value.filter(h =>
+      (h.observacoes || '').trim().toLowerCase().startsWith('adiantamento')
+    ).length
   } else {
-    return holerites.value.filter(h => {
-      const diaFim = new Date(h.periodo_fim).getDate()
-      return diaFim > 15
-    }).length
+    return holerites.value.filter(h =>
+      !(h.observacoes || '').trim().toLowerCase().startsWith('adiantamento') &&
+      !(h.observacoes || '').trim().toLowerCase().startsWith('recibo de férias')
+    ).length
   }
 }
 
@@ -826,15 +822,14 @@ const disponibilizarHolerites = async () => {
     if (tipoDisponibilizar.value === 'todos') {
       holeritesFiltrados = holerites.value
     } else if (tipoDisponibilizar.value === 'adiantamento') {
-      holeritesFiltrados = holerites.value.filter(h => {
-        const diaFim = new Date(h.periodo_fim).getDate()
-        return diaFim <= 15
-      })
+      holeritesFiltrados = holerites.value.filter(h =>
+        (h.observacoes || '').trim().toLowerCase().startsWith('adiantamento')
+      )
     } else {
-      holeritesFiltrados = holerites.value.filter(h => {
-        const diaFim = new Date(h.periodo_fim).getDate()
-        return diaFim > 15
-      })
+      holeritesFiltrados = holerites.value.filter(h =>
+        !(h.observacoes || '').trim().toLowerCase().startsWith('adiantamento') &&
+        !(h.observacoes || '').trim().toLowerCase().startsWith('recibo de férias')
+      )
     }
     
     if (holeritesFiltrados.length === 0) {
@@ -844,7 +839,7 @@ const disponibilizarHolerites = async () => {
       return
     }
     
-    // Atualizar status para "visualizado" (disponível no perfil)
+    // Atualizar status para "enviado" (disponível no perfil)
     let disponibilizados = 0
     let erros = 0
     
@@ -853,7 +848,7 @@ const disponibilizarHolerites = async () => {
         await $fetch(`/api/holerites/${holerite.id}`, {
           method: 'PATCH',
           body: {
-            status: 'visualizado' // Status que indica disponível no perfil
+            status: 'enviado' // Status que indica disponível no perfil
           }
         })
         disponibilizados++
