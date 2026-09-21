@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     // Verificar se existe
     const { data: existing, error: errGet } = await supabase
       .from('funcionario_ferias')
-      .select('*, funcionarios(id, salario_base, numero_dependentes, pensao_config_ativa, pensao_config_tipo, pensao_config_percentual, pensao_config_valor_fixo)')
+      .select('*, funcionarios(id, salario_base, numero_dependentes, pensao_config_ativa, pensao_config_tipo, pensao_config_percentual, pensao_config_valor_fixo, pensao_config_regras)')
       .eq('id', id)
       .single()
 
@@ -83,6 +83,7 @@ export default defineEventHandler(async (event) => {
         tipo: (func?.pensao_config_tipo as 'percentual' | 'fixo') || 'percentual',
         percentual: Number(func?.pensao_config_percentual) || 0,
         valorFixo: Number(func?.pensao_config_valor_fixo) || 0,
+        regras: func?.pensao_config_regras,
       },
       taxConfig
     )

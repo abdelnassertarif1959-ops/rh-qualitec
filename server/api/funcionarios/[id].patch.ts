@@ -1,5 +1,6 @@
-import { requireOwnershipOrAdmin } from '../../utils/authMiddleware'
+import { requireOwnershipOrAdmin, requireAdmin } from '../../utils/authMiddleware'
 import { serverSupabaseServiceRole } from '#supabase/server'
+import { prepararAtualizacaoPensao } from '../../utils/pensaoConfig'
 import { notificarAlteracaoDados } from '../../utils/notifications'
 
 export default defineEventHandler(async (event) => {
@@ -82,6 +83,11 @@ export default defineEventHandler(async (event) => {
     if (body.descontos_personalizados !== undefined) dadosParaAtualizar.descontos_personalizados = body.descontos_personalizados || null
     if (body.pis_pasep !== undefined) dadosParaAtualizar.pis_pasep = cleanValue(body.pis_pasep)
     
+    // Configurações judiciais só podem ser alteradas por administrador.
+    if (Object.keys(body).some(k => k.startsWith('pensao_config_'))) {
+      await requireAdmin(event)
+      Object.assign(dadosParaAtualizar, prepararAtualizacaoPensao(body))
+    }
     // Configurações de Pensão Alimentícia
     if (body.pensao_config_ativa !== undefined) dadosParaAtualizar.pensao_config_ativa = body.pensao_config_ativa
     if (body.pensao_config_tipo !== undefined) dadosParaAtualizar.pensao_config_tipo = body.pensao_config_tipo

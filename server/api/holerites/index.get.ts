@@ -79,6 +79,8 @@ export default defineEventHandler(async (event) => {
       queryBuilder = queryBuilder.eq('status', status)
     }
     
+    if (estilo === 'decimo') queryBuilder = queryBuilder.not('decimo_ano', 'is', null)
+    if (estilo === 'mensal') queryBuilder = queryBuilder.is('decimo_ano', null)
     const { data: holerites, error } = await queryBuilder
       .order('created_at', { ascending: false })
       .limit(50)

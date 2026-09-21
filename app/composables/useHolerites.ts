@@ -11,12 +11,14 @@ export const useHolerites = () => {
   }
 
   // Função para obter o tipo do holerite
-  const getTipoHolerite = (holerite: any): 'adiantamento' | 'folha_mensal' => {
+  const getTipoHolerite = (holerite: any): 'adiantamento' | 'folha_mensal' | 'decimo' => {
+    if (holerite.decimo_ano) return 'decimo'
     return isAdiantamento(holerite) ? 'adiantamento' : 'folha_mensal'
   }
 
   // Função para obter label do tipo
   const getTipoLabel = (holerite: any): string => {
+    if (holerite.decimo_ano) return `13º salário — ${holerite.decimo_parcela}ª parcela`
     return isAdiantamento(holerite) ? '💰 Adiantamento' : '📊 Folha Mensal'
   }
 

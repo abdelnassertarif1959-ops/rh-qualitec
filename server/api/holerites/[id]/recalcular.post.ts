@@ -22,6 +22,7 @@ export default defineEventHandler(async (event) => {
   if (erroHolerite || !holerite) {
     throw createError({ statusCode: 404, message: 'Holerite não encontrado' })
   }
+  if (holerite.decimo_ano) throw createError({ statusCode: 409, message: '13º salário não pode ser recalculado como folha mensal. Use a geração específica.' })
 
   // Buscar itens personalizados ativos para a DATA DE GERAÇÃO do holerite
   // Usa created_at do holerite (quando foi gerado/pago), não o período de competência

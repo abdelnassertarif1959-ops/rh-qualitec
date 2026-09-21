@@ -1,5 +1,6 @@
 import { serverSupabaseClient } from '#supabase/server'
-import { requireOwnershipOrAdmin } from '../../../utils/authMiddleware'
+import { requireAdmin } from '../../../utils/authMiddleware'
+import { prepararAtualizacaoPensao } from '../../../utils/pensaoConfig'
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
@@ -30,16 +31,11 @@ export default defineEventHandler(async (event) => {
       }
     }
     
-    // Configurações de Pensão
-    if (body.pensao_config_tipo) {
-      updateData.pensao_config_tipo = body.pensao_config_tipo
-      updateData.pensao_config_percentual = body.pensao_config_percentual || 30
-      updateData.pensao_config_recorrente = body.pensao_config_recorrente || false
-      updateData.pensao_config_ativa = body.pensao_config_ativa || false
-      
-      if (body.pensao_config_tipo === 'fixo') {
-        updateData.pensao_config_valor_fixo = body.pensao_config_valor_fixo || 0
-      }
+    // Só alterar campos enviados; mês zerado não suspende a obrigação judicial.
+    try {
+      Object.assign(updateData, prepararAtualizacaoPensao(body))
+    } catch (error: any) {
+      throw createError({ statusCode: 400, message: error.message })
     }
     
     console.log('💾 Salvando no banco:', updateData)
@@ -67,7 +63,7 @@ export default defineEventHandler(async (event) => {
   } catch (error: any) {
     console.error('💥 Erro ao salvar configurações:', error)
     throw createError({
-      statusCode: 500,
+      statusCode: error.statusCode || 500,
       message: error.message || 'Erro ao salvar configurações'
     })
   }

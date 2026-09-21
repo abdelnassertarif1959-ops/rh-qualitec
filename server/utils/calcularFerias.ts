@@ -1,3 +1,4 @@
+import { basePensaoFerias, calcularPensaoPercentual, type RegrasPensao } from '../../shared/pensao.ts'
 /**
  * calcularFerias.ts
  * Cálculo de remuneração de férias conforme CLT 2026
@@ -173,6 +174,7 @@ export function calcularRemuneracaoFerias(
     tipo: 'percentual' | 'fixo'
     percentual: number
     valorFixo: number
+    regras?: RegrasPensao | null
   } = { ativa: false, tipo: 'percentual', percentual: 0, valorFixo: 0 },
   config?: TaxConfig
 ): ResultadoCalculo {
@@ -199,13 +201,15 @@ export function calcularRemuneracaoFerias(
 
   // 5. Calcular Pensão Alimentícia
   let pensaoAlimenticia = 0
-  if (pensaoConfig.ativa) {
+  if (pensaoConfig.ativa && (!pensaoConfig.regras || pensaoConfig.regras.ferias || pensaoConfig.regras.terco)) {
     if (pensaoConfig.tipo === 'fixo') {
       pensaoAlimenticia = pensaoConfig.valorFixo
     } else {
       // Pensão calculada sobre rendimento líquido (baseInss + valorAbonoPecuniario - INSS)
       const salarioLiquidoBase = baseInss + valorAbonoPecuniario - inss
-      pensaoAlimenticia = (salarioLiquidoBase * (pensaoConfig.percentual || 0)) / 100
+      pensaoAlimenticia = pensaoConfig.regras?.base === 'bruto'
+        ? calcularPensaoPercentual(pensaoConfig.percentual, basePensaoFerias(valorRemuneracao, valorUmTerco, pensaoConfig.regras))
+        : calcularPensaoPercentual(pensaoConfig.percentual, salarioLiquidoBase)
     }
   }
   pensaoAlimenticia = Number(pensaoAlimenticia.toFixed(2))

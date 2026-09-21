@@ -81,6 +81,7 @@ export default defineEventHandler(async (event) => {
         tipo: (funcionario.pensao_config_tipo as 'percentual' | 'fixo') || 'percentual',
         percentual: Number(funcionario.pensao_config_percentual) || 0,
         valorFixo: Number(funcionario.pensao_config_valor_fixo) || 0,
+        regras: funcionario.pensao_config_regras,
       },
       taxConfig
     )
@@ -102,6 +103,9 @@ export default defineEventHandler(async (event) => {
         inss: calc.inss,
         irrf: calc.irrf,
         pensao_alimenticia: calc.pensaoAlimenticia,
+        pensao_tipo: funcionario.pensao_config_tipo,
+        pensao_percentual: funcionario.pensao_config_percentual,
+        pensao_regras: funcionario.pensao_config_regras || null,
         total_descontos: calc.inss + calc.irrf + calc.pensaoAlimenticia,
         salario_liquido: calc.valorLiquido,
         // INSS config

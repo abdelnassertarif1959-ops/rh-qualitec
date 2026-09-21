@@ -123,7 +123,7 @@ export default defineEventHandler(async (event) => {
     // Adicionar itens personalizados ao holerite
     const holeriteComItens = {
       ...holerite,
-      beneficios: beneficiosPersonalizados.map((item: any) => ({
+      beneficios: beneficiosPersonalizados.ferias ? beneficiosPersonalizados : beneficiosPersonalizados.map((item: any) => ({
         tipo: item.tipo || item.descricao || 'Benefício',
         descricao: item.descricao || item.tipo || 'Benefício',
         valor: item.valor

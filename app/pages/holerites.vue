@@ -25,6 +25,7 @@
           <select v-model="filtroTipo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             <option value="">Todos os tipos</option>
             <option value="adiantamento">💰 Adiantamento</option>
+            <option value="decimo">13º salário</option>
             <option value="folha_mensal">📊 Folha Mensal</option>
           </select>
         </div>
@@ -241,7 +242,10 @@ const carregarHolerites = async () => {
       // Verificar tipo baseado na observação
       const diaFim = periodoFim.getDate()
       
-      if (isAdiantamentoTemp) {
+      if (h.decimo_ano) {
+        tipo = '13º salário'
+        referencia = `13º salário — ${h.decimo_parcela}ª parcela / ${h.decimo_ano}`
+      } else if (isAdiantamentoTemp) {
         // Adiantamento salarial
         tipo = 'Adiantamento'
         quinzena = 1
@@ -254,6 +258,9 @@ const carregarHolerites = async () => {
       
       const holeriteFormatado = {
         id: h.id || 0,
+        decimo_ano: h.decimo_ano,
+        decimo_parcela: h.decimo_parcela,
+        decimo_dados: h.decimo_dados,
         referencia,
         competencia: `${mes}/${ano}`,
         mes,
@@ -286,6 +293,7 @@ const carregarHolerites = async () => {
         plano_saude: h.plano_saude || 0,
         plano_odontologico: h.plano_odontologico || 0,
         adiantamento: h.adiantamento || 0,
+        pensao_alimenticia: h.pensao_alimenticia || 0,
         faltas: h.faltas || 0,
         data_pagamento: h.data_pagamento || null,
         observacoes: h.observacoes || ''
@@ -323,6 +331,7 @@ const holeritesFiltrados = computed(() => {
       const tipoHolerite = getTipoHolerite(h)
       if (filtroTipo.value === 'adiantamento' && tipoHolerite !== 'adiantamento') return false
       if (filtroTipo.value === 'folha_mensal' && tipoHolerite !== 'folha_mensal') return false
+      if (filtroTipo.value === 'decimo' && tipoHolerite !== 'decimo') return false
     }
     return true
   })

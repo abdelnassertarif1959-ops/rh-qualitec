@@ -523,7 +523,7 @@
               type="number" 
               step="0.01"
               label="Percentual (%)" 
-              placeholder="30.00"
+              placeholder="Percentual da decisão"
             />
             
             <UiInput 
@@ -537,6 +537,22 @@
           </div>
         </div>
 
+        <div v-if="form.pensao_config_ativa" class="p-4 border rounded-xl space-y-3">
+          <p class="text-sm">Base e incidências da pensão para os próximos holerites.</p>
+          <button v-if="!form.pensao_config_regras" type="button" class="text-purple-700 underline"
+            @click="form.pensao_config_regras = { base: 'bruto', ferias: false, terco: false, decimo: false }">Definir regra conforme a decisão</button>
+          <template v-else>
+            <label class="block text-sm">Base da pensão
+              <select v-model="form.pensao_config_regras.base" class="w-full border rounded p-2">
+                <option value="bruto">Remuneração bruta</option>
+                <option value="liquido">Líquido — configuração legada</option>
+              </select>
+            </label>
+            <UiCheckbox v-model="form.pensao_config_regras.ferias" label="Incide nas férias" />
+            <UiCheckbox v-model="form.pensao_config_regras.terco" label="Incide no terço constitucional" />
+            <UiCheckbox v-model="form.pensao_config_regras.decimo" label="Incide no 13º salário" />
+          </template>
+        </div>
         <!-- Descontos Personalizados - Apenas para CLT -->
         <div v-if="form.descontos_personalizados && form.tipo_contrato !== 'PJ'" class="space-y-4">
           <div class="flex items-center justify-between">

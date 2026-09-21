@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
     // Buscar dados do funcionário
     const { data: funcionario, error: errFunc } = await supabase
       .from('funcionarios')
-      .select('id, nome_completo, salario_base, numero_dependentes, pensao_config_ativa, pensao_config_tipo, pensao_config_percentual, pensao_config_valor_fixo, data_admissao')
+      .select('id, nome_completo, salario_base, numero_dependentes, pensao_config_ativa, pensao_config_tipo, pensao_config_percentual, pensao_config_valor_fixo, pensao_config_regras, data_admissao')
       .eq('id', funcionario_id)
       .single()
 
@@ -89,6 +89,7 @@ export default defineEventHandler(async (event) => {
         tipo: (funcionario.pensao_config_tipo as 'percentual' | 'fixo') || 'percentual',
         percentual: Number(funcionario.pensao_config_percentual) || 0,
         valorFixo: Number(funcionario.pensao_config_valor_fixo) || 0,
+        regras: funcionario.pensao_config_regras,
       },
       taxConfig
     )

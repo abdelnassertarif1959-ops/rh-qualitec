@@ -260,6 +260,7 @@ const getTipoHoleriteIcon = (): string => {
 
 // Função para obter label do tipo de holerite
 const getTipoHoleriteLabel = (): string => {
+  if (props.holerite?.decimo_ano) return `13º — ${props.holerite.decimo_parcela}ª parcela`
   return isAdiantamento.value ? 'Adiantamento' : 'Folha Mensal'
 }
 

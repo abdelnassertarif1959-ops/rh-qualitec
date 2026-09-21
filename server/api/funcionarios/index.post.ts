@@ -1,4 +1,5 @@
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
+import { prepararAtualizacaoPensao } from '../../utils/pensaoConfig'
 import { requireAdmin } from '../../utils/authMiddleware'
 import { notificarCriacaoFuncionario } from '../../utils/notifications'
 
@@ -108,11 +109,13 @@ export default defineEventHandler(async (event) => {
       descontos_personalizados: body.descontos_personalizados || [],
       
       // Configurações de Pensão Alimentícia
+      pensao_config_regras: body.pensao_config_regras || null,
       pensao_config_ativa: body.pensao_config_ativa || false,
       pensao_config_tipo: body.pensao_config_tipo || 'percentual',
       pensao_config_percentual: cleanValue(body.pensao_config_percentual) || 0,
       pensao_config_valor_fixo: cleanValue(body.pensao_config_valor_fixo) || 0,
-      pensao_config_recorrente: body.pensao_config_recorrente !== undefined ? body.pensao_config_recorrente : true
+      pensao_config_recorrente: body.pensao_config_recorrente !== undefined ? body.pensao_config_recorrente : true,
+      ...prepararAtualizacaoPensao(body)
     }
 
     console.log('📦 Dados a inserir:', JSON.stringify(dadosParaInserir, null, 2))

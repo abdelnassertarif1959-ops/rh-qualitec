@@ -27,7 +27,8 @@ export default defineEventHandler(async (event) => {
         pensao_config_percentual,
         pensao_config_valor_fixo,
         pensao_config_recorrente,
-        pensao_config_ativa
+        pensao_config_ativa,
+        pensao_config_regras
       `)
       .eq('id', id)
       .single()
@@ -50,10 +51,11 @@ export default defineEventHandler(async (event) => {
         },
         pensao: {
           tipo: data.pensao_config_tipo || 'percentual',
-          percentual: data.pensao_config_percentual || 30,
+          percentual: data.pensao_config_percentual ?? 0,
           valor_fixo: data.pensao_config_valor_fixo || 0,
           recorrente: data.pensao_config_recorrente || false,
-          ativa: data.pensao_config_ativa || false
+          ativa: data.pensao_config_ativa || false,
+          regras: data.pensao_config_regras || null
         }
       }
     }

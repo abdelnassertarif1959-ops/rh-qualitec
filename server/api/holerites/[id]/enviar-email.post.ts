@@ -154,7 +154,8 @@ export default defineEventHandler(async (event) => {
       tipoHolerite = 'adiantamento'
     }
     
-    const mesAno = referencia.mesAno
+    if (holerite.decimo_ano) tipoHolerite = '13º salário'
+    const mesAno = holerite.decimo_ano ? `${holerite.decimo_parcela}ª parcela do 13º de ${holerite.decimo_ano}` : referencia.mesAno
 
     console.log('📨 Enviando email para:', emailDestino)
     console.log('📅 Mês de referência:', mesAno)

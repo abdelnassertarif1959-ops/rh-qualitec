@@ -24,6 +24,7 @@ export default defineEventHandler(async (event) => {
     .eq('id', id)
 
   if (error) {
+    if (error.code === '23503') throw createError({ statusCode: 409, message: 'Esta primeira parcela está vinculada à segunda parcela do 13º e não pode ser excluída.' })
     console.error('Erro ao excluir holerite:', error)
     throw createError({
       statusCode: 500,

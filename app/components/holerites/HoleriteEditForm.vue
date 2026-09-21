@@ -456,7 +456,7 @@
               v-model="pensaoConfig.percentual" 
               type="number" 
               label="Percentual (%)"
-              placeholder="30"
+              placeholder="Percentual determinado na decisão"
               step="0.01"
               @input="calcularPensao"
             />
@@ -480,17 +480,17 @@
               <span class="text-gray-600">Salário Bruto:</span>
               <span class="font-medium">{{ formatarMoeda(calcularTotalProventos()) }}</span>
             </div>
-            <div class="flex justify-between">
+            <div v-if="pensaoRegras?.base !== 'bruto'" class="flex justify-between">
               <span class="text-gray-600">(-) INSS:</span>
               <span class="font-medium text-red-600">{{ formatarMoeda(form.inss) }}</span>
             </div>
-            <div class="flex justify-between">
+            <div v-if="pensaoRegras?.base !== 'bruto'" class="flex justify-between">
               <span class="text-gray-600">(-) IRRF:</span>
               <span class="font-medium text-red-600">{{ formatarMoeda(form.irrf) }}</span>
             </div>
             <div class="flex justify-between border-t border-purple-200 pt-1 mt-1">
-              <span class="font-semibold text-purple-900">Salário Líquido (base):</span>
-              <span class="font-bold text-purple-900">{{ formatarMoeda(calcularSalarioLiquidoBase()) }}</span>
+              <span class="font-semibold text-purple-900">{{ pensaoRegras?.base === 'bruto' ? 'Salário bruto (base):' : 'Salário líquido (base):' }}</span>
+              <span class="font-bold text-purple-900">{{ formatarMoeda(pensaoRegras?.base === 'bruto' ? calcularBaseBrutaPensao() : calcularSalarioLiquidoBase()) }}</span>
             </div>
             <div class="flex justify-between bg-purple-100 rounded p-2 mt-2">
               <span class="font-bold text-purple-900">Pensão ({{ pensaoConfig.percentual }}%):</span>
@@ -499,15 +499,20 @@
           </div>
         </div>
 
+        <label class="flex items-center gap-2 mt-3 text-sm">
+          <input v-model="aplicarPensaoProximos" type="checkbox" />
+          Usar esta configuração de pensão nos próximos holerites
+        </label>
+        <p class="text-xs text-gray-500 mt-1">Os holerites já emitidos mantêm seus valores. Para suspender a obrigação, altere o cadastro do funcionário.</p>
         <UiAlert variant="info" class="text-xs mt-3">
           <strong>💡 Dica:</strong> 
           {{ pensaoConfig.tipo === 'percentual' 
-            ? `A pensão será calculada como ${pensaoConfig.percentual}% do salário líquido (após INSS e IRRF).` 
+            ? `A pensão será calculada como ${pensaoConfig.percentual}% do ${pensaoRegras?.base === 'bruto' ? 'salário bruto' : 'salário líquido (após INSS e IRRF)'}.`
             : 'A pensão será descontada como valor fixo mensal.' 
           }}
           {{ pensaoConfig.recorrente 
-            ? ' Este desconto será aplicado automaticamente todos os meses.' 
-            : ' Este desconto será aplicado apenas neste holerite.' 
+            ? ' Para atualizar o cadastro permanente, marque a opção de aplicar aos próximos holerites.'
+            : ' Esta edição vale para este holerite; não suspende a pensão cadastrada.'
           }}
         </UiAlert>
       </div>
@@ -772,6 +777,8 @@ const form = ref({
 })
 
 // Configuração da pensão alimentícia (carregada do banco)
+const aplicarPensaoProximos = ref(false)
+const pensaoRegras = ref(props.holerite.pensao_regras || null)
 const pensaoConfig = ref({
   tipo: props.holerite.pensao_tipo || 'fixo',
   percentual: props.holerite.pensao_percentual || 0,
@@ -853,6 +860,7 @@ const carregarDadosAdicionais = async () => {
           }
           
           if (!props.holerite.pensao_tipo) {
+            pensaoRegras.value = configResponse.data.pensao.regras || null
             if (configResponse.data.pensao.ativa) {
               pensaoConfig.value = {
                 tipo: configResponse.data.pensao.tipo || 'percentual',
@@ -1031,6 +1039,8 @@ const calcularSalarioProporcional = () => {
 }
 
 const calcularTotalProventos = () => {
+  const ferias = props.holerite.beneficios?.ferias
+  if (ferias) return Number(ferias.valor_remuneracao || 0) + Number(ferias.valor_um_terco || 0) + Number(ferias.valor_abono_pecuniario || 0)
   const salarioProporcional = calcularSalarioProporcional()
   
   return (
@@ -1116,12 +1126,17 @@ const calcularAdiantamento = () => {
 }
 
 // Calcular pensão alimentícia
+const calcularBaseBrutaPensao = () => {
+  const ferias = props.holerite.beneficios?.ferias
+  if (ferias && pensaoRegras.value) return (pensaoRegras.value.ferias ? Number(ferias.valor_remuneracao || 0) : 0) + (pensaoRegras.value.terco ? Number(ferias.valor_um_terco || 0) : 0)
+  return calcularTotalProventos()
+}
 const calcularPensao = () => {
   console.log('💜 calcularPensao() chamado')
   console.log('   Tipo:', pensaoConfig.value.tipo)
   
   if (pensaoConfig.value.tipo === 'percentual') {
-    const liquidoBase = calcularSalarioLiquidoBase()
+    const liquidoBase = pensaoRegras.value?.base === 'bruto' ? calcularBaseBrutaPensao() : calcularSalarioLiquidoBase()
     const percentual = Number(pensaoConfig.value.percentual) || 0
     const pensaoCalculada = (liquidoBase * percentual) / 100
     
@@ -1129,7 +1144,7 @@ const calcularPensao = () => {
     console.log('   Percentual:', percentual + '%')
     console.log('   Pensão Calculada:', pensaoCalculada)
     
-    form.value.pensao_alimenticia = pensaoCalculada
+    form.value.pensao_alimenticia = Math.round(Math.max(0, pensaoCalculada) * 100) / 100
   } else {
     console.log('   Modo fixo - mantendo valor:', form.value.pensao_alimenticia)
   }
@@ -1216,13 +1231,14 @@ const salvar = async () => {
         inss_config_referencia: form.value.inss_referencia || null
       }
       
-      // Salvar as configurações de pensão apenas se estiver marcada como recorrente
-      if (pensaoConfig.value.recorrente) {
+      // Atualizar a obrigação futura somente por escolha explícita nesta edição.
+      if (aplicarPensaoProximos.value) {
         configBody.pensao_config_tipo = pensaoConfig.value.tipo
         configBody.pensao_config_percentual = sanitizarValorNumerico(pensaoConfig.value.percentual)
         configBody.pensao_config_valor_fixo = pensaoConfig.value.tipo === 'fixo' ? sanitizarValorNumerico(form.value.pensao_alimenticia) : 0
         configBody.pensao_config_recorrente = true
-        configBody.pensao_config_ativa = sanitizarValorNumerico(form.value.pensao_alimenticia) > 0
+        configBody.pensao_config_ativa = true
+        if (pensaoRegras.value) configBody.pensao_config_regras = pensaoRegras.value
       }
 
       await $fetch(`/api/funcionarios/${funcId}/config-inss-pensao`, {
@@ -1261,9 +1277,10 @@ const salvar = async () => {
       // Salvar configurações de INSS e Pensão no holerite também (para histórico)
       inss_tipo: inssConfig.value.tipo,
       inss_percentual: sanitizarValorNumerico(inssConfig.value.percentual),
+      pensao_regras: pensaoRegras.value,
       pensao_tipo: pensaoConfig.value.tipo,
       pensao_percentual: sanitizarValorNumerico(pensaoConfig.value.percentual),
-      pensao_recorrente: pensaoConfig.value.recorrente
+      pensao_recorrente: aplicarPensaoProximos.value || pensaoConfig.value.recorrente
     }
     
     console.log('📤 Enviando dados sanitizados do holerite:', dadosSanitizados)
@@ -1296,9 +1313,10 @@ const salvar = async () => {
       desconto_afastamento: sanitizarValorNumerico(form.value.desconto_afastamento),
       inss_tipo: inssConfig.value.tipo,
       inss_percentual: sanitizarValorNumerico(inssConfig.value.percentual),
+      pensao_regras: pensaoRegras.value,
       pensao_tipo: pensaoConfig.value.tipo,
       pensao_percentual: sanitizarValorNumerico(pensaoConfig.value.percentual),
-      pensao_recorrente: pensaoConfig.value.recorrente
+      pensao_recorrente: aplicarPensaoProximos.value || pensaoConfig.value.recorrente
     }
     emit('save', dadosSanitizados)
   }
@@ -1343,6 +1361,8 @@ watch(() => props.holerite, (novoHolerite) => {
       desconto_afastamento: novoHolerite.desconto_afastamento || 0
     }
     
+    aplicarPensaoProximos.value = false
+    pensaoRegras.value = novoHolerite.pensao_regras || null
     // Atualizar configurações de INSS e Pensão
     inssConfig.value = {
       tipo: novoHolerite.inss_tipo || 'percentual',

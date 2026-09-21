@@ -1,4 +1,6 @@
+import { gerarDecimoHTML } from './decimoHTML'
 export function gerarHoleriteHTML(holerite: any, funcionario: any, empresa: any): string {
+  if (holerite.decimo_dados) return gerarDecimoHTML(holerite, funcionario, empresa)
   // DEBUG: Verificar dados recebidos
   console.log('🔍 DEBUG gerarHoleriteHTML:')
   console.log('   holerite.id:', holerite.id)

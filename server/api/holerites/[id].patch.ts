@@ -1,5 +1,6 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../utils/authMiddleware'
+import { prepararAtualizacaoPensao } from '../../utils/pensaoConfig'
 
 export default defineEventHandler(async (event) => {
   // SEGURANÇA: Verificar se o usuário é admin
@@ -16,6 +17,12 @@ export default defineEventHandler(async (event) => {
         statusCode: 400,
         message: 'ID do holerite não fornecido'
       })
+    }
+
+    const { data: tipoDocumento, error: erroTipo } = await supabase.from('holerites').select('decimo_ano').eq('id', id).single()
+    if (erroTipo) throw createError({ statusCode: 404, message: 'Holerite não encontrado' })
+    if ((tipoDocumento as any)?.decimo_ano && Object.keys(body).some(k => k !== 'status')) {
+      throw createError({ statusCode: 409, message: 'O 13º possui cálculo próprio. Ajuste os valores na prévia antes de emitir. Para substituir uma parcela ainda não paga, exclua-a e gere novamente.' })
     }
 
     // Função auxiliar para converter valores vazios em 0 ou null
@@ -61,6 +68,13 @@ export default defineEventHandler(async (event) => {
     if (body.inss_percentual !== undefined) dadosParaAtualizar.inss_percentual = parseNumericValue(body.inss_percentual)
 
     // Configurações de Pensão Alimentícia
+    if (body.pensao_regras != null) {
+      try {
+        dadosParaAtualizar.pensao_regras = prepararAtualizacaoPensao({ pensao_config_regras: body.pensao_regras }).pensao_config_regras
+      } catch (error: any) {
+        throw createError({ statusCode: 400, message: error.message })
+      }
+    }
     if (body.pensao_tipo !== undefined) dadosParaAtualizar.pensao_tipo = body.pensao_tipo
     if (body.pensao_percentual !== undefined) dadosParaAtualizar.pensao_percentual = parseNumericValue(body.pensao_percentual)
     if (body.pensao_recorrente !== undefined) dadosParaAtualizar.pensao_recorrente = body.pensao_recorrente
@@ -129,7 +143,9 @@ export default defineEventHandler(async (event) => {
         const salarioProporcional = valorDia * diasTrabalhados
 
         // Calcular totais incluindo itens personalizados
-        const totalProventos =
+        const totalProventos = dadosAtualizados.beneficios?.ferias
+          ? Number(dadosAtualizados.beneficios.ferias.valor_remuneracao || 0) + Number(dadosAtualizados.beneficios.ferias.valor_um_terco || 0) + Number(dadosAtualizados.beneficios.ferias.valor_abono_pecuniario || 0)
+          :
           salarioProporcional +
           Number(dadosAtualizados.bonus || 0) +
           Number(dadosAtualizados.horas_extras || 0) +
@@ -158,7 +174,7 @@ export default defineEventHandler(async (event) => {
         const salarioLiquido = Math.max(0, totalProventos - totalDescontos)
 
         // Atualizar JSONB dos itens personalizados no holerite
-        dadosParaAtualizar.beneficios = beneficiosPersonalizados.map((i: any) => ({
+        dadosParaAtualizar.beneficios = dadosAtualizados.beneficios?.ferias ? dadosAtualizados.beneficios : beneficiosPersonalizados.map((i: any) => ({
           descricao: i.descricao,
           valor: Number(i.valor)
         }))

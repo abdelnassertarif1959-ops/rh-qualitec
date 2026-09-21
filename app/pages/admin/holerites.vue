@@ -28,6 +28,7 @@
       </div>
       
       <div class="flex flex-wrap gap-2 sm:gap-3 w-full xl:w-auto">
+        <UiButton @click="mostrarDecimo = true" :disabled="loading">Gerar 13º salário</UiButton>
         <UiButton 
           variant="secondary" 
           @click="abrirModalGerar('adiantamento')"
@@ -77,6 +78,7 @@
       </div>
     </div>
 
+    <UiModal v-model="mostrarDecimo" title="Gerar 13º salário" max-width="max-w-2xl"><DecimoTerceiroForm v-if="mostrarDecimo" @gerado="aposGerarDecimo" /></UiModal>
     <!-- Filtros -->
     <div class="bg-white p-4 rounded-xl border border-gray-200">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -199,6 +201,7 @@
                 <UiButton 
                   variant="secondary" 
                   size="sm"
+                  v-if="!holerite.decimo_ano"
                   @click="editarHolerite(holerite)"
                   class="flex-1 sm:flex-none justify-center"
                 >
@@ -567,6 +570,9 @@
 </template>
 
 <script setup lang="ts">
+import DecimoTerceiroForm from '~/components/holerites/DecimoTerceiroForm.vue'
+const mostrarDecimo = ref(false)
+async function aposGerarDecimo() { filtros.value.estilo = 'decimo'; filtros.value.mes = ''; await carregarHolerites() }
 // Imports
 import HoleriteModal from '~/components/holerites/HoleriteModal.vue'
 import HoleriteEditForm from '~/components/holerites/HoleriteEditForm.vue'
@@ -584,6 +590,8 @@ interface Funcionario {
 }
 
 interface Holerite {
+  decimo_ano?: number
+  decimo_parcela?: number
   id: number
   funcionario_id: number
   funcionario: Funcionario
@@ -660,7 +668,8 @@ const estiloHoleriteOptions = computed(() => [
   { value: '', label: 'Todos os estilos' },
   { value: 'adiantamento', label: 'Adiantamentos (40%)' },
   { value: 'mensal', label: 'Folhas Mensais' },
-  { value: 'ferias', label: 'Recibos de Férias' }
+  { value: 'ferias', label: 'Recibos de Férias' },
+  { value: 'decimo', label: '13º salário' }
 ])
 
 // Meses disponíveis (carregados dinamicamente do banco)
@@ -715,6 +724,7 @@ watch(() => filtros.value.status, () => {
 // Funções
 const getHoleriteTypeInfo = (observacoes?: string) => {
   const obs = (observacoes || '').trim().toLowerCase()
+  if (obs.startsWith('13º')) return { label: '13º salário', class: 'bg-teal-100 text-teal-800 border-teal-200' }
   if (obs.startsWith('adiantamento salarial')) {
     return { label: 'Adiantamento', class: 'bg-orange-100 text-orange-800 border-orange-200' }
   } else if (obs.startsWith('recibo de férias')) {
@@ -754,7 +764,7 @@ const atualizarHoleritesSelecionaveis = () => {
   } else if (tipoEnvio.value === 'mensal') {
     holeritesSelecionaveis.value = holerites.value.filter(h =>
       !(h.observacoes || '').trim().toLowerCase().startsWith('adiantamento') &&
-      !(h.observacoes || '').trim().toLowerCase().startsWith('recibo de férias')
+      !h.decimo_ano && !(h.observacoes || '').trim().toLowerCase().startsWith('recibo de férias')
     )
   } else {
     holeritesSelecionaveis.value = [...holerites.value]
@@ -788,7 +798,7 @@ const contarHoleritesPorTipo = () => {
   } else {
     return holerites.value.filter(h =>
       !(h.observacoes || '').trim().toLowerCase().startsWith('adiantamento') &&
-      !(h.observacoes || '').trim().toLowerCase().startsWith('recibo de férias') &&
+      !h.decimo_ano && !(h.observacoes || '').trim().toLowerCase().startsWith('recibo de férias') &&
       h.status !== 'enviado'
     ).length
   }
@@ -804,7 +814,7 @@ const contarHoleritesPorTipoDisp = () => {
   } else {
     return holerites.value.filter(h =>
       !(h.observacoes || '').trim().toLowerCase().startsWith('adiantamento') &&
-      !(h.observacoes || '').trim().toLowerCase().startsWith('recibo de férias')
+      !h.decimo_ano && !(h.observacoes || '').trim().toLowerCase().startsWith('recibo de férias')
     ).length
   }
 }
@@ -828,7 +838,7 @@ const disponibilizarHolerites = async () => {
     } else {
       holeritesFiltrados = holerites.value.filter(h =>
         !(h.observacoes || '').trim().toLowerCase().startsWith('adiantamento') &&
-        !(h.observacoes || '').trim().toLowerCase().startsWith('recibo de férias')
+        !h.decimo_ano && !(h.observacoes || '').trim().toLowerCase().startsWith('recibo de férias')
       )
     }
     

@@ -8,6 +8,7 @@
     @update:model-value="$emit('close')"
   >
     <div class="space-y-6">
+      <p v-if="holerite.decimo_ano" class="font-bold text-teal-800">13º salário — {{ holerite.decimo_parcela }}ª parcela / {{ holerite.decimo_ano }} — {{ holerite.decimo_dados?.avos }}/12 avos</p>
       <!-- Dados do Funcionário -->
       <div class="bg-gray-50 rounded-xl p-4">
         <p class="font-semibold text-gray-800">
@@ -27,7 +28,7 @@
       <h3 class="text-lg font-bold text-green-600 mb-3">Proventos</h3>
       <div class="space-y-2">
         <div class="flex justify-between py-2 border-b border-gray-100">
-          <span class="text-gray-600">Salário Base</span>
+          <span class="text-gray-600">{{ holerite.decimo_ano ? '13º salário' : 'Salário Base' }}</span>
           <span class="font-semibold">{{ formatarMoeda(holerite.salario_base) }}</span>
         </div>
         

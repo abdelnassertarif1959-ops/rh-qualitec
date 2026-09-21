@@ -1,3 +1,4 @@
+import { calcularPensaoPercentual } from '../../../shared/pensao'
 import { requireAdmin } from '../../utils/authMiddleware'
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { calcularINSS2026 } from '../../utils/inss2026'
@@ -372,7 +373,8 @@ export default defineEventHandler(async (event) => {
         pensao_config_percentual,
         pensao_config_valor_fixo,
         pensao_config_recorrente,
-        pensao_config_ativa
+        pensao_config_ativa,
+        pensao_config_regras
       `)
       .eq('status', 'ativo')
 
@@ -438,6 +440,7 @@ export default defineEventHandler(async (event) => {
           queryExistente = queryExistente
             .not('observacoes', 'like', 'Adiantamento%')
             .not('observacoes', 'like', 'Recibo de Férias%')
+            .is('decimo_ano', null)
         }
 
         const { data: existente } = await queryExistente.maybeSingle()
@@ -649,7 +652,7 @@ export default defineEventHandler(async (event) => {
           
           if (pensaoConfigAtiva) {
             const pensaoConfigTipo = (func as any).pensao_config_tipo || 'percentual'
-            const pensaoConfigPercentual = (func as any).pensao_config_percentual || 30
+            const pensaoConfigPercentual = Number((func as any).pensao_config_percentual ?? 0)
             const pensaoConfigValorFixo = (func as any).pensao_config_valor_fixo || 0
             
             console.log(`💜 Configurações Pensão do funcionário:`)
@@ -663,11 +666,12 @@ export default defineEventHandler(async (event) => {
               pensaoAlimenticia = pensaoConfigValorFixo
               console.log(`💵 Pensão FIXA aplicada: R$ ${pensaoAlimenticia.toFixed(2)}`)
             } else {
-              // Calcular pensão como percentual do salário líquido (após INSS e IRRF)
-              // Precisamos calcular o IRRF primeiro para saber o líquido
-              // Por enquanto, vamos calcular com base no salário bruto - INSS
+              // Regras explícitas sobre bruto não deduzem tributos.
+              // Cadastros legados mantêm a fórmula anterior até revisão individual.
               const salarioLiquidoBase = salarioBase - inss
-              pensaoAlimenticia = (salarioLiquidoBase * pensaoConfigPercentual) / 100
+              pensaoAlimenticia = (func as any).pensao_config_regras?.base === 'bruto'
+                ? calcularPensaoPercentual(pensaoConfigPercentual, salarioBase)
+                : calcularPensaoPercentual(pensaoConfigPercentual, salarioLiquidoBase)
               console.log(`📊 Pensão PERCENTUAL aplicada: ${pensaoConfigPercentual}% de R$ ${salarioLiquidoBase.toFixed(2)} = R$ ${pensaoAlimenticia.toFixed(2)}`)
             }
           } else {
@@ -782,8 +786,9 @@ export default defineEventHandler(async (event) => {
             // Salvar configurações usadas (para histórico)
             inss_tipo: (func as any).inss_config_tipo || 'percentual',
             inss_percentual: (func as any).inss_config_percentual || 7.5,
+            pensao_regras: (func as any).pensao_config_regras || null,
             pensao_tipo: (func as any).pensao_config_tipo || 'percentual',
-            pensao_percentual: (func as any).pensao_config_percentual || 30,
+            pensao_percentual: Number((func as any).pensao_config_percentual ?? 0),
             pensao_recorrente: (func as any).pensao_config_recorrente || false,
             
             beneficios: [],
