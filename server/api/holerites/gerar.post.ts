@@ -1,4 +1,5 @@
 import { calcularPensaoPercentual } from '../../../shared/pensao'
+import { itensVigentesNoPagamento } from '../../../shared/itensHolerite'
 import { requireAdmin } from '../../utils/authMiddleware'
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { calcularINSS2026 } from '../../utils/inss2026'
@@ -409,11 +410,13 @@ export default defineEventHandler(async (event) => {
         }
         
         // Buscar itens personalizados do funcionário (descontos e benefícios)
-        const { data: itensPersonalizados } = await supabase
+        const { data: regrasItens, error: erroItens } = await supabase
           .from('holerite_itens_personalizados')
           .select('*')
           .eq('funcionario_id', (func as any).id)
-          .eq('vigencia_tipo', 'recorrente') // Apenas itens recorrentes
+          .eq('ativo', true)
+        if (erroItens) throw erroItens
+        const itensPersonalizados = itensVigentesNoPagamento(regrasItens || [], data_pagamento)
         
         // Separar benefícios e descontos
         const beneficiosPersonalizados = (itensPersonalizados || []).filter((item: any) => item.tipo === 'beneficio')
@@ -471,9 +474,12 @@ export default defineEventHandler(async (event) => {
         
         if (isAdiantamento) {
           // ========================================
-          // ADIANTAMENTO: 40% DO SALÁRIO BRUTO (SEM DESCONTOS)
+          // ADIANTAMENTO: 40% DO SALÁRIO BRUTO E ITENS PERSONALIZADOS
           // ========================================
           const valorAdiantamento = salarioBase * 0.40
+          const beneficiosAdiantamento = beneficiosPersonalizados.reduce((s: number, i: any) => s + Number(i.valor || 0), 0)
+          const proventosAdiantamento = valorAdiantamento + beneficiosAdiantamento
+          const descontosAdiantamento = Math.min(proventosAdiantamento, descontosPersonalizados.reduce((s: number, i: any) => s + Number(i.valor || 0), 0))
           
           console.log(`💰 ADIANTAMENTO: 40% de R$ ${salarioBase.toFixed(2)} = R$ ${valorAdiantamento.toFixed(2)}`)
           
@@ -508,7 +514,7 @@ export default defineEventHandler(async (event) => {
             faltas: 0,
             outros_descontos: 0,
             
-            beneficios: [],
+            beneficios: beneficiosPersonalizados,
             descontos_personalizados: descontosPersonalizados,
             
             // ADIANTAMENTOS são criados com status "gerado" inicialmente
@@ -529,9 +535,9 @@ export default defineEventHandler(async (event) => {
           await supabase
             .from('holerites')
             .update({
-              total_proventos: valorAdiantamento,
-              total_descontos: 0,
-              salario_liquido: valorAdiantamento
+              total_proventos: proventosAdiantamento,
+              total_descontos: descontosAdiantamento,
+              salario_liquido: proventosAdiantamento - descontosAdiantamento
             })
             .eq('id', (holerite as any).id)
 
@@ -570,7 +576,7 @@ export default defineEventHandler(async (event) => {
           } else {
             const { data: adiantamentos } = await supabase
               .from('holerites')
-              .select('salario_base, salario_liquido, observacoes, periodo_inicio, periodo_fim')
+              .select('salario_base, salario_liquido, total_proventos, observacoes, periodo_inicio, periodo_fim')
               .eq('funcionario_id', (func as any).id)
               .eq('periodo_inicio', dataInicioAdiantamento)
               .like('observacoes', 'Adiantamento%')
@@ -580,7 +586,8 @@ export default defineEventHandler(async (event) => {
             if (adiantamentos && adiantamentos.length > 0) {
               console.log(`💸 Processando ${adiantamentos.length} adiantamento(s):`)
               adiantamentos.forEach((h: any, index: number) => {
-                const valor = h.salario_liquido || h.salario_base || 0
+                // Compensar o bruto: os descontos já foram retidos no adiantamento.
+                const valor = Number(h.total_proventos ?? h.salario_base ?? 0)
                 console.log(`   ${index + 1}. Período: ${h.periodo_inicio} a ${h.periodo_fim}`)
                 console.log(`      Valor: R$ ${valor.toFixed(2)}`)
                 console.log(`      Obs: ${h.observacoes || 'N/A'}`)

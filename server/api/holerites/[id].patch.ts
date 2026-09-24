@@ -1,3 +1,4 @@
+import { itensVigentesNoPagamento } from '../../../shared/itensHolerite'
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../utils/authMiddleware'
 import { prepararAtualizacaoPensao } from '../../utils/pensaoConfig'
@@ -97,7 +98,7 @@ export default defineEventHandler(async (event) => {
       'adicional_periculosidade', 'adicional_insalubridade', 'comissoes',
       'inss', 'irrf', 'vale_transporte', 'cesta_basica_desconto',
       'plano_saude', 'plano_odontologico', 'adiantamento', 'faltas', 'pensao_alimenticia',
-      'desconto_afastamento'
+      'desconto_afastamento', 'data_pagamento'
     ]
 
     const precisaRecalcular = camposQueAfetamCalculo.some(campo => dadosParaAtualizar[campo] !== undefined)
@@ -114,19 +115,12 @@ export default defineEventHandler(async (event) => {
         // Aplicar as alterações aos dados atuais
         const dadosAtualizados = { ...holeriteAtual, ...dadosParaAtualizar }
 
-        // Buscar itens personalizados ativos pela DATA DE GERAÇÃO do holerite
-        // Usa created_at (quando foi gerado/pago), não o período de competência (março, fev, etc.)
-        const dataGeracao = holeriteAtual.created_at
-          ? holeriteAtual.created_at.split('T')[0]
-          : new Date().toISOString().split('T')[0]
-
-        const { data: itensPersonalizados } = await (supabase as any)
-          .from('holerite_itens_personalizados')
-          .select('*')
-          .eq('funcionario_id', holeriteAtual.funcionario_id)
-          .eq('ativo', true)
-          .lte('data_inicio', dataGeracao)
-          .or(`data_fim.is.null,data_fim.gte.${dataGeracao}`)
+        // Reaplicar pela data de pagamento, nunca pelo dia de criação.
+        const { data: regrasItens, error: erroItens } = await (supabase as any)
+          .from('holerite_itens_personalizados').select('*')
+          .eq('funcionario_id', holeriteAtual.funcionario_id).eq('ativo', true)
+        if (erroItens) throw erroItens
+        const itensPersonalizados = itensVigentesNoPagamento(regrasItens || [], dadosAtualizados.data_pagamento)
 
         const beneficiosPersonalizados = (itensPersonalizados || []).filter((i: any) => i.tipo === 'beneficio')
         const descontosPersonalizados = (itensPersonalizados || []).filter((i: any) => i.tipo === 'desconto')

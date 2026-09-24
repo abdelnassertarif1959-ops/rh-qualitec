@@ -1,3 +1,4 @@
+import { itensVigentesNoPagamento } from '../../../../shared/itensHolerite'
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../../utils/authMiddleware'
 
@@ -24,17 +25,11 @@ export default defineEventHandler(async (event) => {
   }
   if (holerite.decimo_ano) throw createError({ statusCode: 409, message: '13º salário não pode ser recalculado como folha mensal. Use a geração específica.' })
 
-  // Buscar itens personalizados ativos para a DATA DE GERAÇÃO do holerite
-  // Usa created_at do holerite (quando foi gerado/pago), não o período de competência
-  const dataGeracao = holerite.created_at ? holerite.created_at.split('T')[0] : new Date().toISOString().split('T')[0]
-
-  const { data: itens } = await (supabase as any)
-    .from('holerite_itens_personalizados')
-    .select('*')
-    .eq('funcionario_id', holerite.funcionario_id)
-    .eq('ativo', true)
-    .lte('data_inicio', dataGeracao)
-    .or(`data_fim.is.null,data_fim.gte.${dataGeracao}`)
+  const { data: regrasItens, error: erroItens } = await (supabase as any)
+    .from('holerite_itens_personalizados').select('*')
+    .eq('funcionario_id', holerite.funcionario_id).eq('ativo', true)
+  if (erroItens) throw createError({ statusCode: 500, message: 'Não foi possível carregar os itens personalizados' })
+  const itens = itensVigentesNoPagamento(regrasItens || [], holerite.data_pagamento)
 
   const beneficios = (itens || []).filter((i: any) => i.tipo === 'beneficio')
   const descontos = (itens || []).filter((i: any) => i.tipo === 'desconto')

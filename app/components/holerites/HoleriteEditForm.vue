@@ -172,7 +172,7 @@
     <div v-if="abaAtiva === 'descontos'" class="space-y-4">
       <!-- Alerta para holerite de adiantamento -->
       <UiAlert v-if="isAdiantamento" variant="warning" class="text-sm">
-        ⚠️ <strong>Atenção:</strong> Holerites de adiantamento salarial não possuem descontos, exceto para casos de afastamento via INSS ou semelhante. Os demais descontos bloqueados aqui devem ser aplicados apenas na folha mensal.
+        Os descontos habituais da folha ficam bloqueados no adiantamento. Para empréstimos e outros lançamentos manuais, use a aba Itens Personalizados; esses valores entram no total de descontos.
       </UiAlert>
 
       <template v-if="!isAdiantamento">
@@ -544,7 +544,7 @@
     <!-- Aba: Itens Personalizados -->
     <div v-if="abaAtiva === 'personalizados'" class="space-y-4">
       <UiAlert variant="info" class="mb-4">
-        Adicione benefícios ou descontos personalizados que serão aplicados automaticamente nos holerites do funcionário durante o período definido.
+        A vigência considera a data de pagamento do holerite. Para lançar um desconto somente neste pagamento, escolha Único e informe a mesma data. Não é necessário informar parcelas.
       </UiAlert>
 
       <!-- Lista de itens existentes -->
@@ -721,6 +721,7 @@
 </template>
 
 <script setup lang="ts">
+import { itensVigentesNoPagamento } from '#shared/itensHolerite'
 const props = defineProps<{
   holerite: any
 }>()
@@ -736,6 +737,8 @@ const abaAtiva = ref('basicos')
 const empresaInfo = ref<any>(null)
 const carregandoDados = ref(true)
 const itensPersonalizados = ref<any[]>([])
+const itensAplicaveis = computed(() => itensVigentesNoPagamento(itensPersonalizados.value, form.value.data_pagamento))
+const somarItens = (tipo: string) => itensAplicaveis.value.filter(i => i.tipo === tipo).reduce((total, i) => total + Number(i.valor || 0), 0)
 const mostrarFormNovoItem = ref(false)
 
 const tabs = [
@@ -1050,7 +1053,7 @@ const calcularTotalProventos = () => {
     Number(form.value.adicional_noturno || 0) +
     Number(form.value.adicional_periculosidade || 0) +
     Number(form.value.adicional_insalubridade || 0) +
-    Number(form.value.comissoes || 0)
+    Number(form.value.comissoes || 0) + somarItens('beneficio')
   )
 }
 
@@ -1174,6 +1177,7 @@ const calcularTotalDescontos = () => {
       Number(form.value.desconto_afastamento || 0)
     )
   }
+  totalBruto += somarItens('desconto')
   const totalProventos = calcularTotalProventos()
   if (isNaN(totalBruto) || isNaN(totalProventos)) return 0
   return Math.min(totalBruto, totalProventos)
