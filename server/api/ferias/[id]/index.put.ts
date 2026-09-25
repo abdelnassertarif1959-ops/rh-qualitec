@@ -1,3 +1,4 @@
+import { validarIrrfManual, aplicarIrrfManual } from '../../../../shared/irrfFerias'
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../../utils/authMiddleware'
 import { calcularRemuneracaoFerias, carregarTaxConfigDoBanco } from '../../../utils/calcularFerias'
@@ -73,7 +74,11 @@ export default defineEventHandler(async (event) => {
     // Carregar configurações de impostos do banco
     const taxConfig = await carregarTaxConfigDoBanco(supabase)
 
-    const calc = calcularRemuneracaoFerias(
+    const irrfManual = validarIrrfManual(body.irrf_manual !== undefined ? body.irrf_manual : existing.irrf_manual)
+    if (existing.holerite_id && irrfManual !== validarIrrfManual(existing.irrf_manual)) {
+      throw createError({ statusCode: 409, message: 'Estas férias já possuem recibo. O IRRF manual deve ser definido antes de gerar o recibo.' })
+    }
+    let calc = calcularRemuneracaoFerias(
       salarioBase,
       diasFerias,
       usarAbono ? usarDiasAbono : 0,
@@ -87,6 +92,7 @@ export default defineEventHandler(async (event) => {
       },
       taxConfig
     )
+    calc = aplicarIrrfManual(calc, irrfManual)
 
     if (data_inicio !== undefined) updates.data_inicio = data_inicio
     if (data_fim !== undefined) updates.data_fim = data_fim
@@ -109,6 +115,7 @@ export default defineEventHandler(async (event) => {
       valor_bruto: calc.valorBruto,
       inss: calc.inss,
       irrf: calc.irrf,
+      irrf_manual: irrfManual,
       pensao_alimenticia: calc.pensaoAlimenticia,
       valor_liquido: calc.valorLiquido,
     }

@@ -493,6 +493,14 @@
                 <p v-else class="text-xs text-gray-400 mt-1">Deve ser pago até 2 dias antes do início das férias (CLT Art. 145)</p>
               </div>
 
+              <div class="bg-red-50 rounded-xl p-4 space-y-2">
+                <label for="irrf-manual-ferias" class="block text-sm font-semibold text-gray-700">Descontos — IRRF manual (R$)</label>
+                <input id="irrf-manual-ferias" v-model="form.irrf_manual" type="text" inputmode="decimal" placeholder="Ex.: 135,83" :disabled="!!editando?.holerite_id" class="w-full border rounded-lg p-2" />
+                <p class="text-xs text-gray-600">Opcional. Substitui o IRRF automático somente destas férias. Deixe vazio para cálculo automático; informe 0,00 para desconto zero.</p>
+                <p v-if="editando?.holerite_id" class="text-xs text-gray-600">O IRRF manual fica bloqueado após gerar o recibo.</p>
+                <p v-if="erroIrrfManual" role="alert" class="text-sm text-red-700">{{ erroIrrfManual }}</p>
+              </div>
+
               <!-- Observações -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Observações</label>
@@ -640,6 +648,7 @@
 </template>
 
 <script setup lang="ts">
+import { validarIrrfManual, aplicarIrrfManual } from "#shared/irrfFerias"
 definePageMeta({ layout: 'default', middleware: ['auth'] })
 
 // ─── State ───────────────────────────────────────────────────────────────────
@@ -673,9 +682,12 @@ const form = reactive({
   data_pagamento: '',
   observacoes: '',
   status: 'programado',
+  irrf_manual: '',
 })
 
 const preview = ref<any>(null)
+const erroIrrfManual = ref('')
+watch(() => form.irrf_manual, () => recalcularPreview())
 
 // ─── Computed ─────────────────────────────────────────────────────────────────
 const anosDisponiveis = computed(() => {
@@ -788,6 +800,7 @@ const statusBadgeClass = (status: string) => {
 
 // ─── Cálculo preview em tempo real ───────────────────────────────────────────
 const recalcularPreview = () => {
+  erroIrrfManual.value = ''
   preview.value = null
   if (!form.data_inicio || !form.data_fim || !form.funcionario_id) return
   const func = funcionarioSelecionado.value
@@ -899,6 +912,8 @@ const recalcularPreview = () => {
     pensaoAlimenticia,
     valorLiquido: Math.round(valorLiquido * 100) / 100,
   }
+  try { preview.value = aplicarIrrfManual(preview.value, form.irrf_manual) }
+  catch (e: any) { erroIrrfManual.value = e.message; preview.value = null }
 }
 
 // ─── Lifecycle ───────────────────────────────────────────────────────────────
@@ -971,10 +986,10 @@ const onFuncionarioChange = () => {
 }
 
 const salvar = async () => {
-  if (!formValido.value) return
+  if (!formValido.value || erroIrrfManual.value) return
   salvando.value = true
   try {
-    const payload = { ...form }
+    const payload = { ...form, irrf_manual: validarIrrfManual(form.irrf_manual) }
     if (editando.value) {
       await $fetch(`/api/ferias/${editando.value.id}`, { method: 'PUT', body: payload })
     } else {
@@ -1088,6 +1103,7 @@ const abrirModalCadastro = (ferias?: any) => {
     form.data_pagamento = ferias.data_pagamento || ''
     form.observacoes = ferias.observacoes || ''
     form.status = ferias.status || 'programado'
+    form.irrf_manual = ferias.irrf_manual == null ? '' : String(ferias.irrf_manual).replace('.', ',')
     recalcularPreview()
   } else {
     editando.value = null
@@ -1102,6 +1118,7 @@ const abrirModalCadastro = (ferias?: any) => {
       data_pagamento: '',
       observacoes: '',
       status: 'programado',
+      irrf_manual: '',
     })
     preview.value = null
   }

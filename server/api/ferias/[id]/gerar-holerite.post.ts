@@ -1,3 +1,4 @@
+import { validarIrrfManual, aplicarIrrfManual } from '../../../../shared/irrfFerias'
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../../utils/authMiddleware'
 import { calcularRemuneracaoFerias, carregarTaxConfigDoBanco } from '../../../utils/calcularFerias'
@@ -71,7 +72,8 @@ export default defineEventHandler(async (event) => {
 
     const taxConfig = await carregarTaxConfigDoBanco(supabase)
 
-    const calc = calcularRemuneracaoFerias(
+    const irrfManual = validarIrrfManual(ferias.irrf_manual)
+    let calc = calcularRemuneracaoFerias(
       salarioBase,
       diasFerias,
       ferias.abono_pecuniario ? ferias.dias_abono : 0,
@@ -85,6 +87,7 @@ export default defineEventHandler(async (event) => {
       },
       taxConfig
     )
+    calc = aplicarIrrfManual(calc, irrfManual)
 
     // Criar registro de holerite do tipo 'ferias'
     // O período do holerite de férias = data_inicio até data_fim das férias

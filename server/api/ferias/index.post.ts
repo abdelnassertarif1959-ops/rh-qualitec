@@ -1,3 +1,4 @@
+import { validarIrrfManual, aplicarIrrfManual } from '../../../shared/irrfFerias'
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAuth } from '../../utils/authMiddleware'
 import { calcularRemuneracaoFerias, carregarTaxConfigDoBanco } from '../../utils/calcularFerias'
@@ -8,6 +9,10 @@ export default defineEventHandler(async (event) => {
     const requestingUser = await requireAuth(event)
     const supabase = serverSupabaseServiceRole(event)
     const body = await readBody(event)
+
+    if (requestingUser.tipo_acesso !== 'admin' && body.irrf_manual != null && body.irrf_manual !== '') {
+      throw createError({ statusCode: 403, message: 'Somente administradores podem informar IRRF manual.' })
+    }
 
     // Se não for admin, força o funcionario_id a ser o do próprio usuário e o status a ser 'pendente'
     if (requestingUser.tipo_acesso !== 'admin') {
@@ -79,7 +84,8 @@ export default defineEventHandler(async (event) => {
     // Calcular remuneração CLT 2026
     const salarioBase = Number(funcionario.salario_base) || 0
     const numeroDependentes = Number(funcionario.numero_dependentes) || 0
-    const calc = calcularRemuneracaoFerias(
+    const irrfManual = validarIrrfManual(body.irrf_manual)
+    let calc = calcularRemuneracaoFerias(
       salarioBase,
       diasFerias,
       abono_pecuniario ? dias_abono : 0,
@@ -93,6 +99,7 @@ export default defineEventHandler(async (event) => {
       },
       taxConfig
     )
+    calc = aplicarIrrfManual(calc, irrfManual)
 
     // Determinar status automático ou usar o fornecido (ex: 'pendente' pelo funcionário)
     const hoje = new Date()
@@ -132,6 +139,7 @@ export default defineEventHandler(async (event) => {
         valor_bruto: calc.valorBruto,
         inss: calc.inss,
         irrf: calc.irrf,
+        irrf_manual: irrfManual,
         pensao_alimenticia: calc.pensaoAlimenticia,
         valor_liquido: calc.valorLiquido,
         observacoes: observacoes || null,
