@@ -1,4 +1,4 @@
-import { validarIrrfManual, aplicarIrrfManual } from '../../../shared/irrfFerias'
+import { validarIrrfManual, aplicarIrrfManual, validarInssManual } from '../../../shared/irrfFerias'
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAuth } from '../../utils/authMiddleware'
 import { calcularRemuneracaoFerias, carregarTaxConfigDoBanco } from '../../utils/calcularFerias'
@@ -10,8 +10,8 @@ export default defineEventHandler(async (event) => {
     const supabase = serverSupabaseServiceRole(event)
     const body = await readBody(event)
 
-    if (requestingUser.tipo_acesso !== 'admin' && body.irrf_manual != null && body.irrf_manual !== '') {
-      throw createError({ statusCode: 403, message: 'Somente administradores podem informar IRRF manual.' })
+    if (requestingUser.tipo_acesso !== 'admin' && [body.irrf_manual, body.inss_manual].some(v => v != null && v !== '')) {
+      throw createError({ statusCode: 403, message: 'Somente administradores podem informar INSS ou IRRF manual.' })
     }
 
     // Se não for admin, força o funcionario_id a ser o do próprio usuário e o status a ser 'pendente'
@@ -84,6 +84,7 @@ export default defineEventHandler(async (event) => {
     // Calcular remuneração CLT 2026
     const salarioBase = Number(funcionario.salario_base) || 0
     const numeroDependentes = Number(funcionario.numero_dependentes) || 0
+    const inssManual = validarInssManual(body.inss_manual)
     const irrfManual = validarIrrfManual(body.irrf_manual)
     let calc = calcularRemuneracaoFerias(
       salarioBase,
@@ -97,9 +98,11 @@ export default defineEventHandler(async (event) => {
         valorFixo: Number(funcionario.pensao_config_valor_fixo) || 0,
         regras: funcionario.pensao_config_regras,
       },
-      taxConfig
+      taxConfig,
+      inssManual
     )
     calc = aplicarIrrfManual(calc, irrfManual)
+    if (calc.valorLiquido < 0) throw createError({ statusCode: 400, message: 'Os descontos excedem o valor bruto das férias.' })
 
     // Determinar status automático ou usar o fornecido (ex: 'pendente' pelo funcionário)
     const hoje = new Date()
@@ -140,6 +143,7 @@ export default defineEventHandler(async (event) => {
         inss: calc.inss,
         irrf: calc.irrf,
         irrf_manual: irrfManual,
+        inss_manual: inssManual,
         pensao_alimenticia: calc.pensaoAlimenticia,
         valor_liquido: calc.valorLiquido,
         observacoes: observacoes || null,

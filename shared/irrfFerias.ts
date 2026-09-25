@@ -14,3 +14,8 @@ export function aplicarIrrfManual<T extends { valorBruto: number; inss: number; 
   if (liquido < 0) throw Object.assign(new Error('O IRRF informado excede o saldo das férias após os demais descontos.'), { statusCode: 400 })
   return { ...calc, irrf, valorLiquido: liquido, faixaIRRF: 'Valor manual' }
 }
+
+export function validarInssManual(valor: unknown): number | null {
+  try { return validarIrrfManual(valor) }
+  catch (e: any) { throw Object.assign(new Error(e.message.replaceAll('IRRF', 'INSS')), { statusCode: 400 }) }
+}

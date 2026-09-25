@@ -494,10 +494,13 @@
               </div>
 
               <div class="bg-red-50 rounded-xl p-4 space-y-2">
+                <label for="inss-manual-ferias" class="block text-sm font-semibold text-gray-700">Descontos — INSS manual (R$)</label>
+                <input id="inss-manual-ferias" v-model="form.inss_manual" type="text" inputmode="decimal" placeholder="Ex.: 566,83" :disabled="!!editando?.holerite_id" class="w-full border rounded-lg p-2" />
+                <p class="text-xs text-gray-600">Opcional. Informe o valor conferido para estas férias. Vazio mantém o cálculo automático; 0,00 informa desconto zero.</p>
                 <label for="irrf-manual-ferias" class="block text-sm font-semibold text-gray-700">Descontos — IRRF manual (R$)</label>
                 <input id="irrf-manual-ferias" v-model="form.irrf_manual" type="text" inputmode="decimal" placeholder="Ex.: 135,83" :disabled="!!editando?.holerite_id" class="w-full border rounded-lg p-2" />
                 <p class="text-xs text-gray-600">Opcional. Substitui o IRRF automático somente destas férias. Deixe vazio para cálculo automático; informe 0,00 para desconto zero.</p>
-                <p v-if="editando?.holerite_id" class="text-xs text-gray-600">O IRRF manual fica bloqueado após gerar o recibo.</p>
+                <p v-if="editando?.holerite_id" class="text-xs text-gray-600">O INSS e o IRRF manuais ficam bloqueados após gerar o recibo.</p>
                 <p v-if="erroIrrfManual" role="alert" class="text-sm text-red-700">{{ erroIrrfManual }}</p>
               </div>
 
@@ -539,14 +542,14 @@
                     <span class="font-bold text-gray-900">{{ formatarValor(preview.valorBruto) }}</span>
                   </div>
                   <div class="flex justify-between items-center py-1.5 text-red-600">
-                    <span>INSS (Tabela Progressiva 2026)</span>
+                    <span>INSS ({{ form.inss_manual !== '' ? 'Valor manual' : 'Tabela Progressiva 2026' }})</span>
                     <span class="font-semibold">- {{ formatarValor(preview.inss) }}</span>
                   </div>
                   <div v-if="preview.irrf > 0" class="flex justify-between items-center py-1.5 text-red-600">
                     <span>IRRF ({{ preview.faixaIRRF }})</span>
                     <span class="font-semibold">- {{ formatarValor(preview.irrf) }}</span>
                   </div>
-                  <div class="flex justify-between items-center py-1.5 text-blue-600">
+                  <div v-else class="flex justify-between items-center py-1.5 text-blue-600">
                     <span>IRRF</span>
                     <span class="font-semibold">Isento</span>
                   </div>
@@ -648,7 +651,7 @@
 </template>
 
 <script setup lang="ts">
-import { validarIrrfManual, aplicarIrrfManual } from "#shared/irrfFerias"
+import { validarIrrfManual, aplicarIrrfManual, validarInssManual } from "#shared/irrfFerias"
 definePageMeta({ layout: 'default', middleware: ['auth'] })
 
 // ─── State ───────────────────────────────────────────────────────────────────
@@ -683,11 +686,12 @@ const form = reactive({
   observacoes: '',
   status: 'programado',
   irrf_manual: '',
+      inss_manual: '',
 })
 
 const preview = ref<any>(null)
 const erroIrrfManual = ref('')
-watch(() => form.irrf_manual, () => recalcularPreview())
+watch([() => form.irrf_manual, () => form.inss_manual], () => recalcularPreview())
 
 // ─── Computed ─────────────────────────────────────────────────────────────────
 const anosDisponiveis = computed(() => {
@@ -841,6 +845,8 @@ const recalcularPreview = () => {
     if (baseInssLimitada <= faixa.ate) break
   }
   inss = Math.round(inss * 100) / 100
+  try { inss = validarInssManual(form.inss_manual) ?? inss }
+  catch (e: any) { erroIrrfManual.value = e.message; preview.value = null; return }
 
   // Calcular Pensão Alimentícia
   let pensaoAlimenticia = 0
@@ -912,7 +918,10 @@ const recalcularPreview = () => {
     pensaoAlimenticia,
     valorLiquido: Math.round(valorLiquido * 100) / 100,
   }
-  try { preview.value = aplicarIrrfManual(preview.value, form.irrf_manual) }
+  try {
+    preview.value = aplicarIrrfManual(preview.value, form.irrf_manual)
+    if (preview.value.valorLiquido < 0) throw new Error('Os descontos excedem o valor bruto das férias.')
+  }
   catch (e: any) { erroIrrfManual.value = e.message; preview.value = null }
 }
 
@@ -989,7 +998,7 @@ const salvar = async () => {
   if (!formValido.value || erroIrrfManual.value) return
   salvando.value = true
   try {
-    const payload = { ...form, irrf_manual: validarIrrfManual(form.irrf_manual) }
+    const payload = { ...form, irrf_manual: validarIrrfManual(form.irrf_manual), inss_manual: validarInssManual(form.inss_manual) }
     if (editando.value) {
       await $fetch(`/api/ferias/${editando.value.id}`, { method: 'PUT', body: payload })
     } else {
@@ -1103,6 +1112,7 @@ const abrirModalCadastro = (ferias?: any) => {
     form.data_pagamento = ferias.data_pagamento || ''
     form.observacoes = ferias.observacoes || ''
     form.status = ferias.status || 'programado'
+    form.inss_manual = ferias.inss_manual == null ? '' : String(ferias.inss_manual).replace('.', ',')
     form.irrf_manual = ferias.irrf_manual == null ? '' : String(ferias.irrf_manual).replace('.', ',')
     recalcularPreview()
   } else {
@@ -1119,6 +1129,7 @@ const abrirModalCadastro = (ferias?: any) => {
       observacoes: '',
       status: 'programado',
       irrf_manual: '',
+      inss_manual: '',
     })
     preview.value = null
   }

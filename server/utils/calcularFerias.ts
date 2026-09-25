@@ -1,3 +1,4 @@
+import { validarInssManual } from '../../shared/irrfFerias.ts'
 import { basePensaoFerias, calcularPensaoPercentual, type RegrasPensao } from '../../shared/pensao.ts'
 /**
  * calcularFerias.ts
@@ -176,7 +177,8 @@ export function calcularRemuneracaoFerias(
     valorFixo: number
     regras?: RegrasPensao | null
   } = { ativa: false, tipo: 'percentual', percentual: 0, valorFixo: 0 },
-  config?: TaxConfig
+  config?: TaxConfig,
+  inssManual?: number | null
 ): ResultadoCalculo {
   const salarioDia = salarioBase / 30
 
@@ -197,7 +199,9 @@ export function calcularRemuneracaoFerias(
   const valorBruto = Number((baseInss + valorAbonoPecuniario).toFixed(2))
 
   // INSS progressivo
-  const { valor: inss, aliquota: aliquotaINSS } = calcularINSS(baseInss, config?.inssFaixas)
+  const inss = validarInssManual(inssManual) ?? calcularINSS(baseInss, config?.inssFaixas).valor
+  const aliquotaINSS = baseInss > 0 ? Number((inss / baseInss).toFixed(4)) : 0
+  if (inss > valorBruto) throw Object.assign(new Error('O INSS informado excede o valor bruto das férias.'), { statusCode: 400 })
 
   // 5. Calcular Pensão Alimentícia
   let pensaoAlimenticia = 0

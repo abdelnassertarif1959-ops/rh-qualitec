@@ -1,4 +1,4 @@
-import { validarIrrfManual, aplicarIrrfManual } from '../../../../shared/irrfFerias'
+import { validarIrrfManual, aplicarIrrfManual, validarInssManual } from '../../../../shared/irrfFerias'
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../../utils/authMiddleware'
 import { calcularRemuneracaoFerias, carregarTaxConfigDoBanco } from '../../../utils/calcularFerias'
@@ -74,9 +74,10 @@ export default defineEventHandler(async (event) => {
     // Carregar configurações de impostos do banco
     const taxConfig = await carregarTaxConfigDoBanco(supabase)
 
+    const inssManual = validarInssManual(body.inss_manual !== undefined ? body.inss_manual : existing.inss_manual)
     const irrfManual = validarIrrfManual(body.irrf_manual !== undefined ? body.irrf_manual : existing.irrf_manual)
-    if (existing.holerite_id && irrfManual !== validarIrrfManual(existing.irrf_manual)) {
-      throw createError({ statusCode: 409, message: 'Estas férias já possuem recibo. O IRRF manual deve ser definido antes de gerar o recibo.' })
+    if (existing.holerite_id && (irrfManual !== validarIrrfManual(existing.irrf_manual) || inssManual !== validarInssManual(existing.inss_manual))) {
+      throw createError({ statusCode: 409, message: 'Estas férias já possuem recibo. O INSS e o IRRF manuais devem ser definidos antes de gerar o recibo.' })
     }
     let calc = calcularRemuneracaoFerias(
       salarioBase,
@@ -90,9 +91,11 @@ export default defineEventHandler(async (event) => {
         valorFixo: Number(func?.pensao_config_valor_fixo) || 0,
         regras: func?.pensao_config_regras,
       },
-      taxConfig
+      taxConfig,
+      inssManual
     )
     calc = aplicarIrrfManual(calc, irrfManual)
+    if (calc.valorLiquido < 0) throw createError({ statusCode: 400, message: 'Os descontos excedem o valor bruto das férias.' })
 
     if (data_inicio !== undefined) updates.data_inicio = data_inicio
     if (data_fim !== undefined) updates.data_fim = data_fim
@@ -116,6 +119,7 @@ export default defineEventHandler(async (event) => {
       inss: calc.inss,
       irrf: calc.irrf,
       irrf_manual: irrfManual,
+      inss_manual: inssManual,
       pensao_alimenticia: calc.pensaoAlimenticia,
       valor_liquido: calc.valorLiquido,
     }

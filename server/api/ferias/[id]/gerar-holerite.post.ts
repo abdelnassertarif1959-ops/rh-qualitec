@@ -1,4 +1,4 @@
-import { validarIrrfManual, aplicarIrrfManual } from '../../../../shared/irrfFerias'
+import { validarIrrfManual, aplicarIrrfManual, validarInssManual } from '../../../../shared/irrfFerias'
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../../utils/authMiddleware'
 import { calcularRemuneracaoFerias, carregarTaxConfigDoBanco } from '../../../utils/calcularFerias'
@@ -72,6 +72,7 @@ export default defineEventHandler(async (event) => {
 
     const taxConfig = await carregarTaxConfigDoBanco(supabase)
 
+    const inssManual = validarInssManual(ferias.inss_manual)
     const irrfManual = validarIrrfManual(ferias.irrf_manual)
     let calc = calcularRemuneracaoFerias(
       salarioBase,
@@ -85,9 +86,11 @@ export default defineEventHandler(async (event) => {
         valorFixo: Number(funcionario.pensao_config_valor_fixo) || 0,
         regras: funcionario.pensao_config_regras,
       },
-      taxConfig
+      taxConfig,
+      inssManual
     )
     calc = aplicarIrrfManual(calc, irrfManual)
+    if (calc.valorLiquido < 0) throw createError({ statusCode: 400, message: 'Os descontos excedem o valor bruto das férias.' })
 
     // Criar registro de holerite do tipo 'ferias'
     // O período do holerite de férias = data_inicio até data_fim das férias
@@ -112,9 +115,9 @@ export default defineEventHandler(async (event) => {
         total_descontos: calc.inss + calc.irrf + calc.pensaoAlimenticia,
         salario_liquido: calc.valorLiquido,
         // INSS config
-        inss_tipo: 'progressivo',
+        inss_tipo: inssManual === null ? 'progressivo' : 'fixo',
         inss_percentual: calc.aliquotaINSS * 100,
-        inss_referencia: 'Tabela INSS 2026',
+        inss_referencia: inssManual === null ? 'Tabela INSS 2026' : 'Valor manual',
         faixa_irrf: calc.faixaIRRF,
         // Identificador especial de férias nos benefícios (jsonb)
         beneficios: {

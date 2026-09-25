@@ -4,13 +4,13 @@ import { build } from 'esbuild'
 import vm from 'node:vm'
 import { createRequire } from 'node:module'
 
-async function ambiente(rota, { admin = true, manual = 135.83, vinculo = null } = {}) {
+async function ambiente(rota, { admin = true, manual = 135.83, vinculo = null, inssManual = null } = {}) {
   const bundle = await build({ entryPoints: [rota], bundle: true, write: false, platform: 'node', format: 'cjs', plugins: [{ name: 'servicos-isolados', setup(b) {
     b.onResolve({ filter: /^(#supabase\/server|.*authMiddleware|.*calcularFerias|.*holeriteHTML)$/ }, a => ({ path: a.path, namespace: 'mock' }))
-    b.onLoad({ filter: /.*/, namespace: 'mock' }, a => ({ contents: a.path.includes('authMiddleware') ? 'export const requireAuth = globalThis.auth; export const requireAdmin = globalThis.auth' : a.path.includes('calcularFerias') ? 'export const carregarTaxConfigDoBanco = async () => ({}); export const calcularRemuneracaoFerias = () => ({valorBruto:4000,inss:368.6,pensaoAlimenticia:0,irrf:0,valorLiquido:3631.4,faixaIRRF:"Isento",aliquotaINSS:.09})' : a.path.includes('holeriteHTML') ? 'export const gerarHoleriteHTML = () => ""' : 'export const serverSupabaseServiceRole = () => globalThis.db' }))
+    b.onLoad({ filter: /.*/, namespace: 'mock' }, a => ({ contents: a.path.includes('authMiddleware') ? 'export const requireAuth = globalThis.auth; export const requireAdmin = globalThis.auth' : a.path.includes('calcularFerias') ? 'export const carregarTaxConfigDoBanco = async () => ({}); export const calcularRemuneracaoFerias = (...args) => ({valorBruto:4000,inss:args[6] ?? 368.6,pensaoAlimenticia:0,irrf:0,valorLiquido:3631.4,faixaIRRF:"Isento",aliquotaINSS:.09})' : a.path.includes('holeriteHTML') ? 'export const gerarHoleriteHTML = () => ""' : 'export const serverSupabaseServiceRole = () => globalThis.db' }))
   } }] })
   const funcionario = { id: 10, salario_base: 3000, numero_dependentes: 0 }
-  const ferias = { id: 20, funcionario_id: 10, data_inicio: '2026-10-01', data_fim: '2026-10-30', data_pagamento: '2026-09-29', dias_corridos: 30, status: 'programado', irrf_manual: manual, funcionarios: funcionario, holerite_id: vinculo }
+  const ferias = { id: 20, funcionario_id: 10, data_inicio: '2026-10-01', data_fim: '2026-10-30', data_pagamento: '2026-09-29', dias_corridos: 30, status: 'programado', irrf_manual: manual, inss_manual: inssManual, funcionarios: funcionario, holerite_id: vinculo }
   const gravacoes = []
   const db = { from(tabela) {
     let valores
@@ -57,4 +57,24 @@ test('bloqueia alteração do IRRF se o recibo já foi emitido', async () => {
   const a = await ambiente(put, { vinculo: 99 })
   await assert.rejects(a.run({ irrf_manual: 200 }), e => e.statusCode === 409)
   assert.equal(a.gravacoes.length, 0)
+})
+
+test('INSS manual persiste, é preservado na edição e utilizado no recibo', async () => {
+  const a = await ambiente(post)
+  await a.run({ ...body, inss_manual: '566,83' })
+  assert.equal(a.gravacoes[0].v.inss_manual, 566.83)
+  assert.equal(a.gravacoes[0].v.inss, 566.83)
+  const b = await ambiente(put, { inssManual: 566.83 })
+  await b.run({ observacoes: 'Conferido' })
+  assert.equal(b.gravacoes[0].v.inss_manual, 566.83)
+  assert.equal(b.gravacoes[0].v.inss, 566.83)
+  const c = await ambiente(gerar, { inssManual: 566.83 })
+  await c.run({})
+  assert.equal(c.gravacoes.find(g => g.tabela === 'holerites').v.inss, 566.83)
+})
+test('INSS manual restrito ao admin e bloqueado após emitir recibo', async () => {
+  const a = await ambiente(post, { admin: false })
+  await assert.rejects(a.run({ ...body, irrf_manual: null, inss_manual: 566.83 }), e => e.statusCode === 403)
+  const b = await ambiente(put, { vinculo: 99, inssManual: 566.83 })
+  await assert.rejects(b.run({ inss_manual: 500 }), e => e.statusCode === 409)
 })
