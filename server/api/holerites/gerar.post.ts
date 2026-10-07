@@ -4,6 +4,7 @@ import { itensVigentesNoPagamento } from '../../../shared/itensHolerite'
 import { requireAdmin } from '../../utils/authMiddleware'
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { calcularINSS2026 } from '../../utils/inss2026'
+import { buscarConciliacaoFeriasFolha } from '../../utils/conciliacaoFeriasFolha'
 import { notificarGeracaoHolerites } from '../../utils/notifications'
 
 // ========================================
@@ -404,6 +405,15 @@ export default defineEventHandler(async (event) => {
         
         const salarioBase = (func as any).salario_base || 0
         const isAdiantamento = tipo === 'adiantamento'
+        const tipoContrato = (func as any).tipo_contrato || 'CLT'
+        const conciliacaoFerias = isAdiantamento ? null : await buscarConciliacaoFeriasFolha(
+          supabase,
+          Number((func as any).id),
+          Number(salarioBase),
+          periodo_inicio,
+          periodo_fim,
+          tipoContrato
+        )
         
         // Verificar se já existe holerite
         let queryExistente = supabase
@@ -550,14 +560,19 @@ export default defineEventHandler(async (event) => {
           let aliquotaFaixa = 0
           let inssReferencia = ''
           
-          const tipoContrato = (func as any).tipo_contrato || 'CLT'
-          
           if (tipoContrato === 'PJ') {
             // Funcionários PJ não têm desconto de INSS
             inss = 0
             aliquotaEfetiva = 0
             aliquotaFaixa = 0
             console.log(`💼 Funcionário PJ - Sem desconto de INSS`)
+          } else if (conciliacaoFerias) {
+            inss = conciliacaoFerias.inssNormal
+            aliquotaFaixa = calcularINSS2026(conciliacaoFerias.salarioNormal).aliquotaFaixa
+            aliquotaEfetiva = conciliacaoFerias.salarioNormal > 0
+              ? round2((inss / conciliacaoFerias.salarioNormal) * 100)
+              : 0
+            inssReferencia = aliquotaFaixa.toFixed(2)
           } else {
             // USAR CONFIGURAÇÕES PERMANENTES DO FUNCIONÁRIO
             const inssConfigTipo = (func as any).inss_config_tipo || 'percentual'
@@ -613,14 +628,18 @@ export default defineEventHandler(async (event) => {
             
             if (pensaoConfigTipo === 'fixo') {
               // Usar valor fixo configurado
-              pensaoAlimenticia = pensaoConfigValorFixo
+              pensaoAlimenticia = conciliacaoFerias
+                ? Math.max(0, Number(pensaoConfigValorFixo) - conciliacaoFerias.pensaoFerias)
+                : pensaoConfigValorFixo
               console.log(`💵 Pensão FIXA aplicada: R$ ${pensaoAlimenticia.toFixed(2)}`)
             } else {
               // Regras explícitas sobre bruto não deduzem tributos.
               // Cadastros legados mantêm a fórmula anterior até revisão individual.
-              const salarioLiquidoBase = salarioBase - inss
+              const basePensionavel = conciliacaoFerias?.salarioNormal ?? salarioBase
+              const inssPensionavel = conciliacaoFerias?.inssNormal ?? inss
+              const salarioLiquidoBase = basePensionavel - inssPensionavel
               pensaoAlimenticia = (func as any).pensao_config_regras?.base === 'bruto'
-                ? calcularPensaoPercentual(pensaoConfigPercentual, salarioBase)
+                ? calcularPensaoPercentual(pensaoConfigPercentual, basePensionavel)
                 : calcularPensaoPercentual(pensaoConfigPercentual, salarioLiquidoBase)
               console.log(`📊 Pensão PERCENTUAL aplicada: ${pensaoConfigPercentual}% de R$ ${salarioLiquidoBase.toFixed(2)} = R$ ${pensaoAlimenticia.toFixed(2)}`)
             }
@@ -643,7 +662,7 @@ export default defineEventHandler(async (event) => {
             const gastosSaude = 0 // TODO: Buscar plano_saude + plano_odontologico do funcionário
             
             const calculoIRRF = calcularBaseIRRF(
-              salarioBase, 
+              conciliacaoFerias?.salarioNormal ?? salarioBase,
               inss, 
               numeroDependentes, 
               pensaoAlimenticia, 
@@ -709,6 +728,7 @@ export default defineEventHandler(async (event) => {
             periodo_fim: periodo_fim,
             data_pagamento: data_pagamento,
             salario_base: salarioBase,
+            dias_trabalhados: conciliacaoFerias?.diasTrabalhados ?? 30,
             
             bonus: 0,
             horas_extras: 0,
@@ -719,7 +739,7 @@ export default defineEventHandler(async (event) => {
             
             inss: inss,
             inss_referencia: inssReferencia,
-            base_inss: salarioBase,
+            base_inss: conciliacaoFerias?.baseInss ?? salarioBase,
             aliquota_inss: aliquotaFaixa,
             irrf: irrf,
             base_irrf: baseIRRF,
@@ -741,8 +761,10 @@ export default defineEventHandler(async (event) => {
             pensao_percentual: Number((func as any).pensao_config_percentual ?? 0),
             pensao_recorrente: (func as any).pensao_config_recorrente || false,
             
-            beneficios: [],
-            descontos_personalizados: descontosPersonalizados,
+            beneficios: conciliacaoFerias?.beneficios ?? [],
+            descontos_personalizados: conciliacaoFerias
+              ? [...descontosPersonalizados, ...conciliacaoFerias.descontos]
+              : descontosPersonalizados,
             
             status: 'gerado',
             observacoes: totalAdiantamentos > 0 
@@ -759,13 +781,16 @@ export default defineEventHandler(async (event) => {
           if (holeriteError) throw holeriteError
 
           // Calcular totais de descontos personalizados da tabela
+          const descontosDaFolha = conciliacaoFerias
+            ? [...descontosPersonalizados, ...conciliacaoFerias.descontos]
+            : descontosPersonalizados
           let totalDescontosPersonalizados = 0
-          descontosPersonalizados.forEach((d: any) => {
+          descontosDaFolha.forEach((d: any) => {
             totalDescontosPersonalizados += Number(d.valor) || 0
           })
 
           // Calcular totais
-          const totalProventos = salarioBase
+          const totalProventos = conciliacaoFerias?.totalProventos ?? salarioBase
           const totalDescontos = inss + irrf + totalAdiantamentos + pensaoAlimenticia + totalDescontosPersonalizados
           const salarioLiquido = totalProventos - totalDescontos
 

@@ -178,7 +178,8 @@ export function gerarHoleriteHTML(holerite: any, funcionario: any, empresa: any)
                         planoSaude + planoOdonto + adiantamento + faltas + 
                         pensaoAlimenticia + totalDescontosPersonalizados +
                         (isFerias ? 0 : descontoAfastamento)
-  const totalDescontos = Math.min(totalDescontosRaw, totalVencimentos)
+  const totalDescontos = totalDescontosRaw
+  const saldoAdiantamentos = Math.max(0, totalDescontosRaw - totalVencimentos)
   const valorLiquido = Math.max(0, totalVencimentos - totalDescontos)
   
   // FGTS - Usar valor do banco ou calcular 8% do salário base se não existir
@@ -326,7 +327,7 @@ export function gerarHoleriteHTML(holerite: any, funcionario: any, empresa: any)
       if (beneficio.valor > 0) {
         linhasTabela += `
         <tr>
-          <td style="width: 12%;">${codigoBeneficio}</td>
+          <td style="width: 12%;">${beneficio.referencia || codigoBeneficio}</td>
           <td style="width: 38%;">${(beneficio.tipo || beneficio.descricao || 'BENEFÍCIO').toUpperCase()}</td>
           <td style="width: 15%;" class="text-center"></td>
           <td style="width: 17.5%;" class="text-right">${Number(beneficio.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
@@ -1101,6 +1102,7 @@ export function gerarHoleriteHTML(holerite: any, funcionario: any, empresa: any)
         <span>Total de Descontos</span>
         <span>${totalDescontos.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
       </div>
+      ${saldoAdiantamentos > 0 ? `<div class="total-row"><span>Saldo de adiantamentos a conciliar</span><span>${saldoAdiantamentos.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>` : ''}
       <div class="total-row liquido">
         <span>Valor Líquido</span>
         <span>${valorLiquido.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>

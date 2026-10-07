@@ -34,8 +34,17 @@ export default defineEventHandler(async (event) => {
   const beneficios = (itens || []).filter((i: any) => i.tipo === 'beneficio')
   const descontos = (itens || []).filter((i: any) => i.tipo === 'desconto')
 
-  const totalBeneficios = beneficios.reduce((acc: number, i: any) => acc + Number(i.valor || 0), 0)
-  const totalDescontosPersonalizados = descontos.reduce((acc: number, i: any) => acc + Number(i.valor || 0), 0)
+  const beneficiosFerias = Array.isArray(holerite.beneficios)
+    ? holerite.beneficios.filter((i: any) => ['931', '8783'].includes(String(i.referencia)))
+    : []
+  const descontosFerias = Array.isArray(holerite.descontos_personalizados)
+    ? holerite.descontos_personalizados.filter((i: any) => ['937', '812', '821', '942', '943'].includes(String(i.referencia)))
+    : []
+  const beneficiosFolha = [...beneficios, ...beneficiosFerias]
+  const descontosFolha = [...descontos, ...descontosFerias]
+
+  const totalBeneficios = beneficiosFolha.reduce((acc: number, i: any) => acc + Number(i.valor || 0), 0)
+  const totalDescontosPersonalizados = descontosFolha.reduce((acc: number, i: any) => acc + Number(i.valor || 0), 0)
 
   // Calcular salário proporcional
   const salarioBase = Number(holerite.salario_base || 0)
@@ -65,8 +74,7 @@ export default defineEventHandler(async (event) => {
     Number(holerite.desconto_afastamento || 0) +
     totalDescontosPersonalizados
 
-  // Total de descontos nunca pode exceder o total de proventos
-  const totalDescontos = Math.min(totalDescontosRaw, totalProventos)
+  const totalDescontos = totalDescontosRaw
   const salarioLiquido = Math.max(0, totalProventos - totalDescontos)
 
   console.log(`🧮 [RECALCULAR] Holerite ${id}:`, {
@@ -86,8 +94,8 @@ export default defineEventHandler(async (event) => {
       total_proventos: totalProventos,
       total_descontos: totalDescontos,
       salario_liquido: salarioLiquido,
-      beneficios: beneficios.map((i: any) => ({ descricao: i.descricao, valor: Number(i.valor) })),
-      descontos_personalizados: descontos.map((i: any) => ({ descricao: i.descricao, valor: Number(i.valor) }))
+      beneficios: beneficiosFolha.map((i: any) => ({ descricao: i.descricao, referencia: i.referencia, valor: Number(i.valor) })),
+      descontos_personalizados: descontosFolha.map((i: any) => ({ descricao: i.descricao, referencia: i.referencia, valor: Number(i.valor) }))
     })
     .eq('id', id)
     .select('id, total_proventos, total_descontos, salario_liquido')

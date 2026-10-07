@@ -136,8 +136,17 @@ export default defineEventHandler(async (event) => {
         const beneficiosPersonalizados = (itensPersonalizados || []).filter((i: any) => i.tipo === 'beneficio')
         const descontosPersonalizados = (itensPersonalizados || []).filter((i: any) => i.tipo === 'desconto')
 
-        const totalBeneficiosPersonalizados = beneficiosPersonalizados.reduce((acc: number, i: any) => acc + Number(i.valor || 0), 0)
-        const totalDescontosPersonalizados = descontosPersonalizados.reduce((acc: number, i: any) => acc + Number(i.valor || 0), 0)
+        const beneficiosFerias = Array.isArray(holeriteAtual.beneficios)
+          ? holeriteAtual.beneficios.filter((i: any) => ['931', '8783'].includes(String(i.referencia)))
+          : []
+        const descontosFerias = Array.isArray(holeriteAtual.descontos_personalizados)
+          ? holeriteAtual.descontos_personalizados.filter((i: any) => ['937', '812', '821', '942', '943'].includes(String(i.referencia)))
+          : []
+        const beneficiosFolha = [...beneficiosPersonalizados, ...beneficiosFerias]
+        const descontosFolha = [...descontosPersonalizados, ...descontosFerias]
+
+        const totalBeneficiosPersonalizados = beneficiosFolha.reduce((acc: number, i: any) => acc + Number(i.valor || 0), 0)
+        const totalDescontosPersonalizados = descontosFolha.reduce((acc: number, i: any) => acc + Number(i.valor || 0), 0)
 
         console.log(`📋 Itens personalizados no recálculo: benefícios=${beneficiosPersonalizados.length} (R$${totalBeneficiosPersonalizados}), descontos=${descontosPersonalizados.length} (R$${totalDescontosPersonalizados})`)
 
@@ -173,18 +182,19 @@ export default defineEventHandler(async (event) => {
           Number(dadosAtualizados.desconto_afastamento || 0) +
           totalDescontosPersonalizados
 
-        // Total de descontos nunca pode exceder o total de proventos
-        const totalDescontos = Math.min(totalDescontosRaw, totalProventos)
+        const totalDescontos = totalDescontosRaw
 
         const salarioLiquido = Math.max(0, totalProventos - totalDescontos)
 
         // Atualizar JSONB dos itens personalizados no holerite
-        dadosParaAtualizar.beneficios = dadosAtualizados.beneficios?.ferias ? dadosAtualizados.beneficios : beneficiosPersonalizados.map((i: any) => ({
+        dadosParaAtualizar.beneficios = dadosAtualizados.beneficios?.ferias ? dadosAtualizados.beneficios : beneficiosFolha.map((i: any) => ({
           descricao: i.descricao,
+          referencia: i.referencia,
           valor: Number(i.valor)
         }))
-        dadosParaAtualizar.descontos_personalizados = descontosPersonalizados.map((i: any) => ({
+        dadosParaAtualizar.descontos_personalizados = descontosFolha.map((i: any) => ({
           descricao: i.descricao,
+          referencia: i.referencia,
           valor: Number(i.valor)
         }))
 
