@@ -10,16 +10,52 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   try {
+    const funcionarioId = Number(body.funcionario_id)
+    const valor = Number(body.valor)
+    const dataInicio = String(body.data_inicio || '')
+    const dataFim = body.data_fim ? String(body.data_fim) : null
+
+    if (!Number.isInteger(funcionarioId) || funcionarioId <= 0) {
+      throw createError({ statusCode: 400, message: 'Funcionário inválido.' })
+    }
+    if (!['beneficio', 'desconto'].includes(body.tipo)) {
+      throw createError({ statusCode: 400, message: 'Tipo do item inválido.' })
+    }
+    if (!['unico', 'recorrente'].includes(body.vigencia_tipo)) {
+      throw createError({ statusCode: 400, message: 'Tipo de vigência inválido.' })
+    }
+    if (!String(body.descricao || '').trim()) {
+      throw createError({ statusCode: 400, message: 'Informe a descrição do item.' })
+    }
+    if (!Number.isFinite(valor) || valor <= 0) {
+      throw createError({ statusCode: 400, message: 'Informe um valor maior que zero.' })
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dataInicio) || (dataFim && !/^\d{4}-\d{2}-\d{2}$/.test(dataFim))) {
+      throw createError({ statusCode: 400, message: 'Informe uma vigência com datas válidas.' })
+    }
+    const dataEhValida = (data: string) => {
+      const parsed = new Date(data + 'T00:00:00Z')
+      return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === data
+    }
+    const dataInicioValida = dataEhValida(dataInicio)
+    const dataFimValida = !dataFim || dataEhValida(dataFim)
+    if (!dataInicioValida || !dataFimValida) {
+      throw createError({ statusCode: 400, message: 'Informe uma vigência com datas existentes no calendário.' })
+    }
+    if (dataFim && dataFim < dataInicio) {
+      throw createError({ statusCode: 400, message: 'A data final não pode ser anterior à data inicial.' })
+    }
+
     const { data, error } = await supabase
       .from('holerite_itens_personalizados')
       .insert([{
-        funcionario_id: body.funcionario_id,
+        funcionario_id: funcionarioId,
         tipo: body.tipo,
-        descricao: body.descricao,
-        valor: body.valor,
+        descricao: String(body.descricao).trim(),
+        valor,
         vigencia_tipo: body.vigencia_tipo,
-        data_inicio: body.data_inicio,
-        data_fim: body.data_fim || null,
+        data_inicio: dataInicio,
+        data_fim: dataFim,
         observacoes: body.observacoes || null,
         ativo: true
       }])

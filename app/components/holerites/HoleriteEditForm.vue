@@ -605,7 +605,7 @@
       <!-- Botão para adicionar novo item -->
       <UiButton 
         v-if="!mostrarFormNovoItem"
-        @click="mostrarFormNovoItem = true"
+        @click="abrirNovoItem"
         variant="secondary"
         class="w-full"
       >
@@ -632,6 +632,7 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">Vigência</label>
             <select 
               v-model="novoItem.vigencia_tipo"
+              @change="atualizarVigenciaNovoItem"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
               <option value="unico">📅 Único (apenas este mês)</option>
@@ -930,6 +931,7 @@ const carregarItensPersonalizados = async (funcId: number) => {
 
 // Adicionar novo item personalizado
 const adicionarItem = async () => {
+  let itemFoiSalvo = false
   try {
     const funcId = props.holerite.funcionario_id || props.holerite.funcionario?.id
     
@@ -956,18 +958,21 @@ const adicionarItem = async () => {
         observacoes: novoItem.value.observacoes
       }
     })
+    itemFoiSalvo = true
 
-    // Recarregar lista e recalcular totais do holerite
+    // Atualizar a lista e recalcular antes de confirmar o lançamento.
     await carregarItensPersonalizados(funcId)
     await recalcularTotais()
     cancelarNovoItem()
-    alert('✅ Item adicionado com sucesso!')
+    alert('✅ Item adicionado e totais do holerite atualizados.')
   } catch (error: any) {
     console.error('Erro ao adicionar item:', error)
     
     // Mensagem específica se a tabela não existe
     if (error.message?.includes('não existe') || error.message?.includes('EXECUTAR-ITENS-PERSONALIZADOS')) {
       alert('❌ Erro: A tabela não existe no banco de dados.\n\n📋 Execute o arquivo EXECUTAR-ITENS-PERSONALIZADOS.sql no Supabase SQL Editor.\n\nVeja a documentação em: docs/CORRECAO-ITENS-PERSONALIZADOS.md')
+    } else if (itemFoiSalvo) {
+      alert('⚠️ O item foi salvo, mas não foi possível confirmar os totais do holerite. Atualize o holerite e confira o lançamento antes de cadastrar novamente.')
     } else {
       alert('❌ Erro ao adicionar item: ' + error.message)
     }
@@ -976,22 +981,29 @@ const adicionarItem = async () => {
 
 // Recalcular totais do holerite incluindo itens personalizados
 const recalcularTotais = async () => {
-  try {
-    const holeriteId = props.holerite.id
-    if (!holeriteId) return
+  const holeriteId = props.holerite.id
+  if (!holeriteId) throw new Error('Holerite sem identificador para recálculo.')
 
-    const resultado = await $fetch<{ success: boolean; data: any }>(`/api/holerites/${holeriteId}/recalcular`, {
-      method: 'POST'
-    })
+  const resultado = await $fetch<{ success: boolean; data: any }>(`/api/holerites/${holeriteId}/recalcular`, {
+    method: 'POST'
+  })
 
-    if (resultado.success) {
-      // Emitir evento para o pai atualizar os totais exibidos
-      emit('atualizado', resultado.data)
-      console.log('✅ Totais recalculados:', resultado.data)
-    }
-  } catch (error) {
-    console.error('Erro ao recalcular totais:', error)
-  }
+  if (!resultado.success) throw new Error('O item foi salvo, mas o holerite não confirmou o recálculo. Tente atualizar o holerite.')
+  emit('atualizado', resultado.data)
+  console.log('✅ Totais recalculados:', resultado.data)
+}
+
+const abrirNovoItem = () => {
+  const pagamento = String(form.value.data_pagamento || '').slice(0, 10)
+  novoItem.value.data_inicio = pagamento
+  novoItem.value.data_fim = novoItem.value.vigencia_tipo === 'unico' ? pagamento : ''
+  mostrarFormNovoItem.value = true
+}
+
+const atualizarVigenciaNovoItem = () => {
+  novoItem.value.data_fim = novoItem.value.vigencia_tipo === 'unico'
+    ? novoItem.value.data_inicio
+    : ''
 }
 
 // Remover item personalizado
