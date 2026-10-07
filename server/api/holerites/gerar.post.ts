@@ -1,3 +1,4 @@
+import { ajustarAdiantamentoFolha, buscarAdiantamentoCompetencia } from '../../utils/adiantamentoFolha'
 import { calcularPensaoPercentual } from '../../../shared/pensao'
 import { itensVigentesNoPagamento } from '../../../shared/itensHolerite'
 import { requireAdmin } from '../../utils/authMiddleware'
@@ -148,36 +149,10 @@ function calcularDatasHolerite(tipo: 'adiantamento' | 'mensal', mesManual?: numb
       }
     }
   } else {
-    // REGRA: Folha mensal sempre do mês vigente (atual)
-    // Data de pagamento: 5º dia útil do mês SEGUINTE
-    
-    // Sempre gerar folha mensal do mês atual
-    const periodoInicio = new Date(anoAtual, mesAtual - 1, 1)
-    const ultimoDiaMes = new Date(anoAtual, mesAtual, 0).getDate()
-    const periodoFim = new Date(anoAtual, mesAtual - 1, ultimoDiaMes)
-    
-    // REGRA: Pagamento da folha mensal é no 5º dia útil do mês SEGUINTE
-    const mesPagamento = mesAtual === 12 ? 1 : mesAtual + 1
-    const anoPagamento = mesAtual === 12 ? anoAtual + 1 : anoAtual
-    const dataPagamento = calcular5oDiaUtil(anoPagamento, mesPagamento)
-    
-    // Log detalhado para debug
-    console.log(`📅 FOLHA MENSAL - Cálculo de Datas:`)
-    console.log(`   Data Atual: ${hoje.toISOString().split('T')[0]}`)
-    console.log(`   Mês Atual: ${mesAtual}/${anoAtual}`)
-    console.log(`   Período: ${periodoInicio.toISOString().split('T')[0]} a ${periodoFim.toISOString().split('T')[0]}`)
-    console.log(`   Data Pagamento: ${dataPagamento.toISOString().split('T')[0]} (5º dia útil do mês SEGUINTE: ${mesPagamento}/${anoPagamento})`)
-    console.log(`   Mês Referência: ${anoAtual}-${String(mesAtual).padStart(2, '0')}`)
-    console.log(`   ✅ Competência: ${mesAtual}/${anoAtual} (MÊS VIGENTE)`)
-    console.log(`   ✅ Pagamento no 5º dia útil do mês seguinte`)
-    
-    return {
-      periodo_inicio: periodoInicio.toISOString().split('T')[0],
-      periodo_fim: periodoFim.toISOString().split('T')[0],
-      data_pagamento: dataPagamento.toISOString().split('T')[0],
-      mes_referencia: `${anoAtual}-${String(mesAtual).padStart(2, '0')}`
-    }
+    const anterior = new Date(anoAtual, mesAtual - 2, 1)
+    return calcularDatasHolerite('mensal', anterior.getMonth() + 1, anterior.getFullYear())
   }
+
 }
 
 // ========================================
@@ -396,6 +371,7 @@ export default defineEventHandler(async (event) => {
 
     console.log('👥 Funcionários encontrados:', funcionarios.length)
 
+    let totalAtualizados = 0
     const holeritesCriados = []
     const erros = []
 
@@ -432,7 +408,7 @@ export default defineEventHandler(async (event) => {
         // Verificar se já existe holerite
         let queryExistente = supabase
           .from('holerites')
-          .select('id')
+          .select('*')
           .eq('funcionario_id', (func as any).id)
           .eq('periodo_inicio', periodo_inicio)
           .eq('periodo_fim', periodo_fim)
@@ -446,8 +422,21 @@ export default defineEventHandler(async (event) => {
             .is('decimo_ano', null)
         }
 
-        const { data: existente } = await queryExistente.maybeSingle()
+        const { data: existente, error: erroExistente } = await queryExistente.maybeSingle()
+        if (erroExistente) throw erroExistente
 
+        if (existente && !recriar && !isAdiantamento) {
+          const valor = await buscarAdiantamentoCompetencia(supabase, Number((func as any).id), periodo_inicio)
+          const ajustes = ajustarAdiantamentoFolha(existente, valor)
+          if (ajustes) {
+            const { data: corrigido, error } = await (supabase as any).from('holerites').update(ajustes)
+              .eq('id', existente.id).eq('status', 'gerado')
+              .eq('updated_at', existente.updated_at).select('id').maybeSingle()
+            if (error || !corrigido) throw new Error('A folha mudou durante a conferência. Atualize e tente novamente')
+            totalAtualizados++
+          }
+          continue
+        }
         if (existente && !recriar) {
           console.log(`⚠️ Holerite já existe para ${(func as any).nome_completo}`)
           erros.push({
@@ -553,54 +542,8 @@ export default defineEventHandler(async (event) => {
           // FOLHA MENSAL: SALÁRIO BRUTO - TODOS OS DESCONTOS
           // ========================================
           
-          // Buscar adiantamentos do MESMO mês de competência
-          // REGRA: Adiantamento de março (pago dia 20/03) é descontado na folha mensal de março (paga dia 5/04)
-          // Ambos têm periodo_inicio = dia 1 do mês de competência
-          
-          const [anoRef, mesRef] = datasCalculadas.mes_referencia.split('-')
-          const mesAtual = parseInt(mesRef)
-          const anoAtual = parseInt(anoRef)
-          
-          // Buscar adiantamento do MESMO mês de competência (periodo_inicio = dia 1 do mês)
-          const dataInicioAdiantamento = `${anoRef}-${mesRef}-01`
-          
-          console.log(`🔍 Buscando adiantamentos do MESMO mês de competência:`)
-          console.log(`   Folha mensal: ${mesRef}/${anoRef}`)
-          console.log(`   Buscando adiantamento com periodo_inicio: ${dataInicioAdiantamento}`)
-          
-          // REGRA ESPECIAL: Umberto (ID 169) não recebe adiantamento, pular busca
-          let totalAdiantamentos = 0
-          
-          if ((func as any).id === 169) {
-            console.log(`⏭️ Umberto (ID 169) - Sem adiantamento, recebe salário integral`)
-          } else {
-            const { data: adiantamentos } = await supabase
-              .from('holerites')
-              .select('salario_base, salario_liquido, total_proventos, observacoes, periodo_inicio, periodo_fim')
-              .eq('funcionario_id', (func as any).id)
-              .eq('periodo_inicio', dataInicioAdiantamento)
-              .like('observacoes', 'Adiantamento%')
-            
-            console.log(`📊 Adiantamentos encontrados:`, adiantamentos?.length || 0)
-            
-            if (adiantamentos && adiantamentos.length > 0) {
-              console.log(`💸 Processando ${adiantamentos.length} adiantamento(s):`)
-              adiantamentos.forEach((h: any, index: number) => {
-                // Compensar o bruto: os descontos já foram retidos no adiantamento.
-                const valor = Number(h.total_proventos ?? h.salario_base ?? 0)
-                console.log(`   ${index + 1}. Período: ${h.periodo_inicio} a ${h.periodo_fim}`)
-                console.log(`      Valor: R$ ${valor.toFixed(2)}`)
-                console.log(`      Obs: ${h.observacoes || 'N/A'}`)
-                
-                totalAdiantamentos += valor
-                console.log(`      ✅ Adicionado ao total`)
-              })
-              console.log(`💰 Total de adiantamentos a descontar: R$ ${totalAdiantamentos.toFixed(2)}`)
-            } else {
-              console.log(`ℹ️ Nenhum adiantamento encontrado para este mês`)
-            }
-          }
-          
+          const totalAdiantamentos = await buscarAdiantamentoCompetencia(supabase, Number((func as any).id), periodo_inicio)
+
           // Calcular INSS (apenas para CLT)
           let inss = 0
           let aliquotaEfetiva = 0
@@ -870,6 +813,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       message: `${holeritesCriados.length} holerite(s) gerado(s) com sucesso`,
       total_gerados: holeritesCriados.length,
+      total_atualizados: totalAtualizados,
       total_erros: erros.length,
       holerites: holeritesCriados,
       erros: erros.length > 0 ? erros : undefined

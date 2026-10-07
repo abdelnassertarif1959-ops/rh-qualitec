@@ -303,10 +303,11 @@
             <div class="text-sm text-blue-800">
               <strong>Folha de Pagamento Mensal:</strong><br>
               • Gerar holerites completos para todos os funcionários ativos<br>
-              • <strong>Data automática:</strong> Entre dia 01 e 25 do mês → gera folha do mês vigente<br>
-              • <strong>Pagamento:</strong> 5º dia útil do mês vigente<br>
+              • <strong>Data automática:</strong> sugere a competência do mês anterior, que pode ser ajustada abaixo<br>
+              • <strong>Pagamento:</strong> início do mês seguinte à competência<br>
               • Cálculos automáticos de INSS, IRRF e descontos<br>
-              • Desconto automático de adiantamentos já pagos
+              • Desconto do adiantamento registrado na mesma competência<br>
+              • Gerar novamente, sem Recriar, confere o adiantamento das folhas ainda não liberadas
             </div>
           </div>
         </div>
@@ -747,6 +748,10 @@ const carregarMesesDisponiveis = async () => {
 
 const abrirModalGerar = (tipo: 'adiantamento' | 'mensal') => {
   tipoGeracao.value = tipo
+  const referencia = new Date()
+  if (tipo === 'mensal') referencia.setMonth(referencia.getMonth() - 1, 1)
+  opcoesGeracao.value.mes = referencia.getMonth() + 1
+  opcoesGeracao.value.ano = referencia.getFullYear()
   mostrarModalGerar.value = true
 }
 
@@ -964,10 +969,14 @@ const gerarHoleritesAutomaticos = async () => {
     
     notifySuccess(
       `${tipoTexto} Gerados!`,
-      `${resultado.total_gerados || 0} holerite(s) criado(s). ${detalhes}`,
+      `${resultado.total_gerados || 0} criado(s), ${resultado.total_atualizados || 0} atualizado(s), ${resultado.total_erros || 0} erro(s). ${detalhes}`,
       7000
     )
     
+    if (resultado.erros?.length) {
+      const { notifyWarning } = useNotifications()
+      notifyWarning('Revise as folhas não geradas', resultado.erros.map((e: any) => `${e.funcionario}: ${e.erro}`).join(' • '))
+    }
     // Recarregar lista
     await carregarHolerites()
   } catch (error: any) {

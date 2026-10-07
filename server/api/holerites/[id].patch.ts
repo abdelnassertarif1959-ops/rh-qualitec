@@ -1,3 +1,4 @@
+import { buscarAdiantamentoCompetencia } from '../../utils/adiantamentoFolha'
 import { itensVigentesNoPagamento } from '../../../shared/itensHolerite'
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../utils/authMiddleware'
@@ -20,10 +21,20 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const { data: tipoDocumento, error: erroTipo } = await supabase.from('holerites').select('decimo_ano').eq('id', id).single()
+    const { data: tipoDocumento, error: erroTipo } = await supabase.from('holerites').select('*').eq('id', id).single()
     if (erroTipo) throw createError({ statusCode: 404, message: 'Holerite não encontrado' })
     if ((tipoDocumento as any)?.decimo_ano && Object.keys(body).some(k => k !== 'status')) {
       throw createError({ statusCode: 409, message: 'O 13º possui cálculo próprio. Ajuste os valores na prévia antes de emitir. Para substituir uma parcela ainda não paga, exclua-a e gere novamente.' })
+    }
+
+    if (body.status === 'enviado' && (tipoDocumento as any)?.status === 'gerado' &&
+        String((tipoDocumento as any)?.observacoes || '').toLowerCase().startsWith('folha mensal')) {
+      const h = tipoDocumento as any
+      const esperado = await buscarAdiantamentoCompetencia(supabase, h.funcionario_id, h.periodo_inicio)
+      const informado = Number(body.adiantamento ?? h.adiantamento ?? 0)
+      if (!Number.isFinite(informado) || Math.abs(informado - esperado) >= 0.005) {
+        throw createError({ statusCode: 409, message: 'Adiantamento não conferido. Gere novamente a folha desta competência, sem marcar Recriar, e revise o líquido antes de disponibilizar.' })
+      }
     }
 
     // Função auxiliar para converter valores vazios em 0 ou null
