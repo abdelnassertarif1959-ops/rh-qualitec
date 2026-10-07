@@ -436,7 +436,9 @@ export default defineEventHandler(async (event) => {
         if (erroExistente) throw erroExistente
 
         if (existente && !recriar && !isAdiantamento) {
-          const valor = await buscarAdiantamentoCompetencia(supabase, Number((func as any).id), periodo_inicio)
+          const valor = conciliacaoFerias
+            ? 0
+            : await buscarAdiantamentoCompetencia(supabase, Number((func as any).id), periodo_inicio)
           const ajustes = ajustarAdiantamentoFolha(existente, valor)
           if (ajustes) {
             const { data: corrigido, error } = await (supabase as any).from('holerites').update(ajustes)
@@ -552,7 +554,9 @@ export default defineEventHandler(async (event) => {
           // FOLHA MENSAL: SALÁRIO BRUTO - TODOS OS DESCONTOS
           // ========================================
           
-          const totalAdiantamentos = await buscarAdiantamentoCompetencia(supabase, Number((func as any).id), periodo_inicio)
+          const adiantamentoParaDescontar = conciliacaoFerias
+            ? 0
+            : await buscarAdiantamentoCompetencia(supabase, Number((func as any).id), periodo_inicio)
 
           // Calcular INSS (apenas para CLT)
           let inss = 0
@@ -748,7 +752,7 @@ export default defineEventHandler(async (event) => {
             cesta_basica_desconto: 0,
             plano_saude: 0,
             plano_odontologico: 0,
-            adiantamento: totalAdiantamentos,
+            adiantamento: adiantamentoParaDescontar,
             pensao_alimenticia: pensaoAlimenticia,
             faltas: 0,
             outros_descontos: 0,
@@ -767,8 +771,8 @@ export default defineEventHandler(async (event) => {
               : descontosPersonalizados,
             
             status: 'gerado',
-            observacoes: totalAdiantamentos > 0 
-              ? `Folha mensal - Desconto de adiantamento: R$ ${totalAdiantamentos.toFixed(2)}`
+            observacoes: adiantamentoParaDescontar > 0
+              ? `Folha mensal - Desconto de adiantamento: R$ ${adiantamentoParaDescontar.toFixed(2)}`
               : 'Folha mensal'
           }
 
@@ -791,7 +795,7 @@ export default defineEventHandler(async (event) => {
 
           // Calcular totais
           const totalProventos = conciliacaoFerias?.totalProventos ?? salarioBase
-          const totalDescontos = inss + irrf + totalAdiantamentos + pensaoAlimenticia + totalDescontosPersonalizados
+          const totalDescontos = inss + irrf + adiantamentoParaDescontar + pensaoAlimenticia + totalDescontosPersonalizados
           const salarioLiquido = totalProventos - totalDescontos
 
           // Atualizar campos calculados

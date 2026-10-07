@@ -3,6 +3,7 @@ import { itensVigentesNoPagamento } from '../../../shared/itensHolerite'
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../utils/authMiddleware'
 import { prepararAtualizacaoPensao } from '../../utils/pensaoConfig'
+import { buscarConciliacaoFeriasFolha } from '../../utils/conciliacaoFeriasFolha'
 
 export default defineEventHandler(async (event) => {
   // SEGURANÇA: Verificar se o usuário é admin
@@ -30,7 +31,17 @@ export default defineEventHandler(async (event) => {
     if (body.status === 'enviado' && (tipoDocumento as any)?.status === 'gerado' &&
         String((tipoDocumento as any)?.observacoes || '').toLowerCase().startsWith('folha mensal')) {
       const h = tipoDocumento as any
-      const esperado = await buscarAdiantamentoCompetencia(supabase, h.funcionario_id, h.periodo_inicio)
+      const feriasNaCompetencia = await buscarConciliacaoFeriasFolha(
+        supabase,
+        Number(h.funcionario_id),
+        Number(h.salario_base),
+        h.periodo_inicio,
+        h.periodo_fim,
+        'CLT'
+      )
+      const esperado = feriasNaCompetencia
+        ? 0
+        : await buscarAdiantamentoCompetencia(supabase, h.funcionario_id, h.periodo_inicio)
       const informado = Number(body.adiantamento ?? h.adiantamento ?? 0)
       if (!Number.isFinite(informado) || Math.abs(informado - esperado) >= 0.005) {
         throw createError({ statusCode: 409, message: 'Adiantamento não conferido. Gere novamente a folha desta competência, sem marcar Recriar, e revise o líquido antes de disponibilizar.' })
