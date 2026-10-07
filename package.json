@@ -36,7 +36,7 @@
     "vue-router": "^4.6.4"
   },
   "engines": {
-    "node": "20.x"
+    "node": "24.x"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
